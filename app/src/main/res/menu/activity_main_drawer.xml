@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_find"
+            android:title="길찾기" />
+        <item
+            android:id="@+id/nav_dangerous"
+            android:title="위험정보 안내" />
+        <item
+            android:id="@+id/nav_board"
+            android:title="게시판" />
+    </group>
+
+    <group>
+        <item
+            android:id="@+id/nav_favorite"
+            android:title="즐겨찾기한 장소" />
+        <item
+            android:id="@+id/nav_help"
+            android:title="도움말" />
+
+
+        <item
+            android:id="@+id/nav_notice"
+            android:title="공지사항" />
+        <item
+            android:id="@+id/nav_center"
+            android:title="고객센터" />
+    </group>
+
+</menu>

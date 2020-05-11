@@ -6,36 +6,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:openDrawer="start">
+    tools:openDrawer="start"
+    tools:context=".MainActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <FrameLayout
-            android:id="@+id/main_layout"
-            android:layout_width="0dp"
+        <FrameLayout android:id="@+id/main_layout"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:layout_marginBottom="?attr/actionBarSize" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNV"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_alignParentBottom="true"
             android:background="#ffffff"
             app:itemBackground="@android:color/white"
-            app:labelVisibilityMode="labeled"
             app:itemIconTint="@drawable/menu_bottom_color"
             app:itemTextColor="@drawable/menu_bottom_color"
-            app:menu="@menu/menu_bottom"/>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/menu_bottom" />
+    </RelativeLayout>
 
     <include
         layout="@layout/app_bar_main"
@@ -50,5 +45,4 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
-
 </androidx.drawerlayout.widget.DrawerLayout>

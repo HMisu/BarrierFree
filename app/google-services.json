@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "920850168403",
+    "firebase_url": "https://barrierfree-b7959.firebaseio.com",
+    "project_id": "barrierfree-b7959",
+    "storage_bucket": "barrierfree-b7959.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920850168403:android:eb6011b71534c76e5664a6",
+        "android_client_info": {
+          "package_name": "com.example.barrierfree"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "920850168403-rfiok2e3be1vcntijston16bgrla7fge.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0Xcf7OLE2mo0VlavQU7Vdnjl8gL6a_k4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "920850168403-rfiok2e3be1vcntijston16bgrla7fge.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

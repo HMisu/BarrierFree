@@ -32,14 +32,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.leftNV);
         // Passing each menu ID as a set of Ids because each
@@ -84,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     if(fragment != null) {
                         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                        ft.replace(R.id.nav_host_fragment, fragment);
+                        ft.replace(R.id.main_layout, fragment);
                         ft.commit();
                     }
                     return true;

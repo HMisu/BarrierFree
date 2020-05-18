@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <include layout="@layout/app_bar_main" />
+
 
         <FrameLayout android:id="@+id/main_layout"
             android:layout_width="match_parent"
@@ -34,6 +34,8 @@
             app:menu="@menu/menu_bottom" />
     </RelativeLayout>
 
+    <include layout="@layout/app_bar_main"
+        android:layout_height="match_parent"/>
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/leftNV"
         android:layout_width="wrap_content"

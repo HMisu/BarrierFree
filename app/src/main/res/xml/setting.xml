@@ -1,59 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="\n\n
-">
+    <PreferenceCategory android:title="사용자 정보 수정">
         <ListPreference
+            android:icon="@mipmap/ic_launcher"
             android:key="setting_edit"
-            android:icon="@mipmap/ic_launcher"
-            android:title="개인정보 수정"/>
+            android:title="개인정보 수정" />
 
         <ListPreference
-            android:key="setting_connect"
             android:icon="@mipmap/ic_launcher"
-            android:title="계정연결"/>
+            android:key="setting_connect"
+            android:title="계정연결" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="위험알림 설정하기">
         <SwitchPreferenceCompat
+            android:icon="@mipmap/ic_launcher"
             android:key="vibrator"
-            android:icon="@mipmap/ic_launcher"
-            android:title="진동"/>
+            android:title="진동" />
 
         <SwitchPreferenceCompat
+            android:icon="@mipmap/ic_launcher"
             android:key="sound"
-            android:icon="@mipmap/ic_launcher"
-            android:title="알림"/>
+            android:title="알림" />
 
         <SwitchPreferenceCompat
+            android:icon="@mipmap/ic_launcher"
             android:key="no_sound"
-            android:icon="@mipmap/ic_launcher"
-            android:title="무음"/>
+            android:title="무음" />
 
         <ListPreference
-            android:key="setting_vibrator"
-            android:icon="@mipmap/ic_launcher"
-            android:title="진동 종류설정"
-            android:summary="진동패턴을 설정하세요."
             android:entries="@array/vibrator"
-            android:entryValues="@array/vibrator"/>
+            android:entryValues="@array/vibrator"
+            android:icon="@mipmap/ic_launcher"
+            android:key="setting_vibrator"
+            android:summary="진동패턴을 설정하세요."
+            android:title="진동 종류설정" />
 
         <ListPreference
-            android:key="setting_sound"
-            android:icon="@mipmap/ic_launcher"
-            android:title="소리 종류설정"
-            android:summary="소리를 설정하세요."
             android:entries="@array/sounds"
-            android:entryValues="@array/sounds"/>
+            android:entryValues="@array/sounds"
+            android:icon="@mipmap/ic_launcher"
+            android:key="setting_sound"
+            android:summary="소리를 설정하세요."
+            android:title="소리 종류설정" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="기타">
         <ListPreference
             android:key="setting_question"
-            android:title="1:1 문의하기"/>
+            android:title="1:1 문의하기" />
 
         <ListPreference
             android:key="setting_bye"
-            android:title="회원 탈퇴"/>
+            android:title="회원 탈퇴" />
     </PreferenceCategory>
 </PreferenceScreen>

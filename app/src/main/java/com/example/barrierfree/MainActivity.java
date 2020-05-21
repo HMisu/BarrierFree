@@ -26,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     //BottomNV
     BottomNavigationView bottomNavigationView;
-
+    BottomNVTest1 bottomNVTest1;
+    BottomAlert bottomNVTest2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +40,10 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home,  R.id.nav_slideshow, R.id.nav_favorite, R.id.nav_help, R.id.nav_notice, R.id.nav_center, R.id.nav_user)
+                R.id.nav_home, R.id.nav_slideshow, R.id.nav_favorite, R.id.nav_help, R.id.nav_notice, R.id.nav_center, R.id.nav_user)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -87,6 +87,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //BottomNV
+        bottomNavigationView = findViewById(R.id.bottomNV);
+        //프래그먼트 생성
+        bottomNVTest1 = new BottomNVTest1();
+        bottomNVTest2 = new BottomAlert();
+        //제일 처음 띄워줄 뷰를 세팅
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_layout,bottomNVTest1).commitAllowingStateLoss();
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()){
+                    case R.id.bottomNV_tab1:{
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.main_layout,bottomNVTest1).commitAllowingStateLoss();
+                        return true;
+                    }
+                    case R.id.bottomNV_tab2:{
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.main_layout,bottomNVTest2).commitAllowingStateLoss();
+                        return true;
+                    }
+                    default: return false;
+                }
+            }
+        });
     }
 
 

@@ -19,7 +19,7 @@
         app:srcCompat="@drawable/img_logo" />
 
     <EditText
-        android:id="@+id/edit_email_login"
+        android:id="@+id/edit_email"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="60dp"
@@ -39,7 +39,7 @@
         app:layout_constraintTop_toBottomOf="@+id/img_logo" />
 
     <EditText
-        android:id="@+id/edit_pw_login"
+        android:id="@+id/edit_pw"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -52,8 +52,8 @@
         android:padding="10dp"
         android:textSize="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/edit_email_login"
-        app:layout_constraintTop_toBottomOf="@+id/edit_email_login" />
+        app:layout_constraintStart_toStartOf="@+id/edit_email"
+        app:layout_constraintTop_toBottomOf="@+id/edit_email" />
 
     <TextView
         android:id="@+id/link_find_pw"
@@ -87,8 +87,8 @@
         android:text="@string/join"
         android:textSize="14dp"
         android:textColor="#295ad3"
-        app:layout_constraintEnd_toEndOf="@+id/edit_pw_login"
-        app:layout_constraintTop_toBottomOf="@+id/edit_pw_login" />
+        app:layout_constraintEnd_toEndOf="@+id/edit_pw"
+        app:layout_constraintTop_toBottomOf="@+id/edit_pw" />
 
     <Button
         android:id="@+id/btn_login"

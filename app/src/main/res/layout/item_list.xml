@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="70dp">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="49dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/ic_bell" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="75"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textTitle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="14dp"
+                android:layout_weight="60"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:text="연결 알림"
+                android:textColor="#33aabb"
+                android:textStyle="bold"
+                android:textSize="17dp"/>
+
+            <TextView
+                android:id="@+id/textContents"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="'정헤윤'님이 보호자 연결을 신청했습니다."
+                android:layout_marginBottom="15dp"
+                android:textSize="10dp"
+                android:layout_weight="40"
+                android:gravity="center_vertical"
+                android:paddingLeft="13dp"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:layout_width="35dp"
+                android:layout_height="23dp"
+                android:layout_marginLeft="60dp"
+                android:text="X"
+                android:layout_weight="20" />
+
+            <TextView
+                android:id="@+id/textDate"
+                android:layout_width="70dp"
+                android:layout_height="0dp"
+                android:layout_weight="40"
+                android:layout_marginTop="18dp"
+                android:layout_marginLeft="30dp"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:text="20-04-09"
+                android:layout_marginBottom="7dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>

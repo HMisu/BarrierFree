@@ -1,28 +1,25 @@
 package com.example.barrierfree;
 
 import android.os.Bundle;
-import android.os.StrictMode;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.barrierfree.ui.find.FindFragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.navigation.NavigationView;
-
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+
+import com.example.barrierfree.ui.find.FindFragment;
+import com.example.barrierfree.ui.settings.SettingFragment;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,13 +27,12 @@ public class MainActivity extends AppCompatActivity {
     //BottomNV
     BottomNavigationView bottomNavigationView;
     BottomNVTest1 bottomNVTest1;
-    BottomNVTest2 bottomNVTest2;
+    BottomAlert bottomNVTest2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -44,11 +40,10 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow, R.id.nav_favorite, R.id.nav_help, R.id.nav_notice, R.id.nav_center, R.id.nav_user)
+                R.id.nav_home, R.id.nav_slideshow, R.id.nav_favorite, R.id.nav_logout, R.id.nav_notice, R.id.nav_center, R.id.nav_user)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -73,9 +68,11 @@ public class MainActivity extends AppCompatActivity {
                 }else if(id == R.id.nav_favorite) {
                     Toast.makeText(getApplicationContext(), "즐겨찾기한 장소", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_user) {
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.main_layout,new SettingFragment()).commitAllowingStateLoss();
                     Toast.makeText(getApplicationContext(), "사용자 설정", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_help) {
-                    Toast.makeText(getApplicationContext(), "도움말", Toast.LENGTH_LONG).show();
+                }else if(id == R.id.nav_logout) {
+                    Toast.makeText(getApplicationContext(), "로그아웃", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_notice) {
                     Toast.makeText(getApplicationContext(), "공지사항", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_center) {
@@ -94,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNV);
         //프래그먼트 생성
         bottomNVTest1 = new BottomNVTest1();
-        bottomNVTest2 = new BottomNVTest2();
+        bottomNVTest2 = new BottomAlert();
         //제일 처음 띄워줄 뷰를 세팅
         getSupportFragmentManager().beginTransaction().replace(R.id.main_layout,bottomNVTest1).commitAllowingStateLoss();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -115,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

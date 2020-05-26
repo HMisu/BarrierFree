@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sounds">
+        <item>징글벨</item>
+        <item>전화벨</item>
+        <item>사이렌</item>
+        <item>녹차</item>
+        <item>놀이시간</item>
+        <item>물결</item>
+        <item>반짝반짝</item>
+        <item>별자리</item>
+    </string-array>
+
+    <string-array name="vibrator">
+        <item>고속반복</item>
+        <item>스타카토</item>
+        <item>심장박동</item>
+        <item>심포니</item>
+        <item>약한진동</item>
+        <item>일반진동</item>
+        <item>강한진동</item>
+        <item>퀵</item>
+    </string-array>
+</resources>

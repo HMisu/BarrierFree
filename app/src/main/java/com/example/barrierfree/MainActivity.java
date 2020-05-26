@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_slideshow, R.id.nav_favorite, R.id.nav_logout, R.id.nav_notice, R.id.nav_center, R.id.nav_user)
+                R.id.nav_home, R.id.nav_slideshow, R.id.nav_safety, R.id.nav_logout, R.id.nav_notice, R.id.nav_center, R.id.nav_user)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -62,15 +62,15 @@ public class MainActivity extends AppCompatActivity {
                     title = "Homes";
                     Toast.makeText(getApplicationContext(), "길찾기", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_dangerous) {
-                    Toast.makeText(getApplicationContext(), "위험정보 안내", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "위험정보", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_board) {
                     Toast.makeText(getApplicationContext(), "게시판", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_favorite) {
-                    Toast.makeText(getApplicationContext(), "즐겨찾기한 장소", Toast.LENGTH_LONG).show();
+                }else if(id == R.id.nav_safety) {
+                    Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_user) {
                     getSupportFragmentManager().beginTransaction()
                             .replace(R.id.main_layout,new SettingFragment()).commitAllowingStateLoss();
-                    Toast.makeText(getApplicationContext(), "사용자 설정", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "환경설정", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_logout) {
                     Toast.makeText(getApplicationContext(), "로그아웃", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_notice) {

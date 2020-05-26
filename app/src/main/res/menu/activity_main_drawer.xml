@@ -3,33 +3,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group>
         <item
             android:id="@+id/nav_find"
             android:title="길찾기" />
         <item
             android:id="@+id/nav_dangerous"
-            android:title="위험정보 안내" />
+            android:title="위험정보 지도" />
+        <item
+            android:id="@+id/nav_safety"
+            android:title="안심장소" />
         <item
             android:id="@+id/nav_board"
             android:title="게시판" />
+        <item
+            android:id="@+id/nav_logout"
+            android:title="로그아웃" />
+        <item
+            android:id="@+id/nav_user"
+            android:title="환경설정" />
     </group>
-
-    <group>
-        <item
-            android:id="@+id/nav_favorite"
-            android:title="즐겨찾기한 장소" />
-        <item
-            android:id="@+id/nav_help"
-            android:title="도움말" />
-
-
-        <item
-            android:id="@+id/nav_notice"
-            android:title="공지사항" />
-        <item
-            android:id="@+id/nav_center"
-            android:title="고객센터" />
-    </group>
-
+    <item android:title="Barrier Free">
+        <menu>
+            <item
+                android:id="@+id/nav_notice"
+                android:title="공지사항" />
+            <item
+                android:id="@+id/nav_center"
+                android:title="고객센터" />
+        </menu>
+    </item>
 </menu>

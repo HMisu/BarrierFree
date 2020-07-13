@@ -8,6 +8,7 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -32,18 +33,22 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
+import com.google.firebase.database.ValueEventListener;
 
 public class JoinActivity extends AppCompatActivity {
-    private FirebaseAuth firebaseAuth;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private FirebaseUser user;
 
     private Button btnauth, btnjoin, btnaddr;
-    private TextView txtemail, txtauth, txtpw, editname, editbirth, editemail, editpw, checkpw, editphone, editauth, editaddr, editaddrdetail;
+    private TextView txtemail, txtauth, txtpw, editname, social_mail, editbirth, editemail, editpw, checkpw, editphone, editauth, editaddr, editaddrdetail;
     private CheckBox chk1, chk2;
+    private boolean social;
 
     private WebView daum_webView;
     private TextView daum_result;
@@ -61,7 +66,7 @@ public class JoinActivity extends AppCompatActivity {
         setContentView(R.layout.activity_join);
 
         //파이어베이스 접근 설정
-        firebaseAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         daum_result = (TextView) findViewById(R.id.daum_result);
         daum_webView = (WebView) findViewById(R.id.daum_webview);
@@ -75,6 +80,7 @@ public class JoinActivity extends AppCompatActivity {
         txtpw = (TextView) findViewById(R.id.txt_check_pw);
 
         editname = (TextView) findViewById(R.id.edit_name);
+        social_mail = (TextView) findViewById(R.id.social_mail);
         editbirth = (TextView) findViewById(R.id.edit_birth);
         editemail = (TextView) findViewById(R.id.edit_email);
         editauth = (TextView) findViewById(R.id.edit_email_auth);
@@ -93,6 +99,21 @@ public class JoinActivity extends AppCompatActivity {
         txtauth.setVisibility(View.GONE);
         txtpw.setVisibility(View.GONE);
         editauth.setVisibility(View.GONE);
+        social_mail.setVisibility(View.GONE);
+
+        Intent intent = getIntent();
+        social = intent.getBooleanExtra("SOCIAL_WHETHER",false);
+        if(social){
+            user = mAuth.getCurrentUser();
+            editname.setText(user.getDisplayName());
+            social_mail.setText(user.getEmail());
+            social_mail.setEnabled(false);
+            social_mail.setVisibility(View.VISIBLE);
+            editemail.setVisibility(View.GONE);
+            btnauth.setVisibility(View.GONE);
+            editpw.setVisibility(View.GONE);
+            checkpw.setVisibility(View.GONE);
+        }
 
         //이메일 발송 관련
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
@@ -104,31 +125,52 @@ public class JoinActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 txtemail.setVisibility(v.VISIBLE);
-                editauth.setVisibility(v.VISIBLE);
 
                 if(editemail.getText().toString().trim() == null || editemail.getText().toString().trim().equals("")) {
                     return;
                 }
-
-                firebaseAuth.createUserWithEmailAndPassword(editemail.getText().toString().trim(), "abc").addOnCompleteListener(JoinActivity.this, new OnCompleteListener<AuthResult>() {
+                /*
+                mAuth.createUserWithEmailAndPassword(editemail.getText().toString().trim(), "abc").addOnCompleteListener(JoinActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        //가입 성공시
                         if (!task.isSuccessful()) {
                             try {
                                 throw task.getException();
+                            } catch(FirebaseAuthWeakPasswordException e) {
+                                Toast.makeText(JoinActivity.this,"비밀번호가 간단해요.." ,Toast.LENGTH_SHORT).show();
                             } catch(FirebaseAuthInvalidCredentialsException e) {
                                 Toast.makeText(JoinActivity.this,"이메일 형식에 맞지 않습니다" ,Toast.LENGTH_SHORT).show();
                             } catch(FirebaseAuthUserCollisionException e) {
                                 Toast.makeText(JoinActivity.this,"이미 존재하는 이메일입니다" ,Toast.LENGTH_SHORT).show();
                             } catch(Exception e) {
                                 Toast.makeText(JoinActivity.this,"다시 확인해주세요" ,Toast.LENGTH_SHORT).show();
+                                Log.d("메시지","Failed to create user:"+task.getException().getMessage());
                             }
                             return;
                         }
                     }
                 });
+                */
 
+                mDatabase = database.getReference("Member");
+
+                mDatabase.addListenerForSingleValueEvent(
+                        new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                    Log.d("메시지", "Single ValueEventListener : " + snapshot.getValue());
+                                    Member member = snapshot.getValue(Member.class);
+                                    Log.d("메시지",member.getMem_name());
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                /*
                 try {
                     GMailSender gMailSender = new GMailSender("bf2020449@gmail.com", "barrierfree2020!");
                     //GMailSender.sendMail(제목, 본문내용, 받는사람);
@@ -142,6 +184,9 @@ public class JoinActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                editauth.setVisibility(v.VISIBLE);
+
+                 */
             }
         });
 
@@ -158,7 +203,6 @@ public class JoinActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable arg0) {
-
             }
 
             @Override
@@ -214,9 +258,6 @@ public class JoinActivity extends AppCompatActivity {
         btnaddr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent intent = new Intent(getApplicationContext(), SearchAddress.class);
-                //startActivity(intent);
-
                 daum_webView.setVisibility(View.VISIBLE);
                 // WebView 초기화
                 init_webView();
@@ -238,57 +279,67 @@ public class JoinActivity extends AppCompatActivity {
                 addr1 = editaddr.getText().toString().trim();
                 addr2 = editaddrdetail.getText().toString().trim();
 
-                if (editpw.getText().toString().length() <= 6) {
-                    Toast.makeText(getApplicationContext(), "비밀번호를 7자리 이상 입력해주세요", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (name.equals("") || name == null || birth.equals("") || birth == null || email.equals("") || email == null || auth.equals("") || auth == null || pw.equals("") || pw == null || chkpw.equals("") || chkpw == null || phone.equals("") || phone == null || addr1.equals("") || addr1 == null) {
-                    Toast.makeText(getApplicationContext(), "입력하지 않은 항목이 있습니다", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
                 if(!chk1.isChecked() || !chk2.isChecked()) {
                     Toast.makeText(getApplicationContext(), "회원가입을 하시려면 위 사항들에 동의해주세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                //파이어베이스에 신규계정 등록하기
-                firebaseAuth.createUserWithEmailAndPassword(email, pw).addOnCompleteListener(JoinActivity.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        //가입 성공시
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = firebaseAuth.getCurrentUser();
-                            email = user.getEmail();
-                            String uid = user.getUid();
+                if(social){
+                    if (birth.equals("") || birth == null || phone == null || addr1.equals("") || addr1 == null) {
+                        Toast.makeText(getApplicationContext(), "입력하지 않은 항목이 있습니다", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    String uid = user.getUid();
+                    email = user.getEmail();
+                    Member member = new Member(uid, name, birth, email, phone, addr1, addr2);
+                    insertMemeber(member, uid);
+                } else{
+                    if (editpw.getText().toString().length() <= 6) {
+                        Toast.makeText(getApplicationContext(), "비밀번호를 7자리 이상 입력해주세요", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (name.equals("") || name == null || birth.equals("") || birth == null || email.equals("") || email == null || auth.equals("") || auth == null || pw.equals("") || pw == null || chkpw.equals("") || chkpw == null || phone.equals("") || phone == null || addr1.equals("") || addr1 == null) {
+                        Toast.makeText(getApplicationContext(), "입력하지 않은 항목이 있습니다", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-                            Member member = new Member(uid, name, birth, email, phone, addr1, addr2);
-                            FirebaseDatabase database = FirebaseDatabase.getInstance();
-                            DatabaseReference reference = database.getReference("Member");
-                            reference.child(uid).setValue(member);
+                    mAuth.createUserWithEmailAndPassword(email, pw).addOnCompleteListener(JoinActivity.this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                user = mAuth.getCurrentUser();
+                                email = user.getEmail();
+                                String uid = user.getUid();
 
-                            Intent intent = new Intent(JoinActivity.this, LoginActivity.class);
-                            startActivity(intent);
-                            finish();
-                            Toast.makeText(JoinActivity.this, "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
-                        } else {
-                            try {
-                                throw task.getException();
-                            } catch(FirebaseAuthWeakPasswordException e) {
-                                Toast.makeText(JoinActivity.this,"비밀번호를 7자리 이상 입력해주세요" ,Toast.LENGTH_SHORT).show();
-                            } catch(FirebaseAuthInvalidCredentialsException e) {
-                                Toast.makeText(JoinActivity.this,"이메일 형식에 맞지 않습니다" ,Toast.LENGTH_SHORT).show();
-                            } catch(FirebaseAuthUserCollisionException e) {
-                                Toast.makeText(JoinActivity.this,"이미 존재하는 이메일입니다" ,Toast.LENGTH_SHORT).show();
-                            } catch(Exception e) {
-                                Toast.makeText(JoinActivity.this,"Exception" ,Toast.LENGTH_SHORT).show();
+                                Member member = new Member(uid, name, birth, email, phone, addr1, addr2);
+                                insertMemeber(member, uid);
+                            } else {
+                                try {
+                                    throw task.getException();
+                                } catch(FirebaseAuthWeakPasswordException e) {
+                                    Toast.makeText(JoinActivity.this,"비밀번호를 7자리 이상 입력해주세요" ,Toast.LENGTH_SHORT).show();
+                                } catch(FirebaseAuthInvalidCredentialsException e) {
+                                    Toast.makeText(JoinActivity.this,"이메일 형식에 맞지 않습니다" ,Toast.LENGTH_SHORT).show();
+                                } catch(FirebaseAuthUserCollisionException e) {
+                                    Toast.makeText(JoinActivity.this,"이미 존재하는 이메일입니다" ,Toast.LENGTH_SHORT).show();
+                                } catch(Exception e) {
+                                    Toast.makeText(JoinActivity.this,"Exception" ,Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(social){
+            mAuth.getCurrentUser().delete();
+            mAuth.getInstance().signOut();
+        }
+        super.onBackPressed();
     }
 
     public void init_webView() {
@@ -304,7 +355,7 @@ public class JoinActivity extends AppCompatActivity {
         daum_webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         // JavaScript이벤트에 대응할 함수를 정의 한 클래스를 붙여줌
         daum_webView.addJavascriptInterface(new JoinActivity.AndroidBridge(), "TestApp");
-        // web client 를 chrome 으로 설정
+        // web client를 chrome으로 설정
         daum_webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
@@ -332,6 +383,16 @@ public class JoinActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void insertMemeber(Member member, String uid) { //update ui code here
+        mDatabase = database.getReference("Member");
+        mDatabase.child(uid).setValue(member);
+
+        Toast.makeText(JoinActivity.this, "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(JoinActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private class AndroidBridge {

@@ -54,7 +54,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-
         <EditText
             android:id="@+id/edit_name"
             android:layout_width="0dp"
@@ -75,6 +74,24 @@
             app:layout_constraintTop_toBottomOf="@+id/title_join" />
 
         <EditText
+            android:id="@+id/social_mail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/user_info"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            android:padding="10dp"
+            android:textSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_name" />
+
+        <EditText
             android:id="@+id/edit_birth"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -92,7 +109,7 @@
             android:textSize="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_name" />
+            app:layout_constraintTop_toBottomOf="@+id/social_mail" />
 
         <EditText
             android:id="@+id/edit_email"

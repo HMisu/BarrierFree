@@ -1,5 +1,6 @@
 package com.example.barrierfree;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,10 +17,12 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.barrierfree.member.LoginActivity;
 import com.example.barrierfree.ui.find.FindFragment;
 import com.example.barrierfree.ui.settings.SettingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.leftNV);
+
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
@@ -72,7 +76,10 @@ public class MainActivity extends AppCompatActivity {
                             .replace(R.id.main_layout,new SettingFragment()).commitAllowingStateLoss();
                     Toast.makeText(getApplicationContext(), "환경설정", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_logout) {
-                    Toast.makeText(getApplicationContext(), "로그아웃", Toast.LENGTH_LONG).show();
+                    FirebaseAuth.getInstance().signOut();
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(intent);
+                    finish();
                 }else if(id == R.id.nav_notice) {
                     Toast.makeText(getApplicationContext(), "공지사항", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_center) {
@@ -112,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

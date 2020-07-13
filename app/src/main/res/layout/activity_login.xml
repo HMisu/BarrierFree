@@ -118,24 +118,25 @@
         app:layout_constraintTop_toBottomOf="@+id/btn_login" />
 
     <Button
-        android:id="@+id/btn_loginkakao"
+        android:id="@+id/btn_login_kakao"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="55dp"
         android:text="카카오 로그인"
+        android:background="@drawable/kakao_login"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_login" />
 
-    <Button
-        android:id="@+id/btn_logingoogle"
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/btn_login_google"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
         android:layout_marginTop="10dp"
         android:text="구글 로그인"
-        app:layout_constraintStart_toStartOf="@+id/btn_loginkakao"
-        app:layout_constraintTop_toBottomOf="@+id/btn_loginkakao" />
+        app:layout_constraintStart_toStartOf="@+id/btn_login_kakao"
+        app:layout_constraintTop_toBottomOf="@+id/btn_login_kakao" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

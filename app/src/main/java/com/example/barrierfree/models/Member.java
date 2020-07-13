@@ -1,4 +1,4 @@
-package com.example.barrierfree.member;
+package com.example.barrierfree.models;
 
 public class Member {
     private String uid;

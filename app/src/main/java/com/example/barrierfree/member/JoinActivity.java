@@ -8,7 +8,6 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -25,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.barrierfree.R;
 import com.example.barrierfree.SslWebViewConnect;
+import com.example.barrierfree.models.Member;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -35,13 +35,18 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
 
 public class JoinActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseUser user;
 
@@ -127,66 +132,62 @@ public class JoinActivity extends AppCompatActivity {
                 txtemail.setVisibility(v.VISIBLE);
 
                 if(editemail.getText().toString().trim() == null || editemail.getText().toString().trim().equals("")) {
+                    Toast.makeText(getApplicationContext(), "이메일을 입력하세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                /*
-                mAuth.createUserWithEmailAndPassword(editemail.getText().toString().trim(), "abc").addOnCompleteListener(JoinActivity.this, new OnCompleteListener<AuthResult>() {
+
+                Pattern p = Pattern.compile( "^[_a-zA-Z0-9-\\.]+@[\\.a-zA-Z0-9-]+\\.[a-zA-Z]+$");
+                Matcher m = p.matcher(editemail.getText().toString().trim());
+                if(!m.matches()) {
+                    Toast.makeText(getApplicationContext(), "이메일 형식에 맞지 않습니다", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Query query = database.getReference("Member").orderByChild("mem_email").equalTo(editemail.getText().toString().trim());
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (!task.isSuccessful()) {
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            Toast.makeText(JoinActivity.this, "이미 존재하는 이메일입니다", Toast.LENGTH_SHORT).show();
+                        }
+
+                        if(dataSnapshot.exists() == false){
                             try {
-                                throw task.getException();
-                            } catch(FirebaseAuthWeakPasswordException e) {
-                                Toast.makeText(JoinActivity.this,"비밀번호가 간단해요.." ,Toast.LENGTH_SHORT).show();
-                            } catch(FirebaseAuthInvalidCredentialsException e) {
-                                Toast.makeText(JoinActivity.this,"이메일 형식에 맞지 않습니다" ,Toast.LENGTH_SHORT).show();
-                            } catch(FirebaseAuthUserCollisionException e) {
-                                Toast.makeText(JoinActivity.this,"이미 존재하는 이메일입니다" ,Toast.LENGTH_SHORT).show();
-                            } catch(Exception e) {
-                                Toast.makeText(JoinActivity.this,"다시 확인해주세요" ,Toast.LENGTH_SHORT).show();
-                                Log.d("메시지","Failed to create user:"+task.getException().getMessage());
+                                GMailSender gMailSender = new GMailSender("bf2020449@gmail.com", "barrierfree2020!");
+                                gMailSender.sendMail("[Barrier Free] 이메일 인증을 위한 인증번호가 발급되었습니다.", "이메일 인증 번호 : " + gMailSender.getEmailCode(), editemail.getText().toString().trim());
+                                Toast.makeText(getApplicationContext(), "인증 메일을 성공적으로 보냈습니다.", Toast.LENGTH_SHORT).show();
+                                emailCode = gMailSender.getEmailCode();
+                                editauth.setVisibility(View.VISIBLE);
+                            } catch (SendFailedException e) {
+                                Toast.makeText(getApplicationContext(), "이메일 형식에 맞지 않습니다", Toast.LENGTH_SHORT).show();
+                            } catch (MessagingException e) {
+                                Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show();
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                            return;
                         }
                     }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
                 });
-                */
 
-                mDatabase = database.getReference("Member");
-
-                mDatabase.addListenerForSingleValueEvent(
-                        new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                    Log.d("메시지", "Single ValueEventListener : " + snapshot.getValue());
-                                    Member member = snapshot.getValue(Member.class);
-                                    Log.d("메시지",member.getMem_name());
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
                 /*
-                try {
-                    GMailSender gMailSender = new GMailSender("bf2020449@gmail.com", "barrierfree2020!");
-                    //GMailSender.sendMail(제목, 본문내용, 받는사람);
-                    gMailSender.sendMail("[Barrier Free] 이메일 인증을 위한 인증번호가 발급되었습니다.", "이메일 인증 번호 : " + gMailSender.getEmailCode(), editemail.getText().toString().trim());
-                    Toast.makeText(getApplicationContext(), "인증 메일을 성공적으로 보냈습니다.", Toast.LENGTH_SHORT).show();
-                    emailCode = gMailSender.getEmailCode();
-                } catch (SendFailedException e) {
-                    Toast.makeText(getApplicationContext(), "이메일 형식에 맞지 않습니다", Toast.LENGTH_SHORT).show();
-                } catch (MessagingException e) {
-                    Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                editauth.setVisibility(v.VISIBLE);
+                database.getReference("Member").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            Log.d("메시지", "Single ValueEventListener : " + snapshot.getValue());
+                            Member member = snapshot.getValue(Member.class);
+                            Log.d("메시지",member.getMem_name());
+                        }
+                    }
 
-                 */
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });*/
             }
         });
 
@@ -386,8 +387,7 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     private void insertMemeber(Member member, String uid) { //update ui code here
-        mDatabase = database.getReference("Member");
-        mDatabase.child(uid).setValue(member);
+        database.getReference("Member").child(uid).setValue(member);
 
         Toast.makeText(JoinActivity.this, "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(JoinActivity.this, LoginActivity.class);

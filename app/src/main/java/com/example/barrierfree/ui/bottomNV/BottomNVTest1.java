@@ -1,4 +1,4 @@
-package com.example.barrierfree;
+package com.example.barrierfree.ui.bottomNV;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.example.barrierfree.R;
 
 public class BottomNVTest1 extends Fragment{
     ViewGroup viewGroup;

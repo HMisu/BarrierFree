@@ -1,4 +1,4 @@
-package com.example.barrierfree.member;
+package com.example.barrierfree;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

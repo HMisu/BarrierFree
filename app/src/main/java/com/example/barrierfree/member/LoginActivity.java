@@ -2,7 +2,6 @@ package com.example.barrierfree.member;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -53,6 +52,13 @@ public class LoginActivity extends AppCompatActivity {
         pw = (TextView) findViewById(R.id.edit_pw);
 
         if (mAuth.getCurrentUser() != null) {
+            if(!mAuth.getCurrentUser().isEmailVerified()){
+                Intent intent = new Intent(this, CertifyEmailActivity.class);
+                intent.putExtra("LOGIN_ACTIVITY",true);
+                startActivity(intent);
+                finish();
+                return;
+            }
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             finish();
@@ -61,17 +67,23 @@ public class LoginActivity extends AppCompatActivity {
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("메시지","일반 로그인");
+                if(email.getText().toString().trim() == "" || email.getText().toString().trim() == null){
+                    Toast.makeText(LoginActivity.this, "이메일을 입력하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                } else if(pw.getText().toString() == "" || pw.getText().toString().trim() == null){
+                    Toast.makeText(LoginActivity.this, "비밀번호를 입력하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 mAuth.signInWithEmailAndPassword(email.getText().toString().trim(), pw.getText().toString().trim())
                         .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
                                     FirebaseUser user = mAuth.getCurrentUser();
-                                    updateUI(user);
+                                    updateUI(user, false);
                                 } else {
-                                    Toast.makeText(LoginActivity.this, "로그인을 실패하였습니다.", Toast.LENGTH_SHORT).show();
-                                    updateUI(null);
+                                    updateUI(null, false);
                                 }
                             }
                         });
@@ -119,7 +131,6 @@ public class LoginActivity extends AppCompatActivity {
     // 사용자가 정상적으로 로그인한 후에 GoogleSignInAccount 개체에서 ID 토큰을 가져와서
     // Firebase 사용자 인증 정보로 교환하고 Firebase 사용자 인증 정보를 사용해 Firebase에 인증합니다.
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -134,22 +145,30 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 finish();
                             } else{
-                                updateUI(user);
+                                updateUI(user, true);
                             }
                         } else {
-                            Toast.makeText(LoginActivity.this, "로그인을 실패하였습니다.", Toast.LENGTH_SHORT).show();
-                            updateUI(null);
+                            updateUI(null, true);
                         }
 
                     }
                 });
     }
 
-    private void updateUI(FirebaseUser user) {
+    private void updateUI(FirebaseUser user, boolean social) {
         if (user != null) {
+            if(social == false && !user.isEmailVerified()){
+                Intent intent = new Intent(this, CertifyEmailActivity.class);
+                intent.putExtra("LOGIN_ACTIVITY",true);
+                startActivity(intent);
+                finish();
+                return;
+            }
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
             finish();
+        } else{
+            Toast.makeText(LoginActivity.this, "로그인을 실패하였습니다.", Toast.LENGTH_SHORT).show();
         }
     }
 }

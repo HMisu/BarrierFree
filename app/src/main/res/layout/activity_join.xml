@@ -121,7 +121,7 @@
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
             android:background="@drawable/user_info"
-            android:ems="10"
+            android:ems="14"
             android:hint="@string/edit_email"
             android:inputType="textEmailAddress"
             android:padding="10dp"
@@ -131,7 +131,7 @@
             app:layout_constraintTop_toBottomOf="@+id/edit_birth" />
 
         <Button
-            android:id="@+id/btn_email_auth"
+            android:id="@+id/btn_chk_email"
             android:layout_width="wrap_content"
             android:layout_height="35dp"
             android:layout_marginEnd="30dp"
@@ -139,7 +139,7 @@
             android:height="2dp"
             android:background="@drawable/btn_white"
             android:stateListAnimator="@null"
-            android:text="인증번호 발송"
+            android:text="중복 검사"
             android:textSize="14dp"
             app:layout_constraintBaseline_toBaselineOf="@+id/edit_email"
             app:layout_constraintEnd_toEndOf="parent"
@@ -161,40 +161,6 @@
             app:layout_constraintTop_toBottomOf="@+id/edit_email" />
 
         <EditText
-            android:id="@+id/edit_email_auth"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginRight="30dp"
-            android:background="@drawable/user_info"
-            android:ems="10"
-            android:hint="@string/edit_email_auth"
-            android:inputType="textPersonName"
-            android:padding="10dp"
-            android:textSize="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txt_check_email" />
-
-        <TextView
-            android:id="@+id/txt_check_auth"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="30dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginRight="30dp"
-            android:text=""
-            android:textSize="14dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_email_auth" />
-
-        <EditText
             android:id="@+id/edit_pw"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -211,7 +177,7 @@
             android:textSize="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txt_check_auth" />
+            app:layout_constraintTop_toBottomOf="@+id/txt_check_email" />
 
         <EditText
             android:id="@+id/check_pw"

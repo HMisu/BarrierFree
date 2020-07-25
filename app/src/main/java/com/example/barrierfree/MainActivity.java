@@ -1,9 +1,14 @@
 package com.example.barrierfree;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,15 +23,29 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.barrierfree.member.LoginActivity;
+import com.example.barrierfree.ui.bottomNV.BottomAlert;
+import com.example.barrierfree.ui.bottomNV.BottomNVTest1;
 import com.example.barrierfree.ui.find.FindFragment;
 import com.example.barrierfree.ui.settings.SettingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
-
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
+    Bitmap bitmap;
     private AppBarConfiguration mAppBarConfiguration;
+
+    private String userName = "", userEmail = "";
+
     //BottomNV
     BottomNavigationView bottomNavigationView;
     BottomNVTest1 bottomNVTest1;
@@ -36,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //파이어베이스 접근 설정
+        mAuth = FirebaseAuth.getInstance();
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -61,31 +84,31 @@ public class MainActivity extends AppCompatActivity {
                 Fragment fragment = null;
                 String title = getString(R.string.app_name);
 
-                if( id == R.id.nav_find) {
+                if (id == R.id.nav_find) {
                     fragment = new FindFragment();
                     title = "Homes";
                     Toast.makeText(getApplicationContext(), "길찾기", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_dangerous) {
+                } else if (id == R.id.nav_dangerous) {
                     Toast.makeText(getApplicationContext(), "위험정보", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_board) {
+                } else if (id == R.id.nav_board) {
                     Toast.makeText(getApplicationContext(), "게시판", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_safety) {
+                } else if (id == R.id.nav_safety) {
                     Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_user) {
+                } else if (id == R.id.nav_user) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.main_layout,new SettingFragment()).commitAllowingStateLoss();
+                            .replace(R.id.main_layout, new SettingFragment()).commitAllowingStateLoss();
                     Toast.makeText(getApplicationContext(), "환경설정", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_logout) {
+                } else if (id == R.id.nav_logout) {
                     FirebaseAuth.getInstance().signOut();
                     Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                     startActivity(intent);
                     finish();
-                }else if(id == R.id.nav_notice) {
+                } else if (id == R.id.nav_notice) {
                     Toast.makeText(getApplicationContext(), "공지사항", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_center) {
+                } else if (id == R.id.nav_center) {
                     Toast.makeText(getApplicationContext(), "고객센터", Toast.LENGTH_LONG).show();
                 }
-                if(fragment != null) {
+                if (fragment != null) {
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                     ft.replace(R.id.main_layout, fragment);
                     ft.commit();
@@ -94,27 +117,67 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Nav_header_main
+        //navigationView.setNavigationItemSelectedListener(this);
+        View nav_header_view = navigationView.getHeaderView(0);
+
+        TextView userName = (TextView) nav_header_view.findViewById(R.id.txt_user_name);
+        TextView userEmail = (TextView) nav_header_view.findViewById(R.id.txt_user_email);
+        ImageView userProfileImg = (ImageView) nav_header_view.findViewById(R.id.img_user);
+
+        user = mAuth.getCurrentUser();
+        userName.setText(user.getDisplayName());
+        userEmail.setText(user.getEmail());
+        Thread mThread = new Thread() {
+        @Override
+        public void run() {
+            try {
+            //현재로그인한 사용자 정보를 통해 PhotoUrl 가져오기
+                if(user.getPhotoUrl() == null)
+                    return;
+                URL url = new URL(user.getPhotoUrl().toString());
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true);
+                conn.connect();
+                InputStream is = conn.getInputStream();
+                bitmap = BitmapFactory.decodeStream(is);
+            } catch (MalformedURLException ee) {
+                ee.printStackTrace();
+            } catch (IOException e) {
+                 e.printStackTrace();
+            }
+        }};
+        mThread.start();
+        try {
+            mThread.join();
+            userProfileImg.setImageBitmap(bitmap);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         //BottomNV
         bottomNavigationView = findViewById(R.id.bottomNV);
-        //프래그먼트 생성
+        //Fragment create.
         bottomNVTest1 = new BottomNVTest1();
         bottomNVTest2 = new BottomAlert();
-        //제일 처음 띄워줄 뷰를 세팅
-        getSupportFragmentManager().beginTransaction().replace(R.id.main_layout,bottomNVTest1).commitAllowingStateLoss();
+        //Set up the view you're seeing for the first time.
+        getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, bottomNVTest1).commitAllowingStateLoss();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId()){
-                    case R.id.bottomNV_tab1:{
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.bottomNV_tab1: {
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.main_layout,bottomNVTest1).commitAllowingStateLoss();
+                                .replace(R.id.main_layout, bottomNVTest1).commitAllowingStateLoss();
                         return true;
                     }
-                    case R.id.bottomNV_tab2:{
+                    case R.id.bottomNV_tab2: {
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.main_layout,bottomNVTest2).commitAllowingStateLoss();
+                                .replace(R.id.main_layout, bottomNVTest2).commitAllowingStateLoss();
                         return true;
                     }
-                    default: return false;
+                    default:
+                        return false;
                 }
             }
         });

@@ -1,4 +1,4 @@
-package com.example.barrierfree;
+package com.example.barrierfree.ui.bottomNV;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
+
+import com.example.barrierfree.CustomAdapter;
+import com.example.barrierfree.R;
 
 public class BottomAlert extends ListFragment {
 

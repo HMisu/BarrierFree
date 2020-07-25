@@ -24,6 +24,12 @@
         </activity>
         <activity android:name=".member.JoinActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".member.CertifyEmailActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".member.FindPWActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".member.FindEmailActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

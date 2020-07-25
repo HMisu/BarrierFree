@@ -8,6 +8,7 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -33,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -42,18 +44,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.mail.MessagingException;
-import javax.mail.SendFailedException;
-
 public class JoinActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
     private FirebaseUser user;
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     private Button btnauth, btnjoin, btnaddr;
-    private TextView txtemail, txtauth, txtpw, editname, social_mail, editbirth, editemail, editpw, checkpw, editphone, editauth, editaddr, editaddrdetail;
+    private TextView txtemail, txtpw, editname, social_mail, editbirth, editemail, editpw, checkpw, editphone, editaddr, editaddrdetail;
     private CheckBox chk1, chk2;
-    private boolean social;
+    private boolean social, chkemail;
 
     private WebView daum_webView;
     private TextView daum_result;
@@ -63,7 +62,7 @@ public class JoinActivity extends AppCompatActivity {
     //이메일 인증
     private TextView textView = null;
     private TextView message = null;
-    private String emailCode = "", name = "", birth = "", email = "", auth = "", pw = "", chkpw = "", phone = "", addr1 = "", addr2 = "";
+    private String emailCode = "", name = "", birth = "", email = "", pw = "", chkpw = "", phone = "", addr1 = "", addr2 = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,19 +75,17 @@ public class JoinActivity extends AppCompatActivity {
         daum_result = (TextView) findViewById(R.id.daum_result);
         daum_webView = (WebView) findViewById(R.id.daum_webview);
 
-        btnauth = (Button) findViewById(R.id.btn_email_auth);
+        btnauth = (Button) findViewById(R.id.btn_chk_email);
         btnaddr = (Button) findViewById(R.id.btn_addr);
         btnjoin = (Button) findViewById(R.id.btn_join);
 
         txtemail = (TextView) findViewById(R.id.txt_check_email);
-        txtauth = (TextView) findViewById(R.id.txt_check_auth);
         txtpw = (TextView) findViewById(R.id.txt_check_pw);
 
         editname = (TextView) findViewById(R.id.edit_name);
         social_mail = (TextView) findViewById(R.id.social_mail);
         editbirth = (TextView) findViewById(R.id.edit_birth);
         editemail = (TextView) findViewById(R.id.edit_email);
-        editauth = (TextView) findViewById(R.id.edit_email_auth);
         editpw = (TextView) findViewById(R.id.edit_pw);
         checkpw = (TextView) findViewById(R.id.check_pw);
         editphone = (TextView) findViewById(R.id.edit_phone);
@@ -101,14 +98,12 @@ public class JoinActivity extends AppCompatActivity {
         daum_result.setVisibility(View.GONE);
         daum_webView.setVisibility(View.GONE);
         txtemail.setVisibility(View.GONE);
-        txtauth.setVisibility(View.GONE);
         txtpw.setVisibility(View.GONE);
-        editauth.setVisibility(View.GONE);
         social_mail.setVisibility(View.GONE);
 
         Intent intent = getIntent();
-        social = intent.getBooleanExtra("SOCIAL_WHETHER",false);
-        if(social){
+        social = intent.getBooleanExtra("SOCIAL_WHETHER", false);
+        if (social) {
             user = mAuth.getCurrentUser();
             editname.setText(user.getDisplayName());
             social_mail.setText(user.getEmail());
@@ -131,14 +126,14 @@ public class JoinActivity extends AppCompatActivity {
             public void onClick(View v) {
                 txtemail.setVisibility(v.VISIBLE);
 
-                if(editemail.getText().toString().trim() == null || editemail.getText().toString().trim().equals("")) {
+                if (editemail.getText().toString().trim() == null || editemail.getText().toString().trim().equals("")) {
                     Toast.makeText(getApplicationContext(), "이메일을 입력하세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                Pattern p = Pattern.compile( "^[_a-zA-Z0-9-\\.]+@[\\.a-zA-Z0-9-]+\\.[a-zA-Z]+$");
+                Pattern p = Pattern.compile("^[_a-zA-Z0-9-\\.]+@[\\.a-zA-Z0-9-]+\\.[a-zA-Z]+$");
                 Matcher m = p.matcher(editemail.getText().toString().trim());
-                if(!m.matches()) {
+                if (!m.matches()) {
                     Toast.makeText(getApplicationContext(), "이메일 형식에 맞지 않습니다", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -151,20 +146,8 @@ public class JoinActivity extends AppCompatActivity {
                             Toast.makeText(JoinActivity.this, "이미 존재하는 이메일입니다", Toast.LENGTH_SHORT).show();
                         }
 
-                        if(dataSnapshot.exists() == false){
-                            try {
-                                GMailSender gMailSender = new GMailSender("bf2020449@gmail.com", "barrierfree2020!");
-                                gMailSender.sendMail("[Barrier Free] 이메일 인증을 위한 인증번호가 발급되었습니다.", "이메일 인증 번호 : " + gMailSender.getEmailCode(), editemail.getText().toString().trim());
-                                Toast.makeText(getApplicationContext(), "인증 메일을 성공적으로 보냈습니다.", Toast.LENGTH_SHORT).show();
-                                emailCode = gMailSender.getEmailCode();
-                                editauth.setVisibility(View.VISIBLE);
-                            } catch (SendFailedException e) {
-                                Toast.makeText(getApplicationContext(), "이메일 형식에 맞지 않습니다", Toast.LENGTH_SHORT).show();
-                            } catch (MessagingException e) {
-                                Toast.makeText(getApplicationContext(), "인터넷 연결을 확인해주세요", Toast.LENGTH_SHORT).show();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                        if (dataSnapshot.exists() == false) {
+                            chkemail = true;
                         }
                     }
 
@@ -172,42 +155,6 @@ public class JoinActivity extends AppCompatActivity {
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 });
-
-                /*
-                database.getReference("Member").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            Log.d("메시지", "Single ValueEventListener : " + snapshot.getValue());
-                            Member member = snapshot.getValue(Member.class);
-                            Log.d("메시지",member.getMem_name());
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });*/
-            }
-        });
-
-        editauth.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                txtauth.setVisibility(View.VISIBLE);
-                if (emailCode.equals(editauth.getText().toString())) {
-                    txtauth.setVisibility(View.GONE);
-                } else {
-                    txtauth.setText("인증번호가 불일치합니다");
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
         });
 
@@ -217,7 +164,7 @@ public class JoinActivity extends AppCompatActivity {
                 if (editpw.getText().toString().trim().length() <= 6) {
                     txtpw.setText("비밀번호를 7자리 이상 입력해주세요");
                     txtpw.setVisibility(View.VISIBLE);
-                } else{
+                } else {
                     txtpw.setVisibility(View.GONE);
                 }
             }
@@ -273,19 +220,18 @@ public class JoinActivity extends AppCompatActivity {
                 name = editname.getText().toString().trim();
                 birth = editbirth.getText().toString().trim();
                 email = editemail.getText().toString().trim();
-                auth = editauth.getText().toString().trim();
                 pw = editpw.getText().toString().trim();
                 chkpw = checkpw.getText().toString().trim();
                 phone = editphone.getText().toString().trim();
                 addr1 = editaddr.getText().toString().trim();
                 addr2 = editaddrdetail.getText().toString().trim();
 
-                if(!chk1.isChecked() || !chk2.isChecked()) {
+                if (!chk1.isChecked() || !chk2.isChecked()) {
                     Toast.makeText(getApplicationContext(), "회원가입을 하시려면 위 사항들에 동의해주세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if(social){
+                if (social) {
                     if (birth.equals("") || birth == null || phone == null || addr1.equals("") || addr1 == null) {
                         Toast.makeText(getApplicationContext(), "입력하지 않은 항목이 있습니다", Toast.LENGTH_SHORT).show();
                         return;
@@ -294,12 +240,16 @@ public class JoinActivity extends AppCompatActivity {
                     email = user.getEmail();
                     Member member = new Member(uid, name, birth, email, phone, addr1, addr2);
                     insertMemeber(member, uid);
-                } else{
+                } else {
+                    if (chkemail == false) {
+                        Toast.makeText(getApplicationContext(), "이메일의 중복 여부를 확인해주세요", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     if (editpw.getText().toString().length() <= 6) {
                         Toast.makeText(getApplicationContext(), "비밀번호를 7자리 이상 입력해주세요", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if (name.equals("") || name == null || birth.equals("") || birth == null || email.equals("") || email == null || auth.equals("") || auth == null || pw.equals("") || pw == null || chkpw.equals("") || chkpw == null || phone.equals("") || phone == null || addr1.equals("") || addr1 == null) {
+                    if (name.equals("") || name == null || birth.equals("") || birth == null || email.equals("") || email == null || pw.equals("") || pw == null || chkpw.equals("") || chkpw == null || phone.equals("") || phone == null || addr1.equals("") || addr1 == null) {
                         Toast.makeText(getApplicationContext(), "입력하지 않은 항목이 있습니다", Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -311,20 +261,45 @@ public class JoinActivity extends AppCompatActivity {
                                 user = mAuth.getCurrentUser();
                                 email = user.getEmail();
                                 String uid = user.getUid();
-
+                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                        .setDisplayName(name)
+                                        .build();
+                                user.updateProfile(profileUpdates)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Log.d("메시지", "User profile updated.");
+                                                }
+                                            }
+                                        });
                                 Member member = new Member(uid, name, birth, email, phone, addr1, addr2);
                                 insertMemeber(member, uid);
+
+                                mAuth.useAppLanguage();
+                                user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d("메시지", "Email sent.");
+                                            Toast.makeText(JoinActivity.this,"Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Log.e("메시지", "sendEmailVerification", task.getException());
+                                            Toast.makeText(JoinActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
                             } else {
                                 try {
                                     throw task.getException();
-                                } catch(FirebaseAuthWeakPasswordException e) {
-                                    Toast.makeText(JoinActivity.this,"비밀번호를 7자리 이상 입력해주세요" ,Toast.LENGTH_SHORT).show();
-                                } catch(FirebaseAuthInvalidCredentialsException e) {
-                                    Toast.makeText(JoinActivity.this,"이메일 형식에 맞지 않습니다" ,Toast.LENGTH_SHORT).show();
-                                } catch(FirebaseAuthUserCollisionException e) {
-                                    Toast.makeText(JoinActivity.this,"이미 존재하는 이메일입니다" ,Toast.LENGTH_SHORT).show();
-                                } catch(Exception e) {
-                                    Toast.makeText(JoinActivity.this,"Exception" ,Toast.LENGTH_SHORT).show();
+                                } catch (FirebaseAuthWeakPasswordException e) {
+                                    Toast.makeText(JoinActivity.this, "비밀번호를 7자리 이상 입력해주세요", Toast.LENGTH_SHORT).show();
+                                } catch (FirebaseAuthInvalidCredentialsException e) {
+                                    Toast.makeText(JoinActivity.this, "이메일 형식에 맞지 않습니다", Toast.LENGTH_SHORT).show();
+                                } catch (FirebaseAuthUserCollisionException e) {
+                                    Toast.makeText(JoinActivity.this, "이미 존재하는 이메일입니다", Toast.LENGTH_SHORT).show();
+                                } catch (Exception e) {
+                                    Toast.makeText(JoinActivity.this, "Exception", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }
@@ -336,7 +311,7 @@ public class JoinActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(social){
+        if (social) {
             mAuth.getCurrentUser().delete();
             mAuth.getInstance().signOut();
         }
@@ -390,7 +365,7 @@ public class JoinActivity extends AppCompatActivity {
         database.getReference("Member").child(uid).setValue(member);
 
         Toast.makeText(JoinActivity.this, "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(JoinActivity.this, LoginActivity.class);
+        Intent intent = new Intent(JoinActivity.this, CertifyEmailActivity.class);
         startActivity(intent);
         finish();
     }

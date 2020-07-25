@@ -46,8 +46,8 @@ public class LoginActivity extends AppCompatActivity {
         btn_login = (Button) findViewById(R.id.btn_login);
         btn_loginGoogle = findViewById(R.id.btn_login_google);
         link_join = (TextView) findViewById(R.id.link_join);
-        link_findpw = (TextView) findViewById(R.id.link_join);
-        link_findEmail = (TextView) findViewById(R.id.link_join);
+        link_findpw = (TextView) findViewById(R.id.link_find_pw);
+        link_findEmail = (TextView) findViewById(R.id.link_find_email);
         email = (TextView) findViewById(R.id.edit_email);
         pw = (TextView) findViewById(R.id.edit_pw);
 
@@ -101,6 +101,24 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent signInIntent = googleSignInClient.getSignInIntent();
                 startActivityForResult(signInIntent, RC_SIGN_IN);
+            }
+        });
+
+        link_findEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), FindEmailActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        link_findpw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), FindPWActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
 

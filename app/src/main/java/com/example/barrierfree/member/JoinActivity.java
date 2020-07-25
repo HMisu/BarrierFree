@@ -23,10 +23,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.barrierfree.MainActivity;
 import com.example.barrierfree.R;
 import com.example.barrierfree.SslWebViewConnect;
 import com.example.barrierfree.models.Member;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,11 +38,9 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,12 +48,13 @@ import java.util.regex.Pattern;
 public class JoinActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private Button btnauth, btnjoin, btnaddr;
-    private TextView txtemail, txtpw, editname, social_mail, editbirth, editemail, editpw, checkpw, editphone, editaddr, editaddrdetail;
+    private TextView txtpw, editname, social_mail, editbirth, editemail, editpw, checkpw, editphone, editaddr, editaddrdetail;
     private CheckBox chk1, chk2;
-    private boolean social, chkemail;
+    private boolean social, chkemail, chkmem;
 
     private WebView daum_webView;
     private TextView daum_result;
@@ -69,7 +71,6 @@ public class JoinActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
 
-        //파이어베이스 접근 설정
         mAuth = FirebaseAuth.getInstance();
 
         daum_result = (TextView) findViewById(R.id.daum_result);
@@ -79,7 +80,6 @@ public class JoinActivity extends AppCompatActivity {
         btnaddr = (Button) findViewById(R.id.btn_addr);
         btnjoin = (Button) findViewById(R.id.btn_join);
 
-        txtemail = (TextView) findViewById(R.id.txt_check_email);
         txtpw = (TextView) findViewById(R.id.txt_check_pw);
 
         editname = (TextView) findViewById(R.id.edit_name);
@@ -97,7 +97,6 @@ public class JoinActivity extends AppCompatActivity {
 
         daum_result.setVisibility(View.GONE);
         daum_webView.setVisibility(View.GONE);
-        txtemail.setVisibility(View.GONE);
         txtpw.setVisibility(View.GONE);
         social_mail.setVisibility(View.GONE);
 
@@ -124,8 +123,6 @@ public class JoinActivity extends AppCompatActivity {
         btnauth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                txtemail.setVisibility(v.VISIBLE);
-
                 if (editemail.getText().toString().trim() == null || editemail.getText().toString().trim().equals("")) {
                     Toast.makeText(getApplicationContext(), "이메일을 입력하세요", Toast.LENGTH_SHORT).show();
                     return;
@@ -138,23 +135,20 @@ public class JoinActivity extends AppCompatActivity {
                     return;
                 }
 
-                Query query = database.getReference("Member").orderByChild("mem_email").equalTo(editemail.getText().toString().trim());
-                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            Toast.makeText(JoinActivity.this, "이미 존재하는 이메일입니다", Toast.LENGTH_SHORT).show();
-                        }
-
-                        if (dataSnapshot.exists() == false) {
-                            chkemail = true;
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+                db.collection("members").whereEqualTo("mem_email", editemail.getText().toString().trim()).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    QuerySnapshot querySnapshot = task.getResult();
+                                    if (querySnapshot.isEmpty()) {
+                                        chkemail=true;
+                                    }
+                                } else {
+                                    Log.d("메시지", "Error getting documents: ", task.getException());
+                                }
+                            }
+                        });
             }
         });
 
@@ -231,6 +225,26 @@ public class JoinActivity extends AppCompatActivity {
                     return;
                 }
 
+                db.collection("members").whereEqualTo("mem_phone", phone).whereEqualTo("mem_name", name).whereEqualTo("mem_birth", birth).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    QuerySnapshot querySnapshot = task.getResult();
+                                    if (querySnapshot.isEmpty()) {
+                                        chkmem = true;
+                                    }
+                                } else {
+                                    Log.d("메시지", "Error getting documents: ", task.getException());
+                                }
+                            }
+                        });
+
+                if (chkmem == false) {
+                    Toast.makeText(getApplicationContext(), "이미 동일한 이름, 생년월일, 전화번호로 가입된 회원입니다", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if (social) {
                     if (birth.equals("") || birth == null || phone == null || addr1.equals("") || addr1 == null) {
                         Toast.makeText(getApplicationContext(), "입력하지 않은 항목이 있습니다", Toast.LENGTH_SHORT).show();
@@ -282,7 +296,7 @@ public class JoinActivity extends AppCompatActivity {
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             Log.d("메시지", "Email sent.");
-                                            Toast.makeText(JoinActivity.this,"Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(JoinActivity.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
                                         } else {
                                             Log.e("메시지", "sendEmailVerification", task.getException());
                                             Toast.makeText(JoinActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
@@ -362,12 +376,31 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     private void insertMemeber(Member member, String uid) { //update ui code here
-        database.getReference("Member").child(uid).setValue(member);
-
+        //database.getReference("Member").child(uid).setValue(member);
+        db.collection("members")
+                .add(member)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d("메시지", "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("메시지", "Error adding document", e);
+                    }
+                });
         Toast.makeText(JoinActivity.this, "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(JoinActivity.this, CertifyEmailActivity.class);
-        startActivity(intent);
-        finish();
+        if (social) {
+            Intent intent = new Intent(JoinActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        } else {
+            Intent intent = new Intent(JoinActivity.this, CertifyEmailActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private class AndroidBridge {

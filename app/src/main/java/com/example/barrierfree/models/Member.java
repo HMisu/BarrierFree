@@ -5,7 +5,6 @@ public class Member {
     private String mem_name;
     private String mem_birth;
     private String mem_email;
-    private String mem_pw;
     private String mem_phone;
     private String mem_addr1;
     private String mem_addr2;
@@ -33,9 +32,6 @@ public class Member {
     public void setMem_email(String mem_email){
         this.mem_email = mem_email;
     }
-    public void setMem_pw(String mem_pw){
-        this.mem_pw = mem_pw;
-    }
     public void setMem_phone(String mem_phone){
         this.mem_phone = mem_phone;
     }
@@ -47,31 +43,21 @@ public class Member {
     }
 
     public String getUid() { return uid; }
-
     public String getMem_name(){
         return mem_name;
     }
-
     public String getMem_birth() {
         return mem_birth;
     }
-
     public String getMem_email(){
         return mem_email;
     }
-
-    public String getMem_pw(){
-        return mem_pw;
-    }
-
     public String getMem_phone(){
         return mem_phone;
     }
-
     public String getMem_addr1(){
         return mem_addr1;
     }
-
     public String getMem_addr2(){
         return mem_addr2;
     }

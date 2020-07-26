@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
-    tools:context=".member.CertifyEmailActivity">
+    tools:context=".ui.member.CertifyEmailActivity">
     <ImageView
         android:id="@+id/img_logo"
         android:layout_width="270px"

@@ -6,14 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#f2f2f2"
-    tools:context=".member.JoinActivity">
+    tools:context=".ui.member.JoinActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toTopOf="@+id/edit_pw_join"
         app:layout_constraintTop_toTopOf="@+id/edit_pw_join"
-        tools:context=".member.JoinActivity">
+        tools:context=".ui.member.JoinActivity">
 
         <LinearLayout
             android:id="@+id/daum_layout"

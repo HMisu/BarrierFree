@@ -1,4 +1,4 @@
-package com.example.barrierfree.member;
+package com.example.barrierfree.ui.member;
 
 import android.app.Dialog;
 import android.content.Intent;

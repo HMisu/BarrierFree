@@ -13,17 +13,17 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import com.example.barrierfree.R;
-import com.example.barrierfree.member.LoginActivity;
+import com.example.barrierfree.ui.member.LoginActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SettingFragment extends PreferenceFragmentCompat {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     SharedPreferences pref;
     ListPreference soundPrefer, vibratorPrefer;
@@ -54,21 +54,21 @@ public class SettingFragment extends PreferenceFragmentCompat {
         memberWithdrawal.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Log.d("메시지", user.getUid().toString());
                 mAuth.getCurrentUser().delete();
                 FirebaseAuth.getInstance().signOut();
-                database.getReference("Member").child(user.getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("메시지", "Success");
-                    }
-
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("메시지", "Failure");
-                    }
-                });
+                db.collection("members").document(user.getUid()).delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("메시지", "DocumentSnapshot successfully deleted!" );
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("메시지", "Error deleting document", e);
+                            }
+                        });
                 ActivityCompat.finishAffinity(getActivity());
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);

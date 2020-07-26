@@ -12,8 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -22,10 +24,10 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.example.barrierfree.member.LoginActivity;
 import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.example.barrierfree.ui.bottomNV.BottomNVTest1;
 import com.example.barrierfree.ui.find.FindFragment;
+import com.example.barrierfree.ui.member.LoginActivity;
 import com.example.barrierfree.ui.settings.SettingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -56,13 +58,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //파이어베이스 접근 설정
         mAuth = FirebaseAuth.getInstance();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.leftNV);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -129,24 +135,24 @@ public class MainActivity extends AppCompatActivity {
         userName.setText(user.getDisplayName());
         userEmail.setText(user.getEmail());
         Thread mThread = new Thread() {
-        @Override
-        public void run() {
-            try {
-            //현재로그인한 사용자 정보를 통해 PhotoUrl 가져오기
-                if(user.getPhotoUrl() == null)
-                    return;
-                URL url = new URL(user.getPhotoUrl().toString());
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setDoInput(true);
-                conn.connect();
-                InputStream is = conn.getInputStream();
-                bitmap = BitmapFactory.decodeStream(is);
-            } catch (MalformedURLException ee) {
-                ee.printStackTrace();
-            } catch (IOException e) {
-                 e.printStackTrace();
-            }
-        }};
+            @Override
+            public void run() {
+                try {
+                    //현재로그인한 사용자 정보를 통해 PhotoUrl 가져오기
+                    if(user.getPhotoUrl() == null)
+                        return;
+                    URL url = new URL(user.getPhotoUrl().toString());
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setDoInput(true);
+                    conn.connect();
+                    InputStream is = conn.getInputStream();
+                    bitmap = BitmapFactory.decodeStream(is);
+                } catch (MalformedURLException ee) {
+                    ee.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }};
         mThread.start();
         try {
             mThread.join();
@@ -181,6 +187,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override

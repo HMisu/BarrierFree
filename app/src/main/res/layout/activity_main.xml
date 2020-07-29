@@ -15,11 +15,25 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <FrameLayout android:id="@+id/main_layout"
+        <include
+            android:id="@+id/layout_toolbar"
+            layout="@layout/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/content_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@+id/layout_toolbar"
             android:layout_marginBottom="?attr/actionBarSize" />
-
+ <!--
+        <FrameLayout
+            android:id="@+id/main_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/layout_toolbar"
+            android:layout_marginBottom="?attr/actionBarSize" />
+-->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNV"
             android:layout_width="match_parent"
@@ -33,11 +47,6 @@
             app:menu="@menu/menu_bottom" />
     </RelativeLayout>
 
-    <include
-        layout="@layout/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/leftNV"
         android:layout_width="wrap_content"
@@ -46,4 +55,5 @@
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_main"
         app:menu="@menu/activity_main_drawer" />
+
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -16,7 +16,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FindEmailActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -40,13 +43,13 @@ public class FindEmailActivity extends AppCompatActivity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(editname.getText().toString().trim() == "" || editname.getText().toString().trim() == null){
+                if (editname.getText().toString().trim() == "" || editname.getText().toString().trim() == null) {
                     Toast.makeText(FindEmailActivity.this, "이름을 입력하세요.", Toast.LENGTH_SHORT).show();
                     return;
-                } else if(editphone.getText().toString().trim() == "" || editphone.getText().toString().trim() == null){
+                } else if (editphone.getText().toString().trim() == "" || editphone.getText().toString().trim() == null) {
                     Toast.makeText(FindEmailActivity.this, " 전화번호를 입력하세요.", Toast.LENGTH_SHORT).show();
                     return;
-                } else if(editbirth.getText().toString().trim() == "" || editbirth.getText().toString().trim() == null){
+                } else if (editbirth.getText().toString().trim() == "" || editbirth.getText().toString().trim() == null) {
                     Toast.makeText(FindEmailActivity.this, " 생년월일 6자리를 입력하세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -62,7 +65,8 @@ public class FindEmailActivity extends AppCompatActivity {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                         Log.d("메시지", document.getId() + " => " + document.getData());
                                         Map<String, Object> member = document.getData();
-                                        txtnotice.setText(member.get("mem_email").toString());
+                                        String email = getMaskedEmail(member.get("mem_email").toString());
+                                        txtnotice.setText(email);
                                         txtnotice.setVisibility(View.VISIBLE);
                                     }
                                 } else {
@@ -72,5 +76,24 @@ public class FindEmailActivity extends AppCompatActivity {
                         });
             }
         });
+    }
+
+    private String getMaskedEmail(String email) {
+        String regex = "\\b(\\S+)+@(\\S+.\\S+)";
+        Matcher matcher = Pattern.compile(regex).matcher(email);
+        if (matcher.find()) {
+            String id = matcher.group(1);
+            int length = id.length();
+            if (length < 3) {
+                char[] c = new char[length];
+                Arrays.fill(c, '*');
+                return email.replace(id, String.valueOf(c));
+            } else if (length == 3) {
+                return email.replaceAll("\\b(\\S+)[^@][^@]+@(\\S+)", "$1**@$2");
+            } else {
+                return email.replaceAll("\\b(\\S+)[^@][^@][^@]+@(\\S+)", "$1***@$2");
+            }
+        }
+        return email;
     }
 }

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -13,6 +15,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import com.example.barrierfree.R;
+import com.example.barrierfree.preference.PreferenceImageView;
 import com.example.barrierfree.ui.member.LoginActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,6 +28,7 @@ public class SettingFragment extends PreferenceFragmentCompat {
     private FirebaseUser user;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    PreferenceImageView preferenceImageView;
     SharedPreferences pref;
     ListPreference soundPrefer, vibratorPrefer;
     Preference memberWithdrawal;
@@ -76,6 +80,17 @@ public class SettingFragment extends PreferenceFragmentCompat {
             }
         });
         pref.registerOnSharedPreferenceChangeListener(prefListener);
+
+        preferenceImageView = (PreferenceImageView) findPreference("image_preference");
+
+        if (preferenceImageView != null)
+            preferenceImageView.setImageClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //do whatever you want on image click here
+                    Toast.makeText(getContext(), "Image Clicked", Toast.LENGTH_SHORT).show();
+                }
+            });
     }
 
     SharedPreferences.OnSharedPreferenceChangeListener prefListener = new SharedPreferences.OnSharedPreferenceChangeListener() {

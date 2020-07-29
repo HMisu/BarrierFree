@@ -2,7 +2,11 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="사용자 정보 수정">
+    <com.example.barrierfree.preference.PreferenceImageView
+        android:key="image_preference"
+        android:layout="@layout/preference_imageview"/>
+
+    <PreferenceCategory>
         <ListPreference
             android:icon="@mipmap/ic_launcher"
             android:key="setting_edit"

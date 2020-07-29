@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_user) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.main_layout, new SettingFragment()).commitAllowingStateLoss();
+                            .replace(R.id.nav_host_fragment, new SettingFragment()).commitAllowingStateLoss();
                     Toast.makeText(getApplicationContext(), "환경설정", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_logout) {
                     FirebaseAuth.getInstance().signOut();
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (fragment != null) {
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                    ft.replace(R.id.main_layout, fragment);
+                    ft.replace(R.id.nav_host_fragment, fragment);
                     ft.commit();
                 }
                 return true;
@@ -167,19 +167,19 @@ public class MainActivity extends AppCompatActivity {
         bottomNVTest1 = new BottomNVTest1();
         bottomNVTest2 = new BottomAlert();
         //Set up the view you're seeing for the first time.
-        getSupportFragmentManager().beginTransaction().replace(R.id.main_layout, bottomNVTest1).commitAllowingStateLoss();
+        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, bottomNVTest1).commitAllowingStateLoss();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.bottomNV_tab1: {
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.main_layout, bottomNVTest1).commitAllowingStateLoss();
+                                .replace(R.id.nav_host_fragment, bottomNVTest1).commitAllowingStateLoss();
                         return true;
                     }
                     case R.id.bottomNV_tab2: {
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.main_layout, bottomNVTest2).commitAllowingStateLoss();
+                                .replace(R.id.nav_host_fragment, bottomNVTest2).commitAllowingStateLoss();
                         return true;
                     }
                     default:

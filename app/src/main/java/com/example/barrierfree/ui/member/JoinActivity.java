@@ -38,7 +38,6 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -48,13 +47,12 @@ import java.util.regex.Pattern;
 public class JoinActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db;
 
     private Button btnauth, btnjoin, btnaddr;
-    private TextView txtpw, editname, social_mail, editbirth, editemail, editpw, checkpw, editphone, editaddr, editaddrdetail;
+    private TextView txtpw, txtemail, editname, social_mail, editbirth, editemail, editpw, checkpw, editphone, editaddr, editaddrdetail;
     private CheckBox chk1, chk2;
-    private boolean social, chkemail, chkmem;
+    private boolean social, chkemail, a;
 
     private WebView daum_webView;
     private TextView daum_result;
@@ -72,6 +70,7 @@ public class JoinActivity extends AppCompatActivity {
         setContentView(R.layout.activity_join);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         daum_result = (TextView) findViewById(R.id.daum_result);
         daum_webView = (WebView) findViewById(R.id.daum_webview);
@@ -81,6 +80,7 @@ public class JoinActivity extends AppCompatActivity {
         btnjoin = (Button) findViewById(R.id.btn_join);
 
         txtpw = (TextView) findViewById(R.id.txt_check_pw);
+        txtemail = (TextView) findViewById(R.id.txt_check_email);
 
         editname = (TextView) findViewById(R.id.edit_name);
         social_mail = (TextView) findViewById(R.id.social_mail);
@@ -97,7 +97,6 @@ public class JoinActivity extends AppCompatActivity {
 
         daum_result.setVisibility(View.GONE);
         daum_webView.setVisibility(View.GONE);
-        txtpw.setVisibility(View.GONE);
         social_mail.setVisibility(View.GONE);
 
         Intent intent = getIntent();
@@ -142,21 +141,37 @@ public class JoinActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     QuerySnapshot querySnapshot = task.getResult();
                                     if (querySnapshot.isEmpty()) {
-                                        chkemail=true;
+                                        a=true;
+                                        Log.d("메시지", "a : "+String.valueOf(a));
+                                    } else{
+                                        a=false;
                                     }
                                 } else {
                                     Log.d("메시지", "Error getting documents: ", task.getException());
+                                    return;
                                 }
+                                chkemail=a;
                             }
                         });
+
+                (new Handler()).postDelayed(new Runnable() {
+                    public void run() {
+                        if(chkemail == true)
+                            Toast.makeText(getApplicationContext(), "사용가능한 이메일입니다", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(getApplicationContext(), "사용할 수 없는 이메일입니다", Toast.LENGTH_SHORT).show();
+                        Log.d("메시지", "chkemail : "+String.valueOf(chkemail));
+                    }
+                }, 700);
             }
         });
 
         editpw.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (editpw.getText().toString().trim().length() <= 6) {
-                    txtpw.setText("비밀번호를 7자리 이상 입력해주세요");
+                String regex_pw = "^[A-Za-z0-9]{7,}$";
+                if(!editpw.getText().toString().trim().matches(regex_pw)) {
+                    txtpw.setText("최소 7자, 최소 하나의 영문자 및 하나의 숫자로 구성하세요");
                     txtpw.setVisibility(View.VISIBLE);
                 } else {
                     txtpw.setVisibility(View.GONE);
@@ -180,11 +195,6 @@ public class JoinActivity extends AppCompatActivity {
                     txtpw.setVisibility(View.VISIBLE);
                 } else {
                     txtpw.setVisibility(View.GONE);
-                }
-
-                if (editpw.getText().toString().length() <= 6) {
-                    txtpw.setText("비밀번호를 7자리 이상 입력해주세요");
-                    txtpw.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -225,26 +235,6 @@ public class JoinActivity extends AppCompatActivity {
                     return;
                 }
 
-                db.collection("members").whereEqualTo("mem_phone", phone).whereEqualTo("mem_name", name).whereEqualTo("mem_birth", birth).get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    QuerySnapshot querySnapshot = task.getResult();
-                                    if (querySnapshot.isEmpty()) {
-                                        chkmem = true;
-                                    }
-                                } else {
-                                    Log.d("메시지", "Error getting documents: ", task.getException());
-                                }
-                            }
-                        });
-
-                if (chkmem == false) {
-                    Toast.makeText(getApplicationContext(), "이미 동일한 이름, 생년월일, 전화번호로 가입된 회원입니다", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
                 if (social) {
                     if (birth.equals("") || birth == null || phone == null || addr1.equals("") || addr1 == null) {
                         Toast.makeText(getApplicationContext(), "입력하지 않은 항목이 있습니다", Toast.LENGTH_SHORT).show();
@@ -252,15 +242,17 @@ public class JoinActivity extends AppCompatActivity {
                     }
                     String uid = user.getUid();
                     email = user.getEmail();
-                    Member member = new Member(uid, name, birth, email, phone, addr1, addr2);
+                    String photo = user.getPhotoUrl().toString();
+                    Member member = new Member(uid, name, birth, email, phone, addr1, addr2, photo);
                     insertMemeber(member, uid);
                 } else {
                     if (chkemail == false) {
                         Toast.makeText(getApplicationContext(), "이메일의 중복 여부를 확인해주세요", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    if (editpw.getText().toString().length() <= 6) {
-                        Toast.makeText(getApplicationContext(), "비밀번호를 7자리 이상 입력해주세요", Toast.LENGTH_SHORT).show();
+                    String regex_pw = "^[A-Za-z0-9]{7,}$";
+                    if(editpw.getText().toString().trim().matches(regex_pw) == false) {
+                        Toast.makeText(getApplicationContext(), "최소 7자, 최소 하나의 영문자 및 하나의 숫자로 구성하세요", Toast.LENGTH_SHORT).show();
                         return;
                     }
                     if (name.equals("") || name == null || birth.equals("") || birth == null || email.equals("") || email == null || pw.equals("") || pw == null || chkpw.equals("") || chkpw == null || phone.equals("") || phone == null || addr1.equals("") || addr1 == null) {
@@ -274,6 +266,10 @@ public class JoinActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 user = mAuth.getCurrentUser();
                                 email = user.getEmail();
+                                String photo=null;
+                                if(user.getPhotoUrl() != null){
+                                    photo = user.getPhotoUrl().toString();
+                                }
                                 String uid = user.getUid();
                                 UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                         .setDisplayName(name)
@@ -287,19 +283,18 @@ public class JoinActivity extends AppCompatActivity {
                                                 }
                                             }
                                         });
-                                Member member = new Member(uid, name, birth, email, phone, addr1, addr2);
+                                Member member = new Member(uid, name, birth, email, phone, addr1, addr2, photo);
                                 insertMemeber(member, uid);
-
                                 mAuth.useAppLanguage();
                                 user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
                                             Log.d("메시지", "Email sent.");
-                                            Toast.makeText(JoinActivity.this, "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(JoinActivity.this, "인증 메일이 발송되었습니다." + user.getEmail(), Toast.LENGTH_SHORT).show();
                                         } else {
                                             Log.e("메시지", "sendEmailVerification", task.getException());
-                                            Toast.makeText(JoinActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(JoinActivity.this, "인증 메일 발송에 실패하였습니다.", Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
@@ -376,19 +371,18 @@ public class JoinActivity extends AppCompatActivity {
     }
 
     private void insertMemeber(Member member, String uid) { //update ui code here
-        //database.getReference("Member").child(uid).setValue(member);
-        db.collection("members")
-                .add(member)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+        db.collection("members").document(uid)
+                .set(member)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d("메시지", "DocumentSnapshot added with ID: " + documentReference.getId());
+                    public void onSuccess(Void aVoid) {
+                        Log.d("메시지", "DocumentSnapshot successfully written!");
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w("메시지", "Error adding document", e);
+                        Log.w("메시지", "Error writing document", e);
                     }
                 });
         Toast.makeText(JoinActivity.this, "회원가입에 성공하셨습니다.", Toast.LENGTH_SHORT).show();
@@ -416,4 +410,5 @@ public class JoinActivity extends AppCompatActivity {
             });
         }
     }
+
 }

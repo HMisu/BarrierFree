@@ -1,6 +1,5 @@
 package com.example.barrierfree;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -18,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -27,7 +27,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.example.barrierfree.ui.bottomNV.BottomNVTest1;
 import com.example.barrierfree.ui.find.FindFragment;
-import com.example.barrierfree.ui.member.LoginActivity;
+import com.example.barrierfree.ui.member.MemberInfoFragment;
 import com.example.barrierfree.ui.settings.SettingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -44,15 +44,12 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     Bitmap bitmap;
-    private AppBarConfiguration mAppBarConfiguration;
 
-    private String userName = "", userEmail = "";
-
-    //BottomNV
+    private String fragmentTag;
+    private Fragment fragmentClass;
     BottomNavigationView bottomNavigationView;
-    BottomNVTest1 bottomNVTest1;
-    BottomAlert bottomNVTest2;
 
+    private AppBarConfiguration mAppBarConfiguration;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_slideshow, R.id.nav_safety, R.id.nav_logout, R.id.nav_notice, R.id.nav_center, R.id.nav_user)
+                R.id.nav_home, R.id.nav_slideshow, R.id.nav_safety, R.id.nav_notice, R.id.nav_center, R.id.nav_setting, R.id.nav_userInfo)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -100,17 +97,26 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "게시판", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_safety) {
                     Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
-                } else if (id == R.id.nav_user) {
-                    getSupportFragmentManager().beginTransaction()
+                } else if (id == R.id.nav_setting) {
+                    fragmentTag = new SettingFragment().getClass().getSimpleName();
+                    fragmentClass = new SettingFragment();
+                    replaceFragment(fragmentTag, fragmentClass);
+                        /*
+                    getSupportFragmentManager().popBackStack(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    getSupportFragmentManager().beginTransaction().addToBackStack(fragmentTag)
                             .replace(R.id.nav_host_fragment, new SettingFragment()).commitAllowingStateLoss();
-                    Toast.makeText(getApplicationContext(), "환경설정", Toast.LENGTH_LONG).show();
-                } else if (id == R.id.nav_logout) {
-                    FirebaseAuth.getInstance().signOut();
-                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                    startActivity(intent);
-                    finish();
+                */
                 } else if (id == R.id.nav_notice) {
                     Toast.makeText(getApplicationContext(), "공지사항", Toast.LENGTH_LONG).show();
+                } else if(id == R.id.nav_userInfo) {
+                    fragmentTag = new MemberInfoFragment().getClass().getSimpleName();
+                    fragmentClass = new MemberInfoFragment();
+                    replaceFragment(fragmentTag, fragmentClass);
+                        /*
+                    getSupportFragmentManager().popBackStack(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    getSupportFragmentManager().beginTransaction().addToBackStack(fragmentTag)
+                            .replace(R.id.nav_host_fragment, new MemberInfoFragment()).commitAllowingStateLoss();
+                    */
                 } else if (id == R.id.nav_center) {
                     Toast.makeText(getApplicationContext(), "고객센터", Toast.LENGTH_LONG).show();
                 }
@@ -161,25 +167,35 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        //BottomNV
+
         bottomNavigationView = findViewById(R.id.bottomNV);
-        //Fragment create.
-        bottomNVTest1 = new BottomNVTest1();
-        bottomNVTest2 = new BottomAlert();
         //Set up the view you're seeing for the first time.
-        getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, bottomNVTest1).commitAllowingStateLoss();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.nav_host_fragment, new BottomNVTest1()).commit();
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.bottomNV_tab1: {
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.nav_host_fragment, bottomNVTest1).commitAllowingStateLoss();
+                        fragmentTag = new BottomNVTest1().getClass().getSimpleName();
+                        fragmentClass = new BottomNVTest1();
+                        replaceFragment(fragmentTag, fragmentClass);
+                        /*
+                        getSupportFragmentManager().popBackStack(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        getSupportFragmentManager().beginTransaction().addToBackStack(new BottomNVTest1().getClass().getSimpleName())
+                                .replace(R.id.nav_host_fragment, new BottomNVTest1()).commitAllowingStateLoss();
+                        */
                         return true;
                     }
                     case R.id.bottomNV_tab2: {
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.nav_host_fragment, bottomNVTest2).commitAllowingStateLoss();
+                        fragmentTag = new BottomAlert().getClass().getSimpleName();
+                        fragmentClass = new BottomAlert();
+                        replaceFragment(fragmentTag, fragmentClass);
+                        /*
+                        getSupportFragmentManager().popBackStack(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        getSupportFragmentManager().beginTransaction().addToBackStack(fragmentTag)
+                                .replace(R.id.nav_host_fragment, new BottomAlert()).commitAllowingStateLoss();
+                        */
                         return true;
                     }
                     default:
@@ -211,5 +227,11 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    public void replaceFragment(String fragmentTag, Fragment fragmentClass){
+        getSupportFragmentManager().popBackStack(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getSupportFragmentManager().beginTransaction().addToBackStack(fragmentTag)
+                .replace(R.id.nav_host_fragment, fragmentClass).commitAllowingStateLoss();
     }
 }

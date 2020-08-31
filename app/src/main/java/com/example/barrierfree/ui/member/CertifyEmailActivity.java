@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -19,17 +20,18 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.barrierfree.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class CertifyEmailActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
 
     private Button btnsend;
-    private TextView txtuseremail, txtcheckemail;
+    private TextView txtuseremail, txtcheckemail, linklogin, linkcancel;
     private boolean login;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +44,10 @@ public class CertifyEmailActivity extends AppCompatActivity {
         btnsend = (Button) findViewById(R.id.btn_email_send);
         txtuseremail = (TextView) findViewById(R.id.txt_user_email);
         txtcheckemail = (TextView) findViewById(R.id.txt_check_email);
+        linklogin = (TextView) findViewById(R.id.link_login);
+        linkcancel = (TextView) findViewById(R.id.link_cancel);
 
-        txtuseremail.setText("가입 이메일 주소 : "+mAuth.getCurrentUser().getEmail());
+        txtuseremail.setText("가입 이메일 주소 : "+user.getEmail());
 
         Intent intent = getIntent();
         login = intent.getBooleanExtra("LOGIN_ACTIVITY", false);
@@ -62,18 +66,52 @@ public class CertifyEmailActivity extends AppCompatActivity {
         btnsend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d("메시지", "Email sent.");
-                            Toast.makeText(CertifyEmailActivity.this,"Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.e("메시지", "sendEmailVerification", task.getException());
-                            Toast.makeText(CertifyEmailActivity.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
-                        }
+                user.reload();
+                if(!user.isEmailVerified()) {
+                    user.sendEmailVerification();
+                    Toast.makeText(CertifyEmailActivity.this, "Email Sent!", Toast.LENGTH_LONG).show();
+                }else {
+                    Toast.makeText(CertifyEmailActivity.this, "Your email has been verified! You can login now.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        linklogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        linkcancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("메시지","uid : "+user.getUid());
+                FirebaseFirestore.getInstance().collection("members").document(user.getUid()).delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("메시지", "DocumentSnapshot successfully deleted!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("메시지", "Error deleting document", e);
+                            }
+                        });
+                mAuth.getCurrentUser().delete();
+                FirebaseAuth.getInstance().signOut();
+                (new Handler()).postDelayed(new Runnable() {
+                    public void run() {
+                        Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
-                });
+                }, 700);
             }
         });
     }

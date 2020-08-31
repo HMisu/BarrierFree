@@ -12,7 +12,8 @@ import com.example.barrierfree.R;
 
 public class BottomNVTest1 extends Fragment{
     ViewGroup viewGroup;
-    @Nullable @Override public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    @Nullable @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         viewGroup = (ViewGroup) inflater.inflate(R.layout.app_bar_test1,container,false);
         return viewGroup;
     }

@@ -26,7 +26,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth = null;
     private static final int RC_SIGN_IN = 900;

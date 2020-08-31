@@ -26,14 +26,7 @@
             android:layout_height="match_parent"
             android:layout_below="@+id/layout_toolbar"
             android:layout_marginBottom="?attr/actionBarSize" />
- <!--
-        <FrameLayout
-            android:id="@+id/main_layout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/layout_toolbar"
-            android:layout_marginBottom="?attr/actionBarSize" />
--->
+
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNV"
             android:layout_width="match_parent"

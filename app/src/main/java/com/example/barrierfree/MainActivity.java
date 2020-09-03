@@ -17,7 +17,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.barrierfree.ui.find.FindFragment;
-import com.example.barrierfree.ui.settings.SettingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -28,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     BottomNVTest1 bottomNVTest1;
     BottomAlert bottomNVTest2;
+    Settings settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        settings = new Settings();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuitem) {
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
                 drawer.closeDrawers();
                 int id = menuitem.getItemId();
-
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 Fragment fragment = null;
                 String title = getString(R.string.app_name);
 
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "즐겨찾기한 장소", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_user) {
                     getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.main_layout,new SettingFragment()).commitAllowingStateLoss();
+                            .replace(R.id.main_layout,settings).commit();
                     Toast.makeText(getApplicationContext(), "사용자 설정", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_help) {
                     Toast.makeText(getApplicationContext(), "도움말", Toast.LENGTH_LONG).show();
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "고객센터", Toast.LENGTH_LONG).show();
                 }
                 if(fragment != null) {
-                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                     ft.replace(R.id.main_layout, fragment);
                     ft.commit();
                 }

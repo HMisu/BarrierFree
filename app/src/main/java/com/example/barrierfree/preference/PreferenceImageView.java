@@ -45,20 +45,20 @@ public class PreferenceImageView extends Preference {
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
 
-        roundImageView = (RoundImageView)holder.findViewById(R.id.user_photo);
-        userName = (TextView)holder.findViewById(R.id.txt_user_name);
-        userEmail = (TextView)holder.findViewById(R.id.txt_user_email);
-        btnLogout = (Button)holder.findViewById(R.id.btn_logout);
+        roundImageView = (RoundImageView) holder.findViewById(R.id.user_photo);
+        userName = (TextView) holder.findViewById(R.id.txt_user_name);
+        userEmail = (TextView) holder.findViewById(R.id.txt_user_email);
+        btnLogout = (Button) holder.findViewById(R.id.btn_logout);
         btnLogout.setOnClickListener(btnLogoutClickListener);
 
         userName.setText(user.getDisplayName());
         userEmail.setText(user.getEmail());
-        Thread mThread = new Thread() {
+
+        Thread uThread = new Thread() {
             @Override
-            public void run() {
-                try {
-                    //현재로그인한 사용자 정보를 통해 PhotoUrl 가져오기
-                    if(user.getPhotoUrl() == null)
+            public void run(){
+                try{
+                    if (user.getPhotoUrl() == null)
                         return;
                     URL url = new URL(user.getPhotoUrl().toString());
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -66,23 +66,27 @@ public class PreferenceImageView extends Preference {
                     conn.connect();
                     InputStream is = conn.getInputStream();
                     bitmap = BitmapFactory.decodeStream(is);
-                } catch (MalformedURLException ee) {
-                    ee.printStackTrace();
-                } catch (IOException e) {
+                }catch (MalformedURLException e){
+                    e.printStackTrace();
+                }catch (IOException e){
                     e.printStackTrace();
                 }
-            }};
-        mThread.start();
-        try {
-            mThread.join();
-            roundImageView.setImageBitmap(bitmap);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            }
+        };
+
+        if(user.getPhotoUrl() != null) {
+            uThread.start();
+            try {
+                uThread.join();
+                roundImageView.setImageBitmap(bitmap);
+                roundImageView.setRectRadius(150f);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        roundImageView.setRectRadius(150f);
     }
 
-    public void setBtnLogoutClickListener(View.OnClickListener onClickListener){
+    public void setBtnLogoutClickListener(View.OnClickListener onClickListener) {
         btnLogoutClickListener = onClickListener;
     }
 }

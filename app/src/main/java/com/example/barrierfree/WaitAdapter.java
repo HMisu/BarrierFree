@@ -33,7 +33,7 @@ public class WaitAdapter extends BaseAdapter {
         if (convertView == null)
         {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.connect_list, parent, false);
+            convertView = inflater.inflate(R.layout.waitt_list, parent, false);
         }
 
         TextView list_name = (TextView) convertView.findViewById(R.id.textName);

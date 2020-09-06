@@ -10,8 +10,20 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_setting">Setting</string>
 
     <string name="home_second">Home Second</string>
 
+    <string name="find_pw"><u>비밀번호 찾기</u></string>
+    <string name="find_email"><u>이메일 찾기</u></string>
+    <string name="join"><u>회원가입</u></string>
+
+    <string name="edit_user_name">이름을 입력하세요</string>
+    <string name="edit_user_birth">법정생년월일 6자리를 입력하세요</string>
+    <string name="edit_email">이메일을 입력하세요</string>
+    <string name="edit_email_auth">발송된 인증번호를 입력하세요</string>
+    <string name="edit_pw">비밀번호를 입력하세요</string>
+    <string name="check_pw">비밀번호를 한 번 더 입력하세요</string>
+    <string name="edit_phone_num">전화번호를 입력하세요</string>
+    <string name="edit_addr">주소를 입력하세요</string>
+    <string name="edit_addr_detail">상세주소를 입력하세요</string>
 </resources>

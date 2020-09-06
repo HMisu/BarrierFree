@@ -10,10 +10,8 @@ import androidx.preference.PreferenceManager;
 import com.example.barrierfree.R;
 
 public class SettingFragment extends PreferenceFragmentCompat {
-
     SharedPreferences pref;
     ListPreference soundPrefer, vibratorPrefer;
-
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {

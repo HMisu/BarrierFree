@@ -1,12 +1,9 @@
 package com.example.barrierfree;
 
 public class CustomListView {
-
     public String title;
     public String content;
     public String date;
-
-
 
     public String getTitle() {
         return title;

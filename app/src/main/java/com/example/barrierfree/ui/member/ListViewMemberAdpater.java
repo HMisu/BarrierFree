@@ -288,7 +288,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                         }
                     });
                     p.show();
-                } else if(member.getLv_id().equals("adarequest")){
+                } else if(member.getLv_id().equals("adprequest")){
                     if(member.getCn_id() == null)
                         return;
                     db.collection("connection").document(member.getCn_id())

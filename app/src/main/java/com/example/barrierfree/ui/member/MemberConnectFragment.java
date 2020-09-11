@@ -27,6 +27,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+
 public class MemberConnectFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
@@ -35,12 +37,17 @@ public class MemberConnectFragment extends Fragment {
     private View root;
     private ListView lvrequest, lvapply, lvsearch;
     private ListViewMemberAdpater adprequest, adpapply, adpsearch;
+    private ListViewMember member = new ListViewMember();
+    private ArrayList<ListViewMember> memData;
 
-    private TextView editsearch;
+    private TextView editsearch, protecter, weaker;
     private Button btnsearch;
 
+    public MemberConnectFragment() {
+    }
+
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
@@ -49,12 +56,15 @@ public class MemberConnectFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_memberconnect, container, false);
 
+
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
         editsearch = (TextView) root.findViewById(R.id.edit_search);
         btnsearch = (Button) root.findViewById(R.id.btn_search_mem);
+        protecter = (TextView) root.findViewById(R.id.txt_memProtect);
+        weaker = (TextView) root.findViewById(R.id.txt_memWeak);
 
         // Adapter 생성
         adprequest = new ListViewMemberAdpater(getActivity());
@@ -68,6 +78,47 @@ public class MemberConnectFragment extends Fragment {
         lvsearch = (ListView) root.findViewById(R.id.listview_search_user);
         lvsearch.setAdapter(adpsearch);
 
+        // connect == true이면 보호자와 취약자의 텍스트를 바꾼다.
+        db.collection("connection").whereEqualTo("connect", true).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(Task<QuerySnapshot> task) {
+                        String uid = null;
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            if (document.getString("mem_protect").equals(user.getUid())) {
+                                uid = document.getString("mem_weak");
+                                //mem_weak를 넘겨서, mem_weak를 읽어와서, weaker에 이름 표시.
+                                db.collection("members").whereEqualTo("uid", uid).get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(Task<QuerySnapshot> task) {
+                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                    protecter.setText(user.getDisplayName() + "(보호자)");
+                                                    weaker.setText(document.getString("mem_name") + "(취약자)");
+                                                }
+                                            }
+                                        });
+                            } else {
+                                uid = document.getString("mem_protect");
+                                //mem_protect를 넘겨서, mem_protect를 일겅와서, protecter에 이름을 표시한다.
+                                db.collection("members").whereEqualTo("uid", uid).get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(Task<QuerySnapshot> task) {
+                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                    weaker.setText(user.getDisplayName() + "(취약자)");
+                                                    protecter.setText(document.getString("mem_name") + "(보호자)");
+                                                }
+                                            }
+                                        });
+                            }
+                            Log.d("메시지", uid);
+
+                        }
+
+                    }
+                });
+
         db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).whereEqualTo("connect", false).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -79,14 +130,14 @@ public class MemberConnectFragment extends Fragment {
                                     uid = document.getString("mem_protect");
                                 else
                                     uid = document.getString("mem_weak");
-                                Log.d("메시지",uid);
+                                Log.d("메시지", uid);
                                 db.collection("members").whereEqualTo("uid", uid).get()
                                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
                                             public void onComplete(Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), user.getUid(),"adpapply");
+                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), user.getUid(), "adpapply");
                                                         adpapply.add(mem);
                                                         adpapply.notifyDataSetChanged();
                                                     }
@@ -121,7 +172,7 @@ public class MemberConnectFragment extends Fragment {
                                             public void onComplete(Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), document.getString("uid"),"adprequest");
+                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), document.getString("uid"), "adprequest");
                                                         adprequest.add(mem);
                                                         adprequest.notifyDataSetChanged();
                                                     }
@@ -146,7 +197,7 @@ public class MemberConnectFragment extends Fragment {
         editsearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { //EditText에 변화가 있을 때
-                if(adpsearch.getCount() != 0){
+                if (adpsearch.getCount() != 0) {
                     adpsearch.clear();
                     adpsearch.notifyDataSetChanged();
                 }
@@ -158,7 +209,7 @@ public class MemberConnectFragment extends Fragment {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { //입력하기 전에 호출되는 API
-                if(adpsearch.getCount() != 0){
+                if (adpsearch.getCount() != 0) {
                     adpsearch.clear();
                     adpsearch.notifyDataSetChanged();
                 }
@@ -183,7 +234,7 @@ public class MemberConnectFragment extends Fragment {
                                             Toast.makeText(getActivity(), "입력하신 이메일을 가진 회원이 없습니다. 다시 입력하세요", Toast.LENGTH_SHORT).show();
                                         }
                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                            ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), null ,"adpsearch");
+                                            ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), null, "adpsearch");
                                             adpsearch.add(mem);
                                             adpsearch.notifyDataSetChanged();
                                         }
@@ -224,7 +275,7 @@ public class MemberConnectFragment extends Fragment {
         return root;
     }
 
-    public void refreshFragment(){
+    public void refreshFragment() {
         FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
         //FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.detach(this).attach(this).commit();

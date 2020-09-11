@@ -20,12 +20,12 @@ public class Settings extends Fragment {
         viewGroup = (ViewGroup) inflater.inflate(R.layout.settings, container, false);
         connect = (TextView)viewGroup.findViewById(R.id.connect);
 
-        connect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v){
-                getFragmentManager().beginTransaction().replace(R.id.main_layout, new Connection()).commit();
-            }
-        });
+//        connect.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v){
+//                getFragmentManager().beginTransaction().replace(R.id.main_layout, new Connection()).commit();
+//            }
+//        });
         return viewGroup;
     }
 }

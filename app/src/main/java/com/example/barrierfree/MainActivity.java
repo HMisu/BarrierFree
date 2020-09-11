@@ -27,6 +27,8 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.example.barrierfree.ui.bottomNV.BottomNVTest1;
 import com.example.barrierfree.ui.find.FindFragment;
+import com.example.barrierfree.ui.member.ListViewMemberAdpater;
+import com.example.barrierfree.ui.member.MemberInfoFragment;
 import com.example.barrierfree.ui.settings.SettingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -88,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
                 drawer.closeDrawers();
                 int id = menuitem.getItemId();
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
                 Fragment fragment = null;
                 String title = getString(R.string.app_name);
 
@@ -102,12 +103,11 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "게시판", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_safety) {
                     Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_user) {
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.main_layout,settings).commit();
+                }else if(id == R.id.nav_setting) {
+                    fragmentTag = new SettingFragment().getClass().getSimpleName();
+                    fragmentClass = new SettingFragment();
+                    replaceFragment(fragmentTag, fragmentClass);
                     Toast.makeText(getApplicationContext(), "사용자 설정", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_help) {
-                    Toast.makeText(getApplicationContext(), "도움말", Toast.LENGTH_LONG).show();
                 }else if(id == R.id.nav_notice) {
                     Toast.makeText(getApplicationContext(), "공지사항", Toast.LENGTH_LONG).show();
                 } else if(id == R.id.nav_userInfo) {

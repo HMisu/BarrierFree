@@ -26,6 +26,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -37,20 +39,25 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.ArrayList;
 
+import static android.content.ContentValues.TAG;
+
 public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickListener {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     private FirebaseFirestore db;
+    private DatabaseReference connectRef;
 
     private ListViewMember member = new ListViewMember();
     private Connection conn;
     private Context context;
+    private int pos;
+
 
     Bitmap bitmap;
     DisplayImageOptions options;
     ImageLoader imageLoader;
     private ImageView imageView;
-    private TextView name, email, apply;
+    private TextView name, email, apply, protecter, weaker;
     private Button btnrefuse, btnapply;
 
     private String uid;
@@ -58,14 +65,12 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
     private ArrayList<ListViewMember> memData;
 
 
-    public ListViewMemberAdpater(){
-
-    }
 
     public ListViewMemberAdpater(Context context) {
         super();
         context = context;
         memData = new ArrayList<ListViewMember>();
+
     }
 
     @Override
@@ -89,12 +94,16 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        pos = position;
         context = parent.getContext();
         initImageLoader();
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
+        connectRef = FirebaseDatabase.getInstance().getReference();
+
+
 
         // 리스트 아이템이 새로 추가될 경우에는 v가 null값이다.
         // view는 어느 정도 생성된 뒤에는 재사용이 일어나기 때문에 효율을 위해서 해준다.
@@ -104,11 +113,14 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
         }
 
         imageView = (ImageView) convertView.findViewById(R.id.mem_photo);
+        protecter = (TextView) convertView.findViewById(R.id.txt_memProtect);
+        weaker = (TextView) convertView.findViewById(R.id.txt_memWeak);
         name = (TextView) convertView.findViewById(R.id.txt_mem_name);
         email = (TextView) convertView.findViewById(R.id.txt_mem_email);
         apply = (TextView) convertView.findViewById(R.id.txt_apply);
         btnrefuse = (Button) convertView.findViewById(R.id.btn_refuse);
         btnapply = (Button) convertView.findViewById(R.id.btn_apply);
+
 
         // 받아온 position 값을 이용하여 배열에서 아이템을 가져온다.
         member = getItem(position);
@@ -141,11 +153,17 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
 
             name.setText(member.getMem_name());
             email.setText(member.getMem_email());
+
+
             if(member.getMem_applicant()!=null){
-                if(member.getMem_applicant().equals("mem_weak"))
-                    apply.setText(member.getMem_name()+" : 취약자 / "+user.getDisplayName()+" : 보호자");
-                else
-                    apply.setText(member.getMem_name()+" : 보호자 / "+user.getDisplayName()+" : 취약자");
+                if(member.getMem_applicant().equals("mem_weak")) {
+                    apply.setText(member.getMem_name() + " : 취약자 / " + user.getDisplayName() + " : 보호자");
+
+                }
+                else {
+                    apply.setText(member.getMem_name() + " : 보호자 / " + user.getDisplayName() + " : 취약자");
+
+                }
             }
             switch (member.getLv_id()){
                 case "adpsearch":
@@ -222,9 +240,45 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
         ListViewMember clickItem = (ListViewMember) v.getTag();
         switch (v.getId()) {
             case R.id.btn_refuse:
-                Toast.makeText(context, "버튼 클릭", Toast.LENGTH_SHORT).show();
+                memData.remove(pos);
+                notifyDataSetChanged();
+                db.collection("connection").document(user.getUid()+(pos+1))
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "거절을 성공적으로 마쳤습니다.");
+                                Toast.makeText(context, "거절 버튼 클릭", Toast.LENGTH_SHORT).show();
+                                notifyDataSetChanged();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "거절을 수행하는데 에러 발생.", e);
+                                Toast.makeText(context, "오류발생", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                 break;
+
             case R.id.btn_apply:
+                memData.remove(pos);
+                notifyDataSetChanged();
+                Toast.makeText(context, "수락 버튼 클릭", Toast.LENGTH_SHORT).show();
+                db.collection("connection").document(member.getMem_uid()+pos).update("connect",true)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "계정 연결 성공!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "계정 연결 에러 발생", e);
+                            }
+                        });
+
                 if(member.getLv_id().equals("adpsearch")){
                     PopupMenu p = new PopupMenu(context, v);
                     p.getMenuInflater().inflate(R.menu.popup_connect, p.getMenu());
@@ -247,7 +301,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                                                 if (!querySnapshot.isEmpty()) {
                                                     Toast.makeText(context, "이미 계정연결을 신청한 상태입니다", Toast.LENGTH_SHORT).show();
                                                 } else{
-                                                    db.collection("connection").document()
+                                                    db.collection("connection").document(user.getUid()+pos)
                                                             .set(conn)
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override

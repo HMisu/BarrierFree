@@ -37,7 +37,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/text1"
+        android:id="@+id/txt_memProtect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -50,7 +50,7 @@
         app:layout_constraintTop_toBottomOf="@+id/protector_photo" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/txt_memWeak"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -87,7 +87,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text1" />
+        app:layout_constraintTop_toBottomOf="@+id/txt_memProtect" />
 
     <EditText
         android:id="@+id/edit_search"
@@ -98,13 +98,13 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
-        android:background="@drawable/user_info"
         android:ems="14"
         android:hint="이메일 혹은 전화번호 입력"
         android:inputType="textEmailAddress"
         android:padding="10dp"
         android:textColorHint="@color/colorHint"
         android:textSize="16sp"
+        android:background="@drawable/txt_round"
         app:layout_constraintEnd_toStartOf="@+id/btn_chk_email"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_connectapply" />
@@ -113,13 +113,14 @@
         android:id="@+id/btn_search_mem"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:background="@drawable/btn_white"
+        android:background="@drawable/button_green"
         android:layout_marginRight="20dp"
         android:layout_marginTop="4dp"
         android:text="검색"
         android:textSize="14dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#FFFFFF"
         app:layout_constraintTop_toTopOf="@+id/edit_search" />
 
     <ListView

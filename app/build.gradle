@@ -32,6 +32,8 @@ apply plugin: 'com.google.gms.google-services'
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //noinspection GradleCompatible
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    //noinspection GradleCompatible
     implementation 'com.android.support:design:28.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
@@ -55,10 +57,10 @@ dependencies {
     implementation "androidx.preference:preference:1.0.0"
     //ListView에서 thread 과부화 해결 https://github.com/nostra13/Android-Universal-Image-Loader
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    implementation 'com.google.firebase:firebase-messaging:20.2.4'
     //testImplementation
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation "androidx.legacy:legacy-preference-v14:1.0.0"
     implementation "androidx.preference:preference:1.0.0"
 }

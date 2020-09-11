@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class Connection extends Fragment {
+public class Connection_mem extends Fragment {
     private ListView connect_list, wait_list;
     ViewGroup viewGroup;
     ConnectAdapter connect_adapter;
@@ -22,8 +22,8 @@ public class Connection extends Fragment {
         connect_adapter = new ConnectAdapter();
         wait_adapter = new WaitAdapter();
 
-        connect_list = (ListView) viewGroup.findViewById(R.id.connect_list);
-        wait_list = (ListView) viewGroup.findViewById(R.id.waitt_list);
+        connect_list = (ListView) viewGroup.findViewById(R.id.listview_apply_user);
+        wait_list = (ListView) viewGroup.findViewById(R.id.listview_request_user);
 
         connect_list.setAdapter(connect_adapter);
         wait_list.setAdapter(wait_adapter);

@@ -13,6 +13,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
 
+import com.example.barrierfree.CustomAdapter;
+import com.example.barrierfree.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+
 public class BottomAlert extends ListFragment {
 
     ViewGroup viewGroup;

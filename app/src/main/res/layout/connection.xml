@@ -32,7 +32,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
-                android:id="@+id/imageView4"
+                android:id="@+id/protector_photo"
                 android:layout_width="100dp"
                 android:layout_height="74dp"
                 android:layout_marginStart="35dp"
@@ -43,7 +43,7 @@
                 app:srcCompat="@drawable/ic_user" />
 
             <ImageView
-                android:id="@+id/imageView2"
+                android:id="@+id/ward_photo"
                 android:layout_width="100dp"
                 android:layout_height="74dp"
                 android:layout_marginTop="100dp"
@@ -66,7 +66,7 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView2"
+                app:layout_constraintTop_toBottomOf="@+id/ward_photo"
                 app:layout_constraintVertical_bias="0.0" />
 
             <TextView
@@ -82,7 +82,7 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imageView4"
+                app:layout_constraintTop_toBottomOf="@+id/protector_photo"
                 app:layout_constraintVertical_bias="0.0" />
 
 
@@ -105,15 +105,18 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
-                android:id="@+id/editText"
+                android:id="@+id/edit_search"
                 android:layout_width="250dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/txt_round"
-                android:hint="전화번호를 입력해주세요."
-                android:inputType="phone"
+                android:hint="이메일 혹은 전화번호 입력"
+                android:inputType="textEmailAddress"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:textColorHint="@color/colorHint"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
@@ -133,7 +136,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
             <TextView
-                android:id="@+id/textView8"
+                android:id="@+id/title_request"
                 android:layout_width="0dp"
                 android:layout_height="30dp"
                 android:background="@drawable/text_stroke_dark"
@@ -142,28 +145,28 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/connect_list" />
+                app:layout_constraintTop_toBottomOf="@+id/listview_apply_user" />
 
             <ListView
-                android:id="@+id/waitt_list"
+                android:id="@+id/listview_request_user"
                 android:layout_width="wrap_content"
                 android:layout_height="300dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView8">
+                app:layout_constraintTop_toBottomOf="@+id/title_request">
 
             </ListView>
 
             <ListView
-                android:id="@+id/connect_list"
+                android:id="@+id/listview_apply_user"
                 android:layout_width="wrap_content"
                 android:layout_height="300dp"
                 android:layout_marginTop="15dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editText" />
+                app:layout_constraintTop_toBottomOf="@+id/edit_search" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

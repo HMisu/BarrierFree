@@ -31,7 +31,7 @@ public class PreferenceImageView extends Preference {
     private Button btnLogout;
 
     View.OnClickListener btnLogoutClickListener;
-    RoundImageView roundImageView;
+    RoundImageView imageView;
 
     public PreferenceImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -45,7 +45,7 @@ public class PreferenceImageView extends Preference {
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
 
-        roundImageView = (RoundImageView) holder.findViewById(R.id.user_photo);
+        imageView = (RoundImageView) holder.findViewById(R.id.user_photo);
         userName = (TextView) holder.findViewById(R.id.txt_user_name);
         userEmail = (TextView) holder.findViewById(R.id.txt_user_email);
         btnLogout = (Button) holder.findViewById(R.id.btn_logout);
@@ -78,8 +78,8 @@ public class PreferenceImageView extends Preference {
             uThread.start();
             try {
                 uThread.join();
-                roundImageView.setImageBitmap(bitmap);
-                roundImageView.setRectRadius(150f);
+                imageView.setImageBitmap(bitmap);
+                imageView.setRectRadius(100f);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

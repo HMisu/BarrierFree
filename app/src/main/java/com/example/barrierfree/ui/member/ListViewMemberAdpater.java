@@ -56,16 +56,17 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
     private String uid;
 
     private ArrayList<ListViewMember> memData;
-
+    MemberConnectFragment fragment;
 
     public ListViewMemberAdpater(){
 
     }
 
-    public ListViewMemberAdpater(Context context) {
+    public ListViewMemberAdpater(Context context, MemberConnectFragment fragment) {
         super();
         context = context;
         memData = new ArrayList<ListViewMember>();
+        this.fragment = fragment;
     }
 
     @Override
@@ -121,9 +122,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
             imageLoader.displayImage(member.getMem_photo(), imageView, options, new ImageLoadingListener(){
                         @Override
                         public void onLoadingStarted(String imageUri, View view) {
-
                         }
-
                         @Override
                         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
                             // 이미지를 비운다 (로드 실패할 경우)
@@ -131,7 +130,6 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                         }
                         @Override
                         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-
                         }
                         @Override
                         public void onLoadingCancelled(String imageUri, View view) {
@@ -150,6 +148,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
             switch (member.getLv_id()){
                 case "adpsearch":
                     btnrefuse.setVisibility(convertView.GONE);
+                    apply.setVisibility(convertView.GONE);
                     db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).whereEqualTo("connect",false).get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
@@ -192,6 +191,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                     btnrefuse.setText("요청취소");
                     btnapply.setText("수락대기중");
                     btnapply.setBackgroundColor(Color.parseColor("#f2f2f2"));
+                    btnapply.setEnabled(false);
                     break;
                 case "adarequest":
                     btnrefuse.setText("거절");
@@ -222,7 +222,22 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
         ListViewMember clickItem = (ListViewMember) v.getTag();
         switch (v.getId()) {
             case R.id.btn_refuse:
-                Toast.makeText(context, "버튼 클릭", Toast.LENGTH_SHORT).show();
+                if(member.getLv_id().equals("adpapply") || member.getLv_id().equals("adarequest")) {
+                    db.collection("connection").document(member.getCn_id()).delete()
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("메시지", "DocumentSnapshot successfully deleted!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("메시지", "Error deleting document", e);
+                                }
+                            });
+                    fragment.refreshFragment();
+                }
                 break;
             case R.id.btn_apply:
                 if(member.getLv_id().equals("adpsearch")){
@@ -253,6 +268,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                                                                 @Override
                                                                 public void onSuccess(Void aVoid) {
                                                                     Log.d("메시지", "DocumentSnapshot successfully written!");
+                                                                    fragment.refreshFragment();
                                                                 }
                                                             })
                                                             .addOnFailureListener(new OnFailureListener() {
@@ -272,6 +288,24 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                         }
                     });
                     p.show();
+                } else if(member.getLv_id().equals("adarequest")){
+                    if(member.getCn_id() == null)
+                        return;
+                    db.collection("connection").document(member.getCn_id())
+                            .update("connect", true)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("메시지", "DocumentSnapshot successfully updated!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("메시지", "Error updating document", e);
+                                }
+                            });
+                    fragment.refreshFragment();
                 }
                 break;
             default:

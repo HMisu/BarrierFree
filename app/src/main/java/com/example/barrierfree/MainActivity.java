@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
         TextView userName = (TextView) nav_header_view.findViewById(R.id.txt_user_name);
         TextView userEmail = (TextView) nav_header_view.findViewById(R.id.txt_user_email);
-        ImageView userProfileImg = (ImageView) nav_header_view.findViewById(R.id.img_user);
+        RoundImageView userProfileImg = (RoundImageView) nav_header_view.findViewById(R.id.img_user);
 
         user = mAuth.getCurrentUser();
         userName.setText(user.getDisplayName());
@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             mThread.join();
             userProfileImg.setImageBitmap(bitmap);
+            userProfileImg.setRectRadius(100f);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

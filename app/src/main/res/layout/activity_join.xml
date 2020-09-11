@@ -335,7 +335,7 @@
             android:width="250dp"
             android:background="@drawable/btn_big_green"
             android:stateListAnimator="@null"
-            android:text="완료"
+            android:text="가입"
             android:textSize="16sp"
             android:textColor="#ffffff"
             android:textStyle="bold"

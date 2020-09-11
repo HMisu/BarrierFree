@@ -7,22 +7,19 @@ public class ListViewMember {
     private String mem_photo;
     private String mem_applicant;
     private String lv_id;
+    private String cn_id;
 
     public ListViewMember() {
     }
-/*
-    public ListViewMember(String uid, String lv_id) {
-        this.uid = uid;
-        this.lv_id = lv_id;
-    }
-*/
-    public ListViewMember(String uid, String mem_name, String mem_email, String mem_photo, String mem_applicant, String lv_id) {
+
+    public ListViewMember(String uid, String mem_name, String mem_email, String mem_photo, String mem_applicant, String lv_id, String cn_id) {
         this.uid = uid;
         this.mem_name = mem_name;
         this.mem_email = mem_email;
         this.mem_photo = mem_photo;
         this.mem_applicant = mem_applicant;
         this.lv_id = lv_id;
+        this.cn_id = cn_id;
     }
 
     public void setMem_uid(String uid) {
@@ -47,6 +44,10 @@ public class ListViewMember {
         this.mem_photo = lv_id;
     }
 
+    public void setCn_id(String cn_id){
+        this.cn_id = cn_id;
+    }
+
     public String getMem_uid() {
         return uid;
     }
@@ -67,5 +68,9 @@ public class ListViewMember {
 
     public String getLv_id() {
         return lv_id;
+    }
+
+    public String getCn_id(){
+        return cn_id;
     }
 }

@@ -1,5 +1,7 @@
 package com.example.barrierfree.ui.member;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.barrierfree.R;
+import com.example.barrierfree.RoundImageView;
 import com.example.barrierfree.models.ListViewMember;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -26,6 +29,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class MemberConnectFragment extends Fragment {
     private FirebaseAuth mAuth;
@@ -36,9 +45,13 @@ public class MemberConnectFragment extends Fragment {
     private ListView lvrequest, lvapply, lvsearch;
     private ListViewMemberAdpater adprequest, adpapply, adpsearch;
 
-    private TextView editsearch;
+    private RoundImageView imgweak, imgprotect;
+    private TextView editsearch, txtconnect, txtweak, txtprotect;
     private Button btnsearch;
 
+    Boolean boolimg = false;
+    Bitmap bitmap;
+    String uid = null, cn_id = null;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,19 +60,30 @@ public class MemberConnectFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        root = inflater.inflate(R.layout.fragment_memberconnect, container, false);
+        root = inflater.inflate(R.layout.fragment_member_connect, container, false);
 
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
+        imgweak = (RoundImageView) root.findViewById(R.id.weak_photo);
+        imgprotect = (RoundImageView) root.findViewById(R.id.protector_photo);
+        txtconnect = (TextView) root.findViewById(R.id.txt_connect);
+        txtweak = (TextView) root.findViewById(R.id.text1);
+        txtprotect = (TextView) root.findViewById(R.id.text2);
         editsearch = (TextView) root.findViewById(R.id.edit_search);
         btnsearch = (Button) root.findViewById(R.id.btn_search_mem);
 
+        txtconnect.setVisibility(root.VISIBLE);
+        imgweak.setVisibility(root.INVISIBLE);
+        imgprotect.setVisibility(root.INVISIBLE);
+        txtweak.setVisibility(root.INVISIBLE);
+        txtprotect.setVisibility(root.INVISIBLE);
+
         // Adapter 생성
-        adprequest = new ListViewMemberAdpater(getActivity());
-        adpapply = new ListViewMemberAdpater(getActivity());
-        adpsearch = new ListViewMemberAdpater(getActivity());
+        adprequest = new ListViewMemberAdpater(getActivity(), MemberConnectFragment.this);
+        adpapply = new ListViewMemberAdpater(getActivity(), MemberConnectFragment.this);
+        adpsearch = new ListViewMemberAdpater(getActivity(), MemberConnectFragment.this);
 
         lvrequest = (ListView) root.findViewById(R.id.listview_request_user);
         lvrequest.setAdapter(adprequest);
@@ -68,25 +92,135 @@ public class MemberConnectFragment extends Fragment {
         lvsearch = (ListView) root.findViewById(R.id.listview_search_user);
         lvsearch.setAdapter(adpsearch);
 
+        db.collection("connection").whereEqualTo("connect", true).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                if (document.getString("mem_weak").equals(user.getUid()) || document.getString("mem_protect").equals(user.getUid())){
+                                    txtconnect.setVisibility(root.INVISIBLE);
+                                    imgweak.setVisibility(root.VISIBLE);
+                                    imgprotect.setVisibility(root.VISIBLE);
+                                    txtweak.setVisibility(root.VISIBLE);
+                                    txtprotect.setVisibility(root.VISIBLE);
+                                }
+                                if (document.getString("mem_weak").equals(user.getUid())){
+                                    uid = document.getString("mem_protect");
+                                    boolimg = true;
+                                } else {
+                                    uid = document.getString("mem_weak");
+                                    boolimg = false;
+                                }
+                                Thread uThread = new Thread() {
+                                    @Override
+                                    public void run(){
+                                        try{
+                                            if (user.getPhotoUrl() == null)
+                                                return;
+                                            URL url = new URL(user.getPhotoUrl().toString());
+                                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                            conn.setDoInput(true);
+                                            conn.connect();
+                                            InputStream is = conn.getInputStream();
+                                            bitmap = BitmapFactory.decodeStream(is);
+                                        }catch (MalformedURLException e){
+                                            e.printStackTrace();
+                                        }catch (IOException e){
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                if(user.getPhotoUrl() != null) {
+                                    uThread.start();
+                                    try {
+                                        uThread.join();
+                                        if (boolimg == true){
+                                            imgweak.setImageBitmap(bitmap);
+                                            imgweak.setRectRadius(100f);
+                                        } else {
+                                            imgprotect.setImageBitmap(bitmap);
+                                            imgprotect.setRectRadius(100f);
+                                        }
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                db.collection("members").whereEqualTo("uid", uid).get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                        Thread uThread = new Thread() {
+                                                            @Override
+                                                            public void run(){
+                                                                try{
+                                                                    if (document.getString("mem_photo") == null)
+                                                                        return;
+                                                                    URL url = new URL(document.getString("mem_photo"));
+                                                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                                                    conn.setDoInput(true);
+                                                                    conn.connect();
+                                                                    InputStream is = conn.getInputStream();
+                                                                    bitmap = BitmapFactory.decodeStream(is);
+                                                                }catch (MalformedURLException e){
+                                                                    e.printStackTrace();
+                                                                }catch (IOException e){
+                                                                    e.printStackTrace();
+                                                                }
+                                                            }
+                                                        };
+                                                        if(document.getString("mem_photo") != null) {
+                                                            uThread.start();
+                                                            try {
+                                                                uThread.join();
+                                                                if (boolimg == false){
+                                                                    imgweak.setImageBitmap(bitmap);
+                                                                    imgweak.setRectRadius(100f);
+                                                                } else {
+                                                                    imgprotect.setImageBitmap(bitmap);
+                                                                    imgprotect.setRectRadius(100f);
+                                                                }
+                                                            } catch (InterruptedException e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
+                                                    }
+                                                } else {
+                                                    Log.d("메시지", "Error getting documents: ", task.getException());
+                                                    return;
+                                                }
+                                            }
+                                        });
+                            }
+                        } else {
+                            Log.d("메시지", "Error getting documents: ", task.getException());
+                            return;
+                        }
+                    }
+                });
+
         db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).whereEqualTo("connect", false).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            String uid = null;
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getString("mem_weak").equals(user.getUid()))
+                                if (document.getString("mem_weak").equals(user.getUid())){
                                     uid = document.getString("mem_protect");
-                                else
+                                    cn_id = document.getId();
+                                } else{
                                     uid = document.getString("mem_weak");
-                                Log.d("메시지",uid);
+                                    cn_id = document.getId();
+                                }
                                 db.collection("members").whereEqualTo("uid", uid).get()
                                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
                                             public void onComplete(Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), user.getUid(),"adpapply");
+                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), user.getUid(),"adpapply", cn_id);
                                                         adpapply.add(mem);
                                                         adpapply.notifyDataSetChanged();
                                                     }
@@ -109,19 +243,21 @@ public class MemberConnectFragment extends Fragment {
                     @Override
                     public void onComplete(Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            String uid = null;
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getString("mem_weak").equals(user.getUid()))
+                                if (document.getString("mem_weak").equals(user.getUid())){
                                     uid = document.getString("mem_protect");
-                                else
+                                    cn_id = document.getId();
+                                } else{
                                     uid = document.getString("mem_weak");
+                                    cn_id = document.getId();
+                                }
                                 db.collection("members").whereEqualTo("uid", uid).get()
                                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
                                             public void onComplete(Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), document.getString("uid"),"adprequest");
+                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), document.getString("uid"), "adprequest", cn_id);
                                                         adprequest.add(mem);
                                                         adprequest.notifyDataSetChanged();
                                                     }
@@ -138,10 +274,6 @@ public class MemberConnectFragment extends Fragment {
                         }
                     }
                 });
-
-        //search용 리스트 새로 만들기
-        //요청 목록만 있는 한미수는 문제 X 그런데 신청 목록이 있는 두 유저는 로딩 느림.
-        //editsearch 내용 없어지거나 변경되면 리스트 refresh 혹은 delete 추가
 
         editsearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -183,7 +315,7 @@ public class MemberConnectFragment extends Fragment {
                                             Toast.makeText(getActivity(), "입력하신 이메일을 가진 회원이 없습니다. 다시 입력하세요", Toast.LENGTH_SHORT).show();
                                         }
                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                            ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), null ,"adpsearch");
+                                            ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), null ,"adpsearch", null);
                                             adpsearch.add(mem);
                                             adpsearch.notifyDataSetChanged();
                                         }
@@ -206,7 +338,7 @@ public class MemberConnectFragment extends Fragment {
                                             Toast.makeText(getActivity(), "입력하신 전화번호를 가진 회원이 없습니다. 다시 입력하세요", Toast.LENGTH_SHORT).show();
                                         }
                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                            ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), null, "adpsearch");
+                                            ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), null, "adpsearch", null);
                                             adpsearch.add(mem);
                                             adpsearch.notifyDataSetChanged();
                                         }
@@ -225,8 +357,7 @@ public class MemberConnectFragment extends Fragment {
     }
 
     public void refreshFragment(){
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        //FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.detach(this).attach(this).commit();
+        FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
+        t.detach(this).attach(this).commitAllowingStateLoss();
     }
 }

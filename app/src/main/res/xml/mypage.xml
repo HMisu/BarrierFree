@@ -7,13 +7,17 @@
             app:key="image_preference"
             android:layout="@layout/preference_imageview" />
         <Preference
-            android:key="setting_userinfo"
-            android:title="정보 수정"
+            android:key="setting_connect"
+            android:title="계정 연결"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="setting_meminfo"
+            android:title="개인정보 수정"
             app:iconSpaceReserved="false">
         </Preference>
         <Preference
-            android:key="setting_connect"
-            android:title="계정 연결"
+            android:key="setting_mempw"
+            android:title="비밀번호 변경"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
     <PreferenceCategory

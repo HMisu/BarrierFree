@@ -30,7 +30,7 @@ public class MemberInfoFragment extends PreferenceFragmentCompat {
     private FirebaseUser user;
 
     PreferenceImageView preferenceImageView;
-    Preference withdrawal, connectPrefer;
+    Preference withdrawal, connectPrefer, settingPrefer, pwPrefer;
 
     SharedPreferences pref;
     String fragmentTag;
@@ -49,6 +49,8 @@ public class MemberInfoFragment extends PreferenceFragmentCompat {
         addPreferencesFromResource(R.xml.mypage);
         withdrawal = (Preference) findPreference("setting_withdrawal");
         connectPrefer = (Preference) findPreference("setting_connect");
+        settingPrefer = (Preference) findPreference("setting_meminfo");
+        pwPrefer = (Preference) findPreference("setting_mempw");
 
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();

@@ -26,6 +26,14 @@
             android:summary="진동패턴을 설정하세요."
             android:title="진동 종류설정" />
 
+        <PreferenceScreen
+            android:icon="@mipmap/ic_launcher"
+            android:key="user_vibrator"
+            android:title="사용자 진동패턴 설정">
+            <intent android:targetPackage="com.example.barrierfree"
+                android:targetClass="com.example.barrierfree.UserVibratorActivity"/>
+        </PreferenceScreen>
+
         <ListPreference
             android:entries="@array/sounds"
             android:entryValues="@array/sounds"

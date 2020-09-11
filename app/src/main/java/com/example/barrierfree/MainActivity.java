@@ -49,6 +49,9 @@ public class MainActivity extends AppCompatActivity {
     private String fragmentTag;
     private Fragment fragmentClass;
     BottomNavigationView bottomNavigationView;
+    BottomNVTest1 bottomNVTest1;
+    BottomAlert bottomNVTest2;
+    Settings settings;
 
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -79,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        settings = new Settings();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuitem) {
@@ -86,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
                 DrawerLayout drawer = findViewById(R.id.drawer_layout);
                 drawer.closeDrawers();
                 int id = menuitem.getItemId();
-
                 Fragment fragment = null;
                 String title = getString(R.string.app_name);
 
@@ -98,13 +101,14 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "위험정보", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_board) {
                     Toast.makeText(getApplicationContext(), "게시판", Toast.LENGTH_LONG).show();
-                } else if (id == R.id.nav_safety) {
+                }else if(id == R.id.nav_safety) {
                     Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
-                } else if (id == R.id.nav_setting) {
+                }else if(id == R.id.nav_setting) {
                     fragmentTag = new SettingFragment().getClass().getSimpleName();
                     fragmentClass = new SettingFragment();
                     replaceFragment(fragmentTag, fragmentClass);
-                } else if (id == R.id.nav_notice) {
+                    Toast.makeText(getApplicationContext(), "사용자 설정", Toast.LENGTH_LONG).show();
+                }else if(id == R.id.nav_notice) {
                     Toast.makeText(getApplicationContext(), "공지사항", Toast.LENGTH_LONG).show();
                 } else if(id == R.id.nav_userInfo) {
                     fragmentTag = new MemberInfoFragment().getClass().getSimpleName();

@@ -24,6 +24,8 @@ import com.example.barrierfree.R;
 import com.example.barrierfree.RoundImageView;
 import com.example.barrierfree.models.ListViewMember;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -48,11 +50,11 @@ public class MemberConnectFragment extends Fragment {
 
     private RoundImageView imgweak, imgprotect;
     private TextView editsearch, txtconnect, txtweak, txtprotect, txtweakname, txtprotectname;
-    private Button btnsearch;
+    private Button btnsearch, btndelete;
 
     Boolean boolimg = false;
     Bitmap bitmap;
-    String uid2 = null, uid = null, cn_id = null;
+    String uid2 = null, uid = null, cn_id = null, cn_id2;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,12 +79,14 @@ public class MemberConnectFragment extends Fragment {
         txtprotectname = (TextView) root.findViewById(R.id.protector_name);
         editsearch = (TextView) root.findViewById(R.id.edit_search);
         btnsearch = (Button) root.findViewById(R.id.btn_search_mem);
+        btndelete = (Button) root.findViewById(R.id.btn_delete);
 
         txtconnect.setVisibility(root.VISIBLE);
         imgweak.setVisibility(root.INVISIBLE);
         imgprotect.setVisibility(root.INVISIBLE);
         txtweak.setVisibility(root.INVISIBLE);
         txtprotect.setVisibility(root.INVISIBLE);
+        btndelete.setVisibility(root.INVISIBLE);
 
         // Adapter 생성
         adprequest = new ListViewMemberAdpater(getActivity(), MemberConnectFragment.this);
@@ -107,10 +111,12 @@ public class MemberConnectFragment extends Fragment {
                                 imgprotect.setVisibility(root.VISIBLE);
                                 txtweak.setVisibility(root.VISIBLE);
                                 txtprotect.setVisibility(root.VISIBLE);
+                                btndelete.setVisibility(root.VISIBLE);
 
                                 boolimg = true;
                                 txtweakname.setText(user.getDisplayName());
                                 uid2 = document.getString("mem_protect");
+                                cn_id2 = cn_id = document.getId();
                                 Thread uThread = new Thread() {
                                     @Override
                                     public void run() {
@@ -130,7 +136,9 @@ public class MemberConnectFragment extends Fragment {
                                         }
                                     }
                                 };
-                                if (user.getPhotoUrl() != null) {
+                                if (user.getPhotoUrl() == null) {
+                                    imgweak.setImageResource(R.drawable.ic_defaultuser);
+                                } else {
                                     uThread.start();
                                     try {
                                         uThread.join();
@@ -159,9 +167,11 @@ public class MemberConnectFragment extends Fragment {
                                 imgprotect.setVisibility(root.VISIBLE);
                                 txtweak.setVisibility(root.VISIBLE);
                                 txtprotect.setVisibility(root.VISIBLE);
+                                btndelete.setVisibility(root.VISIBLE);
 
                                 boolimg = false;
                                 uid2 = document.getString("mem_weak");
+                                cn_id2 = cn_id = document.getId();
                                 txtprotectname.setText(user.getDisplayName());
                                 Thread uThread = new Thread() {
                                     @Override
@@ -182,7 +192,9 @@ public class MemberConnectFragment extends Fragment {
                                         }
                                     }
                                 };
-                                if (user.getPhotoUrl() != null) {
+                                if (user.getPhotoUrl() == null) {
+                                    imgprotect.setImageResource(R.drawable.ic_defaultuser);
+                                } else {
                                     uThread.start();
                                     try {
                                         uThread.join();
@@ -199,9 +211,9 @@ public class MemberConnectFragment extends Fragment {
                         }
                     }
                 });
+
         (new Handler()).postDelayed(new Runnable() {
             public void run() {
-                Log.d("메시지", "uid33 : "+uid2);
                 db.collection("members").whereEqualTo("uid", uid2).get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
@@ -245,6 +257,11 @@ public class MemberConnectFragment extends Fragment {
                                             } catch (InterruptedException e) {
                                                 e.printStackTrace();
                                             }
+                                        } else {
+                                            if (boolimg == false)
+                                                imgweak.setImageResource(R.drawable.ic_defaultuser);
+                                            else
+                                                imgprotect.setImageResource(R.drawable.ic_defaultuser);
                                         }
                                     }
                                 } else {
@@ -408,6 +425,28 @@ public class MemberConnectFragment extends Fragment {
                 }
             }
         });
+
+        btndelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("메시지", "cn_id2 : " + cn_id2);
+                FirebaseFirestore.getInstance().collection("connection").document(cn_id2).delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("메시지", "DocumentSnapshot successfully deleted!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("메시지", "Error deleting document", e);
+                            }
+                        });
+                refreshFragment();
+            }
+        });
+
         return root;
     }
 

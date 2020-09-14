@@ -27,9 +27,14 @@ import com.example.barrierfree.R;
 import com.example.barrierfree.RoundImageView;
 import com.example.barrierfree.SslWebViewConnect;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -51,14 +56,17 @@ public class MemberInfoUpdateFragment extends Fragment {
     Bitmap bitmap;
     private boolean chkemail, a;
 
+    private View dividing_line;
     private Button btnauth, btnaddr, btnupdate;
     private RoundImageView img;
-    private TextView txtname, txtbirth, editaddr, editaddrdetail, editphone, editemail, editpw;
+    private TextView txtname, txtemail, titlepw, txtpw, txtbirth, editaddr, editaddrdetail, editphone, editemail, editpw;
 
     private WebView daum_webView;
     private TextView daum_result;
     private Handler handler;
     private Dialog dialog;
+
+    private String email, phone, addr1, addr2, providerId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,19 +92,41 @@ public class MemberInfoUpdateFragment extends Fragment {
         img = (RoundImageView) root.findViewById(R.id.img_user);
         txtname = (TextView) root.findViewById(R.id.txt_name);
         txtbirth = (TextView) root.findViewById(R.id.txt_birth);
+        txtemail = (TextView) root.findViewById(R.id.txt_check_email);
+        txtpw = (TextView) root.findViewById(R.id.txt_pw);
         editaddr = (TextView) root.findViewById(R.id.edit_addr);
         editaddrdetail = (TextView) root.findViewById(R.id.edit_addr_detail);
         editphone = (TextView) root.findViewById(R.id.edit_phone);
         editemail = (TextView) root.findViewById(R.id.edit_email);
         editpw = (TextView) root.findViewById(R.id.edit_pw);
+        titlepw = (TextView) root.findViewById(R.id.title_pw);
+        dividing_line = (View) root.findViewById(R.id.dividing_line);
 
         daum_result.setVisibility(View.GONE);
         daum_webView.setVisibility(View.GONE);
+        //editpw.setVisibility(View.INVISIBLE);
+        //txtpw.setVisibility(View.INVISIBLE);
+        //titlepw.setVisibility(View.INVISIBLE);
+
+        for (UserInfo profile : user.getProviderData()) {
+            // Id of the provider (ex: google.com)
+            providerId = profile.getProviderId();
+        }
+
+        if (providerId.equals("google.com")) {
+            editemail.setFocusable(false);
+            editemail.setClickable(false);
+            dividing_line.setVisibility(View.INVISIBLE);
+            btnauth.setVisibility(View.VISIBLE);
+            btnauth.setEnabled(false);
+            //btnauth.setBackgroundColor(R.drawable.btn_red);
+            txtemail.setText("구글 로그인 시 이메일 수정이 불가능합니다");
+        }
 
         Thread uThread = new Thread() {
             @Override
-            public void run(){
-                try{
+            public void run() {
+                try {
                     if (user.getPhotoUrl() == null)
                         return;
                     URL url = new URL(user.getPhotoUrl().toString());
@@ -105,14 +135,14 @@ public class MemberInfoUpdateFragment extends Fragment {
                     conn.connect();
                     InputStream is = conn.getInputStream();
                     bitmap = BitmapFactory.decodeStream(is);
-                }catch (MalformedURLException e){
+                } catch (MalformedURLException e) {
                     e.printStackTrace();
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         };
-        if(user.getPhotoUrl() != null) {
+        if (user.getPhotoUrl() != null) {
             uThread.start();
             try {
                 uThread.join();
@@ -121,6 +151,8 @@ public class MemberInfoUpdateFragment extends Fragment {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        } else {
+            img.setImageResource(R.drawable.ic_defaultuser);
         }
 
         txtname.setText(user.getDisplayName());
@@ -177,34 +209,91 @@ public class MemberInfoUpdateFragment extends Fragment {
                                 if (task.isSuccessful()) {
                                     QuerySnapshot querySnapshot = task.getResult();
                                     if (querySnapshot.isEmpty()) {
-                                        a=true;
-                                        Log.d("메시지", "a : "+String.valueOf(a));
-                                    } else{
-                                        a=false;
+                                        a = true;
+                                        Log.d("메시지", "a : " + String.valueOf(a));
+                                    } else {
+                                        a = false;
                                     }
                                 } else {
                                     Log.d("메시지", "Error getting documents: ", task.getException());
                                     return;
                                 }
-                                chkemail=a;
+                                chkemail = a;
                             }
                         });
 
                 (new Handler()).postDelayed(new Runnable() {
                     public void run() {
-                        if(chkemail == true)
+                        if (chkemail == true)
                             Toast.makeText(getActivity(), "사용가능한 이메일입니다", Toast.LENGTH_SHORT).show();
                         else
                             Toast.makeText(getActivity(), "사용할 수 없는 이메일입니다", Toast.LENGTH_SHORT).show();
-                        Log.d("메시지", "chkemail : "+String.valueOf(chkemail));
+                        Log.d("메시지", "chkemail : " + String.valueOf(chkemail));
                     }
                 }, 600);
             }
         });
+
+        btnupdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                email = editemail.getText().toString().trim();
+                phone = editphone.getText().toString().trim();
+                addr1 = editaddr.getText().toString().trim();
+                addr2 = editaddrdetail.getText().toString().trim();
+
+                if (!providerId.equals("google.com") && (editpw.getText().toString().equals("") || editpw.getText().toString() == null)) {
+                    Toast.makeText(getActivity(), "비밀번호 확인이 필요합니다. 비밀번호를 입력하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!providerId.equals("google.com") && !user.getEmail().equals(email) && chkemail == false) {
+                    Toast.makeText(getActivity(), "이메일의 중복 여부를 확인해주세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (!providerId.equals("google.com") && !user.getEmail().equals(email)) {
+                    AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), editpw.getText().toString().trim());
+                    // Prompt the user to re-provide their sign-in credentials
+                    user.reauthenticate(credential)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Log.d("메시지", "User re-authenticated.");
+                                    user.updateEmail(email)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d("메시지", "User email address updated.");
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
+                }
+
+                db.collection("members").document(user.getUid())
+                        .update("mem_email", email, "mem_phone", phone, "mem_addr1", addr1, "mem_addr2", addr2)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("메시지", "DocumentSnapshot successfully updated!");
+                                refreshFragment();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("메시지", "Error updating document", e);
+                            }
+                        });
+            }
+        });
+
         return root;
     }
 
-    public void refreshFragment(){
+    public void refreshFragment() {
         FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
         t.detach(this).attach(this).commitAllowingStateLoss();
     }

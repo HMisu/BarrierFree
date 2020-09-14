@@ -111,11 +111,25 @@
         app:layout_constraintStart_toEndOf="@+id/protector_photo"
         app:layout_constraintTop_toBottomOf="@+id/title_connect" />
 
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:background="@drawable/btn_red"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="8dp"
+        android:text="연결 해지"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#fff"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/weak_name" />
+
     <TextView
         android:id="@+id/title_connectapply"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="8dp"
         android:background="@color/colorBackGray"
         android:paddingLeft="15dp"
         android:paddingTop="5dp"
@@ -127,7 +141,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/protector_name" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_delete" />
 
     <EditText
         android:id="@+id/edit_search"

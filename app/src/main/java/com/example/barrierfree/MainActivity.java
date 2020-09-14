@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
 
     private ListViewMemberAdpater adprequest, adpapply;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,16 +99,16 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "위험정보", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_board) {
                     Toast.makeText(getApplicationContext(), "게시판", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_safety) {
+                } else if (id == R.id.nav_safety) {
                     Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_setting) {
+                } else if (id == R.id.nav_setting) {
                     fragmentTag = new SettingFragment().getClass().getSimpleName();
                     fragmentClass = new SettingFragment();
                     replaceFragment(fragmentTag, fragmentClass);
                     Toast.makeText(getApplicationContext(), "사용자 설정", Toast.LENGTH_LONG).show();
-                }else if(id == R.id.nav_notice) {
+                } else if (id == R.id.nav_notice) {
                     Toast.makeText(getApplicationContext(), "공지사항", Toast.LENGTH_LONG).show();
-                } else if(id == R.id.nav_userInfo) {
+                } else if (id == R.id.nav_userInfo) {
                     fragmentTag = new MemberInfoFragment().getClass().getSimpleName();
                     fragmentClass = new MemberInfoFragment();
                     replaceFragment(fragmentTag, fragmentClass);
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     //현재로그인한 사용자 정보를 통해 PhotoUrl 가져오기
-                    if(user.getPhotoUrl() == null)
+                    if (user.getPhotoUrl() == null)
                         return;
                     URL url = new URL(user.getPhotoUrl().toString());
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -152,14 +153,20 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }};
-        mThread.start();
-        try {
-            mThread.join();
-            userProfileImg.setImageBitmap(bitmap);
-            userProfileImg.setRectRadius(100f);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            }
+        };
+        if (user.getPhotoUrl() == null) {
+            userProfileImg.setImageResource(R.drawable.ic_defaultuser);
+        } else {
+            mThread.start();
+            try {
+                mThread.join();
+                userProfileImg.setImageBitmap(bitmap);
+                userProfileImg.setRectRadius(100f);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
 

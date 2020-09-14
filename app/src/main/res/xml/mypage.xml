@@ -23,17 +23,6 @@
     <PreferenceCategory
         android:layout="@layout/preference_categorytext">
         <Preference
-            android:key="setting_meminfo"
-            android:title="내가 쓴 글"
-            app:iconSpaceReserved="false" />
-        <Preference
-            android:key="setting_memqna"
-            android:title="문의 내역"
-            app:iconSpaceReserved="false" />
-    </PreferenceCategory>
-    <PreferenceCategory
-        android:layout="@layout/preference_categorytext">
-        <Preference
             android:key="setting_withdrawal"
             android:title="회원 탈퇴"
             app:iconSpaceReserved="false" />

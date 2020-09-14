@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -23,6 +24,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MemberInfoFragment extends PreferenceFragmentCompat {
@@ -33,7 +35,7 @@ public class MemberInfoFragment extends PreferenceFragmentCompat {
     Preference withdrawal, connectPrefer, infoPrefer, pwPrefer;
 
     SharedPreferences pref;
-    String fragmentTag;
+    String fragmentTag, providerId;
     Fragment fragmentClass;
 
     @Override
@@ -80,9 +82,17 @@ public class MemberInfoFragment extends PreferenceFragmentCompat {
         pwPrefer.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                fragmentTag = new MemberPWUpdateFragment().getClass().getSimpleName();
-                fragmentClass = new MemberPWUpdateFragment();
-                ((MainActivity) getActivity()).replaceFragment(fragmentTag, fragmentClass);
+                for (UserInfo profile : user.getProviderData()) {
+                    // Id of the provider (ex: google.com)
+                    providerId = profile.getProviderId();
+                }
+                if(providerId.equals("google.com")){
+                    Toast.makeText(getActivity(), "구글 로그인 시 비밀변호 변경이 불가합니다", Toast.LENGTH_SHORT).show();
+                } else {
+                    fragmentTag = new MemberPWUpdateFragment().getClass().getSimpleName();
+                    fragmentClass = new MemberPWUpdateFragment();
+                    ((MainActivity) getActivity()).replaceFragment(fragmentTag, fragmentClass);
+                }
                 return true;
             }
         });

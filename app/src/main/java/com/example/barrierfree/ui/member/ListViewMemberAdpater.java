@@ -53,7 +53,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
     private TextView name, email, apply;
     private Button btnrefuse, btnapply;
 
-    private boolean bool1 = false, bool2 = false;
+    private boolean bool1 = false;
     private String uid;
 
     private ArrayList<ListViewMember> memData;
@@ -120,26 +120,30 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
         btnapply.setTag(member);
 
         if (member != null) {
-            imageLoader.displayImage(member.getMem_photo(), imageView, options, new ImageLoadingListener() {
-                        @Override
-                        public void onLoadingStarted(String imageUri, View view) {
-                        }
+            if (member.getMem_photo() == null || member.getMem_photo().equals("")) {
+                imageView.setImageResource(R.drawable.ic_defaultuser);
+            } else {
+                imageLoader.displayImage(member.getMem_photo(), imageView, options, new ImageLoadingListener() {
+                            @Override
+                            public void onLoadingStarted(String imageUri, View view) {
+                            }
 
-                        @Override
-                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                            // 이미지를 비운다 (로드 실패할 경우)
-                            imageView.setImageDrawable(null);
-                        }
+                            @Override
+                            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                                // 이미지를 비운다 (로드 실패할 경우)
+                                imageView.setImageDrawable(null);
+                            }
 
-                        @Override
-                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                        }
+                            @Override
+                            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            }
 
-                        @Override
-                        public void onLoadingCancelled(String imageUri, View view) {
+                            @Override
+                            public void onLoadingCancelled(String imageUri, View view) {
+                            }
                         }
-                    }
-            );
+                );
+            }
 
             name.setText(member.getMem_name());
             email.setText(member.getMem_email());
@@ -297,17 +301,21 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                                 @Override
                                 public void onComplete(Task<QuerySnapshot> task) {
                                     if (task.isSuccessful()) {
-                                        boolean a = false;
                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                            if (document.getString("mem_weak").equals(member.getMem_uid())||document.getString("mem_protect").equals(member.getMem_uid())) {
+                                            if (document.getString("mem_weak").equals(user.getUid()) || document.getString("mem_protect").equals(user.getUid())) {
                                                 Log.d("메시지", "존재");
-                                                Toast.makeText(context, "상대방은 다른 계정과 연결되어 있습니다.", Toast.LENGTH_SHORT).show();
-                                                a = true;
+                                                Toast.makeText(context, "이미 다른 계정과 연결되어 있습니다.", Toast.LENGTH_SHORT).show();
+                                                bool1 = true;
+                                                return;
+                                            } else if (document.getString("mem_weak").equals(member.getMem_uid()) || document.getString("mem_protect").equals(member.getMem_uid())) {
+                                                Log.d("메시지", "존재");
+                                                Toast.makeText(context, "이미 상대방은 다른 계정과 연결되어 있습니다.", Toast.LENGTH_SHORT).show();
+                                                bool1 = true;
+                                                return;
                                             }
                                         }
-                                        if(a == false){
-                                            /*
-                                            * db.collection("connection").document(member.getCn_id())
+                                        if (bool1 == false) {
+                                            db.collection("connection").document(member.getCn_id())
                                                     .update("connect", true)
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
@@ -321,8 +329,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                                                             Log.w("메시지", "Error updating document", e);
                                                         }
                                                     });
-                                            fragment.refreshFragment();*/
-                                            Log.d("메시지", "ㅎㅎ");
+                                            fragment.refreshFragment();
                                         }
                                     } else {
                                         Log.d("메시지", "Error getting documents: ", task.getException());
@@ -330,38 +337,6 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                                     }
                                 }
                             });
-
-                    /*
-                    (new Handler()).postDelayed(new Runnable() {
-                        public void run() {
-
-                            if(bool1 == true && bool2 == true){
-                                Log.d("메시지","오예");
-                            }
-                        }
-                    }, 600);*/
-                    /*
-                    (new Handler()).postDelayed(new Runnable() {
-                        public void run() {
-                            if(bool1 == true && bool2 == true){
-                                db.collection("connection").document(member.getCn_id())
-                                        .update("connect", true)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d("메시지", "DocumentSnapshot successfully updated!");
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w("메시지", "Error updating document", e);
-                                            }
-                                        });
-                                fragment.refreshFragment();
-                            }
-                        }
-                    }, 600);*/
                 }
                 break;
             default:

@@ -56,8 +56,8 @@ public class PreferenceImageView extends Preference {
 
         Thread uThread = new Thread() {
             @Override
-            public void run(){
-                try{
+            public void run() {
+                try {
                     if (user.getPhotoUrl() == null)
                         return;
                     URL url = new URL(user.getPhotoUrl().toString());
@@ -66,15 +66,15 @@ public class PreferenceImageView extends Preference {
                     conn.connect();
                     InputStream is = conn.getInputStream();
                     bitmap = BitmapFactory.decodeStream(is);
-                }catch (MalformedURLException e){
+                } catch (MalformedURLException e) {
                     e.printStackTrace();
-                }catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         };
 
-        if(user.getPhotoUrl() != null) {
+        if (user.getPhotoUrl() != null) {
             uThread.start();
             try {
                 uThread.join();
@@ -83,6 +83,8 @@ public class PreferenceImageView extends Preference {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        } else {
+            imageView.setImageResource(R.drawable.ic_defaultuser);
         }
     }
 

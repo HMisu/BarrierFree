@@ -53,12 +53,13 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
     private TextView name, email, apply;
     private Button btnrefuse, btnapply;
 
+    private boolean bool1 = false, bool2 = false;
     private String uid;
 
     private ArrayList<ListViewMember> memData;
     MemberConnectFragment fragment;
 
-    public ListViewMemberAdpater(){
+    public ListViewMemberAdpater() {
 
     }
 
@@ -119,18 +120,21 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
         btnapply.setTag(member);
 
         if (member != null) {
-            imageLoader.displayImage(member.getMem_photo(), imageView, options, new ImageLoadingListener(){
+            imageLoader.displayImage(member.getMem_photo(), imageView, options, new ImageLoadingListener() {
                         @Override
                         public void onLoadingStarted(String imageUri, View view) {
                         }
+
                         @Override
                         public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
                             // 이미지를 비운다 (로드 실패할 경우)
                             imageView.setImageDrawable(null);
                         }
+
                         @Override
                         public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                         }
+
                         @Override
                         public void onLoadingCancelled(String imageUri, View view) {
                         }
@@ -139,23 +143,23 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
 
             name.setText(member.getMem_name());
             email.setText(member.getMem_email());
-            if(member.getMem_applicant()!=null){
-                if(member.getMem_applicant().equals("mem_weak"))
-                    apply.setText(member.getMem_name()+" : 취약자 / "+user.getDisplayName()+" : 보호자");
+            if (member.getMem_applicant() != null) {
+                if (member.getMem_applicant().equals("mem_weak"))
+                    apply.setText(member.getMem_name() + " : 취약자 / " + user.getDisplayName() + " : 보호자");
                 else
-                    apply.setText(member.getMem_name()+" : 보호자 / "+user.getDisplayName()+" : 취약자");
+                    apply.setText(member.getMem_name() + " : 보호자 / " + user.getDisplayName() + " : 취약자");
             }
-            switch (member.getLv_id()){
+            switch (member.getLv_id()) {
                 case "adpsearch":
                     btnrefuse.setVisibility(convertView.GONE);
                     apply.setVisibility(convertView.GONE);
-                    db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).whereEqualTo("connect",false).get()
+                    db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).whereEqualTo("connect", false).get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(Task<QuerySnapshot> task) {
                                     if (task.isSuccessful()) {
                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                            if(document.getString("mem_weak").equals(member.getMem_uid()) || document.getString("mem_protect").equals(member.getMem_uid())){
+                                            if (document.getString("mem_weak").equals(member.getMem_uid()) || document.getString("mem_protect").equals(member.getMem_uid())) {
                                                 btnrefuse.setText("요청취소");
                                             }
                                         }
@@ -165,26 +169,6 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                                     }
                                 }
                             });
-                    /*
-                    * db.collection("connection").whereEqualTo("mem_respondent", user.getUid()).whereEqualTo("connect", false).get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                            if(document.getString("mem_applicant").equals(member.getMem_uid())){
-                                                if(document.getString("mem_weak").equals(user.getUid()))
-                                                    Toast.makeText(context, "이미 상대방이 본인을 보호자, 당신을 취약자로 신청했습니다. 대기 목록을 확인하세요", Toast.LENGTH_SHORT).show();
-                                                else if(document.getString("mem_protect").equals(user.getUid()))
-                                                    Toast.makeText(context, "이미 상대방이 본인을 취약자, 당신을 보호자로 신청했습니다. 대기 목록을 확인하세요", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }
-                                    } else {
-                                        Log.d("메시지", "Error getting documents: ", task.getException());
-                                        return;
-                                    }
-                                }
-                            });*/
                     btnapply.setText("신청");
                     break;
                 case "adpapply":
@@ -207,13 +191,13 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
         return convertView;
     }
 
-    public void add(ListViewMember member){
+    public void add(ListViewMember member) {
         memData.add(member);
     }
 
-    public void clear(){
+    public void clear() {
         //memData.clear();
-        memData=null;
+        memData = null;
     }
 
     @Override
@@ -222,7 +206,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
         ListViewMember clickItem = (ListViewMember) v.getTag();
         switch (v.getId()) {
             case R.id.btn_refuse:
-                if(member.getLv_id().equals("adpapply") || member.getLv_id().equals("adarequest")) {
+                if (member.getLv_id().equals("adpapply") || member.getLv_id().equals("adarequest")) {
                     db.collection("connection").document(member.getCn_id()).delete()
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
@@ -240,17 +224,17 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                 }
                 break;
             case R.id.btn_apply:
-                if(member.getLv_id().equals("adpsearch")){
+                if (member.getLv_id().equals("adpsearch")) {
                     PopupMenu p = new PopupMenu(context, v);
                     p.getMenuInflater().inflate(R.menu.popup_connect, p.getMenu());
                     p.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         public boolean onMenuItemClick(MenuItem item) {
-                            switch (item.getItemId()){
+                            switch (item.getItemId()) {
                                 case R.id.weak:
-                                    conn = new Connection(member.getMem_uid(), user.getUid(), user.getUid(), member.getMem_uid(),false);
+                                    conn = new Connection(member.getMem_uid(), user.getUid(), user.getUid(), member.getMem_uid(), false);
                                     break;
                                 case R.id.protect:
-                                    conn = new Connection(user.getUid(), member.getMem_uid(), user.getUid(), member.getMem_uid(),false);
+                                    conn = new Connection(user.getUid(), member.getMem_uid(), user.getUid(), member.getMem_uid(), false);
                                     break;
                             }
                             db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).get()
@@ -261,7 +245,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                                                 QuerySnapshot querySnapshot = task.getResult();
                                                 if (!querySnapshot.isEmpty()) {
                                                     Toast.makeText(context, "이미 계정연결을 신청한 상태입니다", Toast.LENGTH_SHORT).show();
-                                                } else{
+                                                } else {
                                                     db.collection("connection").document()
                                                             .set(conn)
                                                             .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -284,28 +268,100 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
                                             }
                                         }
                                     });
+                            db.collection("connection").whereEqualTo("mem_applicant", member.getMem_uid()).whereEqualTo("mem_respondent", user.getUid()).whereEqualTo("connect", false).get()
+                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                    if (document.getString("mem_weak").equals(user.getUid()))
+                                                        Toast.makeText(context, "이미 상대방이 본인을 보호자, 당신을 취약자로 신청했습니다. 대기 목록을 확인하세요", Toast.LENGTH_SHORT).show();
+                                                    else if (document.getString("mem_protect").equals(user.getUid()))
+                                                        Toast.makeText(context, "이미 상대방이 본인을 취약자, 당신을 보호자로 신청했습니다. 대기 목록을 확인하세요", Toast.LENGTH_SHORT).show();
+                                                }
+                                            } else {
+                                                Log.d("메시지", "Error getting documents: ", task.getException());
+                                                return;
+                                            }
+                                        }
+                                    });
                             return true;
                         }
                     });
                     p.show();
-                } else if(member.getLv_id().equals("adprequest")){
-                    if(member.getCn_id() == null)
+                } else if (member.getLv_id().equals("adprequest")) {
+                    if (member.getCn_id() == null)
                         return;
-                    db.collection("connection").document(member.getCn_id())
-                            .update("connect", true)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    db.collection("connection").whereEqualTo("connect", true).get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d("메시지", "DocumentSnapshot successfully updated!");
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("메시지", "Error updating document", e);
+                                public void onComplete(Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        boolean a = false;
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            if (document.getString("mem_weak").equals(member.getMem_uid())||document.getString("mem_protect").equals(member.getMem_uid())) {
+                                                Log.d("메시지", "존재");
+                                                Toast.makeText(context, "상대방은 다른 계정과 연결되어 있습니다.", Toast.LENGTH_SHORT).show();
+                                                a = true;
+                                            }
+                                        }
+                                        if(a == false){
+                                            /*
+                                            * db.collection("connection").document(member.getCn_id())
+                                                    .update("connect", true)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Log.d("메시지", "DocumentSnapshot successfully updated!");
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w("메시지", "Error updating document", e);
+                                                        }
+                                                    });
+                                            fragment.refreshFragment();*/
+                                            Log.d("메시지", "ㅎㅎ");
+                                        }
+                                    } else {
+                                        Log.d("메시지", "Error getting documents: ", task.getException());
+                                        return;
+                                    }
                                 }
                             });
-                    fragment.refreshFragment();
+
+                    /*
+                    (new Handler()).postDelayed(new Runnable() {
+                        public void run() {
+
+                            if(bool1 == true && bool2 == true){
+                                Log.d("메시지","오예");
+                            }
+                        }
+                    }, 600);*/
+                    /*
+                    (new Handler()).postDelayed(new Runnable() {
+                        public void run() {
+                            if(bool1 == true && bool2 == true){
+                                db.collection("connection").document(member.getCn_id())
+                                        .update("connect", true)
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d("메시지", "DocumentSnapshot successfully updated!");
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w("메시지", "Error updating document", e);
+                                            }
+                                        });
+                                fragment.refreshFragment();
+                            }
+                        }
+                    }, 600);*/
                 }
                 break;
             default:
@@ -313,7 +369,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
         }
     }
 
-    public void initImageLoader(){
+    public void initImageLoader() {
         options = new DisplayImageOptions.Builder()
                 .cacheInMemory(true)
                 .cacheOnDisk(true)

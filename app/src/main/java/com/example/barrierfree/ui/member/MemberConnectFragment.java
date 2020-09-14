@@ -3,6 +3,7 @@ package com.example.barrierfree.ui.member;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -46,12 +47,13 @@ public class MemberConnectFragment extends Fragment {
     private ListViewMemberAdpater adprequest, adpapply, adpsearch;
 
     private RoundImageView imgweak, imgprotect;
-    private TextView editsearch, txtconnect, txtweak, txtprotect;
+    private TextView editsearch, txtconnect, txtweak, txtprotect, txtweakname, txtprotectname;
     private Button btnsearch;
 
     Boolean boolimg = false;
     Bitmap bitmap;
-    String uid = null, cn_id = null;
+    String uid2 = null, uid = null, cn_id = null;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +73,8 @@ public class MemberConnectFragment extends Fragment {
         txtconnect = (TextView) root.findViewById(R.id.txt_connect);
         txtweak = (TextView) root.findViewById(R.id.text1);
         txtprotect = (TextView) root.findViewById(R.id.text2);
+        txtweakname = (TextView) root.findViewById(R.id.weak_name);
+        txtprotectname = (TextView) root.findViewById(R.id.protector_name);
         editsearch = (TextView) root.findViewById(R.id.edit_search);
         btnsearch = (Button) root.findViewById(R.id.btn_search_mem);
 
@@ -92,30 +96,25 @@ public class MemberConnectFragment extends Fragment {
         lvsearch = (ListView) root.findViewById(R.id.listview_search_user);
         lvsearch.setAdapter(adpsearch);
 
-        db.collection("connection").whereEqualTo("connect", true).get()
+        db.collection("connection").whereEqualTo("connect", true).whereEqualTo("mem_weak", user.getUid()).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getString("mem_weak").equals(user.getUid()) || document.getString("mem_protect").equals(user.getUid())){
-                                    txtconnect.setVisibility(root.INVISIBLE);
-                                    imgweak.setVisibility(root.VISIBLE);
-                                    imgprotect.setVisibility(root.VISIBLE);
-                                    txtweak.setVisibility(root.VISIBLE);
-                                    txtprotect.setVisibility(root.VISIBLE);
-                                }
-                                if (document.getString("mem_weak").equals(user.getUid())){
-                                    uid = document.getString("mem_protect");
-                                    boolimg = true;
-                                } else {
-                                    uid = document.getString("mem_weak");
-                                    boolimg = false;
-                                }
+                                txtconnect.setVisibility(root.INVISIBLE);
+                                imgweak.setVisibility(root.VISIBLE);
+                                imgprotect.setVisibility(root.VISIBLE);
+                                txtweak.setVisibility(root.VISIBLE);
+                                txtprotect.setVisibility(root.VISIBLE);
+
+                                boolimg = true;
+                                txtweakname.setText(user.getDisplayName());
+                                uid2 = document.getString("mem_protect");
                                 Thread uThread = new Thread() {
                                     @Override
-                                    public void run(){
-                                        try{
+                                    public void run() {
+                                        try {
                                             if (user.getPhotoUrl() == null)
                                                 return;
                                             URL url = new URL(user.getPhotoUrl().toString());
@@ -124,75 +123,23 @@ public class MemberConnectFragment extends Fragment {
                                             conn.connect();
                                             InputStream is = conn.getInputStream();
                                             bitmap = BitmapFactory.decodeStream(is);
-                                        }catch (MalformedURLException e){
+                                        } catch (MalformedURLException e) {
                                             e.printStackTrace();
-                                        }catch (IOException e){
+                                        } catch (IOException e) {
                                             e.printStackTrace();
                                         }
                                     }
                                 };
-                                if(user.getPhotoUrl() != null) {
+                                if (user.getPhotoUrl() != null) {
                                     uThread.start();
                                     try {
                                         uThread.join();
-                                        if (boolimg == true){
-                                            imgweak.setImageBitmap(bitmap);
-                                            imgweak.setRectRadius(100f);
-                                        } else {
-                                            imgprotect.setImageBitmap(bitmap);
-                                            imgprotect.setRectRadius(100f);
-                                        }
+                                        imgweak.setImageBitmap(bitmap);
+                                        imgweak.setRectRadius(100f);
                                     } catch (InterruptedException e) {
                                         e.printStackTrace();
                                     }
                                 }
-                                db.collection("members").whereEqualTo("uid", uid).get()
-                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onComplete(Task<QuerySnapshot> task) {
-                                                if (task.isSuccessful()) {
-                                                    for (final QueryDocumentSnapshot document : task.getResult()) {
-                                                        Thread uThread = new Thread() {
-                                                            @Override
-                                                            public void run(){
-                                                                try{
-                                                                    if (document.getString("mem_photo") == null)
-                                                                        return;
-                                                                    URL url = new URL(document.getString("mem_photo"));
-                                                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                                                                    conn.setDoInput(true);
-                                                                    conn.connect();
-                                                                    InputStream is = conn.getInputStream();
-                                                                    bitmap = BitmapFactory.decodeStream(is);
-                                                                }catch (MalformedURLException e){
-                                                                    e.printStackTrace();
-                                                                }catch (IOException e){
-                                                                    e.printStackTrace();
-                                                                }
-                                                            }
-                                                        };
-                                                        if(document.getString("mem_photo") != null) {
-                                                            uThread.start();
-                                                            try {
-                                                                uThread.join();
-                                                                if (boolimg == false){
-                                                                    imgweak.setImageBitmap(bitmap);
-                                                                    imgweak.setRectRadius(100f);
-                                                                } else {
-                                                                    imgprotect.setImageBitmap(bitmap);
-                                                                    imgprotect.setRectRadius(100f);
-                                                                }
-                                                            } catch (InterruptedException e) {
-                                                                e.printStackTrace();
-                                                            }
-                                                        }
-                                                    }
-                                                } else {
-                                                    Log.d("메시지", "Error getting documents: ", task.getException());
-                                                    return;
-                                                }
-                                            }
-                                        });
                             }
                         } else {
                             Log.d("메시지", "Error getting documents: ", task.getException());
@@ -201,16 +148,124 @@ public class MemberConnectFragment extends Fragment {
                     }
                 });
 
+        db.collection("connection").whereEqualTo("connect", true).whereEqualTo("mem_protect", user.getUid()).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                txtconnect.setVisibility(root.INVISIBLE);
+                                imgweak.setVisibility(root.VISIBLE);
+                                imgprotect.setVisibility(root.VISIBLE);
+                                txtweak.setVisibility(root.VISIBLE);
+                                txtprotect.setVisibility(root.VISIBLE);
+
+                                boolimg = false;
+                                uid2 = document.getString("mem_weak");
+                                txtprotectname.setText(user.getDisplayName());
+                                Thread uThread = new Thread() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            if (user.getPhotoUrl() == null)
+                                                return;
+                                            URL url = new URL(user.getPhotoUrl().toString());
+                                            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                            conn.setDoInput(true);
+                                            conn.connect();
+                                            InputStream is = conn.getInputStream();
+                                            bitmap = BitmapFactory.decodeStream(is);
+                                        } catch (MalformedURLException e) {
+                                            e.printStackTrace();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                };
+                                if (user.getPhotoUrl() != null) {
+                                    uThread.start();
+                                    try {
+                                        uThread.join();
+                                        imgprotect.setImageBitmap(bitmap);
+                                        imgprotect.setRectRadius(100f);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.d("메시지", "Error getting documents: ", task.getException());
+                            return;
+                        }
+                    }
+                });
+        (new Handler()).postDelayed(new Runnable() {
+            public void run() {
+                Log.d("메시지", "uid33 : "+uid2);
+                db.collection("members").whereEqualTo("uid", uid2).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (final QueryDocumentSnapshot document : task.getResult()) {
+                                        if (boolimg == false)
+                                            txtweakname.setText(document.getString("mem_name"));
+                                        else
+                                            txtprotectname.setText(document.getString("mem_name"));
+                                        Thread uThread = new Thread() {
+                                            @Override
+                                            public void run() {
+                                                try {
+                                                    if (document.getString("mem_photo") == null)
+                                                        return;
+                                                    URL url = new URL(document.getString("mem_photo"));
+                                                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                                                    conn.setDoInput(true);
+                                                    conn.connect();
+                                                    InputStream is = conn.getInputStream();
+                                                    bitmap = BitmapFactory.decodeStream(is);
+                                                } catch (MalformedURLException e) {
+                                                    e.printStackTrace();
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                            }
+                                        };
+                                        if (document.getString("mem_photo") != null) {
+                                            uThread.start();
+                                            try {
+                                                uThread.join();
+                                                if (boolimg == false) {
+                                                    imgweak.setImageBitmap(bitmap);
+                                                    imgweak.setRectRadius(100f);
+                                                } else {
+                                                    imgprotect.setImageBitmap(bitmap);
+                                                    imgprotect.setRectRadius(100f);
+                                                }
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    Log.d("메시지", "Error getting documents: ", task.getException());
+                                    return;
+                                }
+                            }
+                        });
+            }
+        }, 800);
+
         db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).whereEqualTo("connect", false).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getString("mem_weak").equals(user.getUid())){
+                                if (document.getString("mem_weak").equals(user.getUid())) {
                                     uid = document.getString("mem_protect");
                                     cn_id = document.getId();
-                                } else{
+                                } else {
                                     uid = document.getString("mem_weak");
                                     cn_id = document.getId();
                                 }
@@ -220,7 +275,7 @@ public class MemberConnectFragment extends Fragment {
                                             public void onComplete(Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
                                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), user.getUid(),"adpapply", cn_id);
+                                                        ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), user.getUid(), "adpapply", cn_id);
                                                         adpapply.add(mem);
                                                         adpapply.notifyDataSetChanged();
                                                     }
@@ -244,10 +299,10 @@ public class MemberConnectFragment extends Fragment {
                     public void onComplete(Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                if (document.getString("mem_weak").equals(user.getUid())){
+                                if (document.getString("mem_weak").equals(user.getUid())) {
                                     uid = document.getString("mem_protect");
                                     cn_id = document.getId();
-                                } else{
+                                } else {
                                     uid = document.getString("mem_weak");
                                     cn_id = document.getId();
                                 }
@@ -278,7 +333,7 @@ public class MemberConnectFragment extends Fragment {
         editsearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) { //EditText에 변화가 있을 때
-                if(adpsearch.getCount() != 0){
+                if (adpsearch.getCount() != 0) {
                     adpsearch.clear();
                     adpsearch.notifyDataSetChanged();
                 }
@@ -290,7 +345,7 @@ public class MemberConnectFragment extends Fragment {
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { //입력하기 전에 호출되는 API
-                if(adpsearch.getCount() != 0){
+                if (adpsearch.getCount() != 0) {
                     adpsearch.clear();
                     adpsearch.notifyDataSetChanged();
                 }
@@ -315,7 +370,7 @@ public class MemberConnectFragment extends Fragment {
                                             Toast.makeText(getActivity(), "입력하신 이메일을 가진 회원이 없습니다. 다시 입력하세요", Toast.LENGTH_SHORT).show();
                                         }
                                         for (QueryDocumentSnapshot document : task.getResult()) {
-                                            ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), null ,"adpsearch", null);
+                                            ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), null, "adpsearch", null);
                                             adpsearch.add(mem);
                                             adpsearch.notifyDataSetChanged();
                                         }
@@ -356,7 +411,7 @@ public class MemberConnectFragment extends Fragment {
         return root;
     }
 
-    public void refreshFragment(){
+    public void refreshFragment() {
         FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
         t.detach(this).attach(this).commitAllowingStateLoss();
     }

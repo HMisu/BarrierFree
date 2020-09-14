@@ -58,11 +58,23 @@
         android:layout_marginTop="8dp"
         android:text="보호자"
         android:textColor="#000000"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/protector_photo"
         app:layout_constraintStart_toStartOf="@+id/protector_photo"
         app:layout_constraintTop_toBottomOf="@+id/protector_photo" />
+
+    <TextView
+        android:id="@+id/protector_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text=""
+        android:textColor="#000000"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/text1"
+        app:layout_constraintStart_toStartOf="@+id/text1"
+        app:layout_constraintTop_toBottomOf="@+id/text1" />
 
     <TextView
         android:id="@+id/text2"
@@ -71,11 +83,23 @@
         android:layout_marginTop="8dp"
         android:text="취약자"
         android:textColor="#000000"
-        android:textSize="16sp"
+        android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/weak_photo"
         app:layout_constraintStart_toStartOf="@+id/weak_photo"
         app:layout_constraintTop_toBottomOf="@+id/weak_photo" />
+
+    <TextView
+        android:id="@+id/weak_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text=""
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="@+id/text2"
+        app:layout_constraintStart_toStartOf="@+id/text2"
+        app:layout_constraintTop_toBottomOf="@+id/text2" />
 
     <com.example.barrierfree.RoundImageView
         android:id="@+id/weak_photo"
@@ -103,7 +127,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text1" />
+        app:layout_constraintTop_toBottomOf="@+id/protector_name" />
 
     <EditText
         android:id="@+id/edit_search"

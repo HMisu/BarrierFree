@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff"
-    tools:context=".ui.member.JoinActivity">
+    tools:context=".ui.member.MemberInfoUpdateFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -36,18 +36,18 @@
                 android:text="" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/user_photo"
+        <com.example.barrierfree.RoundImageView
+            android:id="@+id/img_user"
             android:layout_width="90dp"
             android:layout_height="90dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="35dp"
             android:src="@mipmap/ic_launcher"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/edit_name"
+            android:id="@+id/txt_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -58,10 +58,10 @@
             android:gravity="center_horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/user_photo" />
+            app:layout_constraintTop_toBottomOf="@+id/img_user" />
 
         <TextView
-            android:id="@+id/edit_birth"
+            android:id="@+id/txt_birth"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -71,7 +71,7 @@
             android:gravity="center_horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_name" />
+            app:layout_constraintTop_toBottomOf="@+id/txt_name" />
 
         <EditText
             android:id="@+id/edit_addr"
@@ -91,7 +91,7 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toStartOf="@+id/btn_addr"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/edit_birth" />
+            app:layout_constraintTop_toBottomOf="@+id/txt_birth" />
 
         <Button
             android:id="@+id/btn_addr"
@@ -107,6 +107,26 @@
             app:layout_constraintBaseline_toBaselineOf="@+id/edit_addr"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/edit_addr" />
+
+        <EditText
+            android:id="@+id/edit_addr_detail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/user_info"
+            android:ems="10"
+            android:hint="@string/edit_addr_detail"
+            android:inputType="textPersonName"
+            android:padding="10dp"
+            android:textSize="16sp"
+            android:textColorHint="@color/colorHint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_addr" />
 
         <EditText
             android:id="@+id/edit_phone"
@@ -127,7 +147,7 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_addr" />
+            app:layout_constraintTop_toBottomOf="@+id/edit_addr_detail" />
 
         <EditText
             android:id="@+id/edit_email"
@@ -244,7 +264,7 @@
             app:layout_constraintTop_toBottomOf="@+id/edit_pw" />
 
         <Button
-            android:id="@+id/btn_join"
+            android:id="@+id/btn_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"

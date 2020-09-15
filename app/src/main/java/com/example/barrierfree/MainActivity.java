@@ -26,6 +26,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.example.barrierfree.ui.bottomNV.BottomNVTest1;
 import com.example.barrierfree.ui.find.FindFragment;
+import com.example.barrierfree.ui.find.MapFragment;
 import com.example.barrierfree.ui.member.ListViewMemberAdpater;
 import com.example.barrierfree.ui.member.MemberInfoFragment;
 import com.example.barrierfree.ui.settings.SettingFragment;
@@ -98,7 +99,10 @@ public class MainActivity extends AppCompatActivity {
                 } else if (id == R.id.nav_dangerous) {
                     Toast.makeText(getApplicationContext(), "위험정보", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_board) {
-                    Toast.makeText(getApplicationContext(), "게시판", Toast.LENGTH_LONG).show();
+                    fragment = new MapFragment();
+                    fragmentTag = new MapFragment().getClass().getSimpleName();
+                    fragmentClass = new MapFragment();
+                    Toast.makeText(getApplicationContext(), "연결계정위치", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_safety) {
                     Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_setting) {

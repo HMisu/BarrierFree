@@ -58,6 +58,7 @@ dependencies {
     //ListView에서 thread 과부화 해결 https://github.com/nostra13/Android-Universal-Image-Loader
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
+    implementation files('libs\\com.skt.Tmap_1.66.jar')
     //testImplementation
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

@@ -1,8 +1,10 @@
 package com.example.barrierfree.ui.member;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -26,6 +28,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.barrierfree.R;
 import com.example.barrierfree.RoundImageView;
 import com.example.barrierfree.SslWebViewConnect;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -35,9 +38,13 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,11 +54,14 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static android.app.Activity.RESULT_OK;
+
 public class MemberInfoUpdateFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     private FirebaseFirestore db;
     private View root;
+    private FirebaseStorage firebaseStorage;
 
     Bitmap bitmap;
     private boolean chkemail, a;
@@ -67,6 +77,7 @@ public class MemberInfoUpdateFragment extends Fragment {
     private Dialog dialog;
 
     private String email, phone, addr1, addr2, providerId;
+    private final int GET_GALLERY_IMAGE = 200;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -81,6 +92,7 @@ public class MemberInfoUpdateFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
 
         daum_result = (TextView) root.findViewById(R.id.daum_result);
         daum_webView = (WebView) root.findViewById(R.id.daum_webview);
@@ -151,8 +163,6 @@ public class MemberInfoUpdateFragment extends Fragment {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } else {
-            img.setImageResource(R.drawable.ic_defaultuser);
         }
 
         txtname.setText(user.getDisplayName());
@@ -184,6 +194,16 @@ public class MemberInfoUpdateFragment extends Fragment {
                 init_webView();
                 // 핸들러를 통한 JavaScript 이벤트 반응
                 handler = new Handler();
+            }
+        });
+
+        img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_PICK);
+                intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                startActivityForResult(intent, GET_GALLERY_IMAGE);
+
             }
         });
 
@@ -258,16 +278,20 @@ public class MemberInfoUpdateFragment extends Fragment {
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    Log.d("메시지", "User re-authenticated.");
-                                    user.updateEmail(email)
-                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        Log.d("메시지", "User email address updated.");
+                                    if (task.isSuccessful()) {
+                                        user.updateEmail(email)
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        if (task.isSuccessful()) {
+                                                            Log.d("메시지", "User email address updated.");
+                                                        }
                                                     }
-                                                }
-                                            });
+                                                });
+                                    }
+                                    else{
+                                        Toast.makeText(getActivity(), "비밀번호를 잘못입력하셨습니다.", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
                 }
@@ -296,6 +320,77 @@ public class MemberInfoUpdateFragment extends Fragment {
     public void refreshFragment() {
         FragmentTransaction t = getActivity().getSupportFragmentManager().beginTransaction();
         t.detach(this).attach(this).commitAllowingStateLoss();
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        // Check which request we're responding to
+        if (requestCode == GET_GALLERY_IMAGE) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK && data.getData() != null) {
+                try {
+                    Uri selectedImageUri = data.getData();
+                    img.setImageURI(selectedImageUri);
+                    //https://blog.naver.com/100race/221901045309
+                    final StorageReference storageRef = firebaseStorage.getReference().child(selectedImageUri.getLastPathSegment());
+                    UploadTask uploadTask = storageRef.putFile(selectedImageUri);
+
+                    Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                        @Override
+                        public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                            if (!task.isSuccessful()) {
+                                throw task.getException();
+                            }
+                            // Continue with the task to get the download URL
+                            return storageRef.getDownloadUrl();
+                        }
+                    }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Uri> task) {
+                            if (task.isSuccessful()) { // 다운로드 Url을 받을 수 있는곳
+                                Uri imageUrl = task.getResult();
+
+                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                        .setPhotoUri(imageUrl)
+                                        .build();
+                                user.updateProfile(profileUpdates)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Log.d("메시지", "User profile updated.");
+                                                }
+                                            }
+                                        });
+
+                                db.collection("members").document(user.getUid())
+                                        .update("mem_photo", imageUrl.toString())
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.d("메시지", "DocumentSnapshot successfully updated!");
+                                                //refreshFragment();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Log.w("메시지", "Error updating document", e);
+                                            }
+                                        });
+                                Toast.makeText(getActivity(),"프로필 사진이 변경되었습니다.",Toast.LENGTH_SHORT).show();
+                                refreshFragment();
+                            } else {
+                                Toast.makeText(getActivity(),"프로필 사진을 변경하지 못했습니다.",Toast.LENGTH_SHORT).show();
+                                Log.d("메시지","프로필 이미지 변경 실패");
+
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void init_webView() {

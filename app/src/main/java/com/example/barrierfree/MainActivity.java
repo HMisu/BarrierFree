@@ -1,5 +1,6 @@
 package com.example.barrierfree;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import com.example.barrierfree.ui.find.FindFragment;
 import com.example.barrierfree.ui.find.MapFragment;
 import com.example.barrierfree.ui.member.ListViewMemberAdpater;
 import com.example.barrierfree.ui.member.MemberInfoFragment;
+import com.example.barrierfree.ui.member.MemberInfoUpdateFragment;
 import com.example.barrierfree.ui.settings.SettingFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
 
     private ListViewMemberAdpater adprequest, adpapply;
+    private final int GET_GALLERY_IMAGE = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,9 +162,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        if (user.getPhotoUrl() == null) {
-            userProfileImg.setImageResource(R.drawable.ic_defaultuser);
-        } else {
+        if (user.getPhotoUrl() != null) {
             mThread.start();
             try {
                 mThread.join();
@@ -231,5 +232,17 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().popBackStack(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         getSupportFragmentManager().beginTransaction().addToBackStack(fragmentTag)
                 .replace(R.id.nav_host_fragment, fragmentClass).commitAllowingStateLoss();
+    }
+
+    @Override //갤러리에서 이미지 불러온 후 행동
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GET_GALLERY_IMAGE && resultCode == RESULT_OK) {
+            int request = requestCode & 0xffff;
+            //stickyny.tistory.com/86 [Mindware 깍두기]
+            // Check which request we're responding to
+            Fragment fragment = new MemberInfoUpdateFragment();
+            fragment.onActivityResult(request, resultCode, data);
+        }
     }
 }

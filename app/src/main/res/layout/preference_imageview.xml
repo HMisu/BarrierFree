@@ -13,7 +13,7 @@
         android:id="@+id/user_photo"
         android:layout_width="90dp"
         android:layout_height="90dp"
-        android:src="@mipmap/ic_launcher"
+        android:src="@drawable/ic_defaultuser"
         app:layout_constraintHorizontal_bias="0.040"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

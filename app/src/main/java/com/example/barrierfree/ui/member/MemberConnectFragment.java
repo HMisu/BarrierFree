@@ -136,9 +136,7 @@ public class MemberConnectFragment extends Fragment {
                                         }
                                     }
                                 };
-                                if (user.getPhotoUrl() == null) {
-                                    imgweak.setImageResource(R.drawable.ic_defaultuser);
-                                } else {
+                                if (user.getPhotoUrl() != null) {
                                     uThread.start();
                                     try {
                                         uThread.join();
@@ -271,7 +269,7 @@ public class MemberConnectFragment extends Fragment {
                             }
                         });
             }
-        }, 800);
+        }, 900);
 
         db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).whereEqualTo("connect", false).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

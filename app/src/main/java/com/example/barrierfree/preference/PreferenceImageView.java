@@ -83,8 +83,6 @@ public class PreferenceImageView extends Preference {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        } else {
-            imageView.setImageResource(R.drawable.ic_defaultuser);
         }
     }
 

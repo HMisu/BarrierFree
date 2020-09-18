@@ -100,6 +100,7 @@ public class JoinActivity extends AppCompatActivity {
         social_mail.setVisibility(View.GONE);
 
         Intent intent = getIntent();
+
         social = intent.getBooleanExtra("SOCIAL_WHETHER", false);
         if (social) {
             user = mAuth.getCurrentUser();

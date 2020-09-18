@@ -55,6 +55,8 @@ dependencies {
     implementation files('libs/mail.jar')
     implementation "androidx.legacy:legacy-preference-v14:1.0.0"
     implementation "androidx.preference:preference:1.0.0"
+    //Thread Img 느림 해결 중
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
     //ListView에서 thread 과부화 해결 https://github.com/nostra13/Android-Universal-Image-Loader
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'

@@ -1,6 +1,7 @@
 package com.example.barrierfree.ui.member;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,6 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
+import com.example.barrierfree.MainActivity;
 import com.example.barrierfree.R;
 import com.example.barrierfree.RoundImageView;
 import com.example.barrierfree.SslWebViewConnect;
@@ -46,11 +49,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -135,34 +135,9 @@ public class MemberInfoUpdateFragment extends Fragment {
             txtemail.setText("구글 로그인 시 이메일 수정이 불가능합니다");
         }
 
-        Thread uThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    if (user.getPhotoUrl() == null)
-                        return;
-                    URL url = new URL(user.getPhotoUrl().toString());
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setDoInput(true);
-                    conn.connect();
-                    InputStream is = conn.getInputStream();
-                    bitmap = BitmapFactory.decodeStream(is);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        if (user.getPhotoUrl() != null) {
-            uThread.start();
-            try {
-                uThread.join();
-                img.setImageBitmap(bitmap);
-                img.setRectRadius(100f);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if(user.getPhotoUrl() != null){
+            Glide.with(getContext()).load(user.getPhotoUrl().toString()).into(img);
+            img.setRectRadius(100f);
         }
 
         txtname.setText(user.getDisplayName());
@@ -330,10 +305,16 @@ public class MemberInfoUpdateFragment extends Fragment {
                 try {
                     Uri selectedImageUri = data.getData();
                     img.setImageURI(selectedImageUri);
-                    //https://blog.naver.com/100race/221901045309
-                    final StorageReference storageRef = firebaseStorage.getReference().child(selectedImageUri.getLastPathSegment());
-                    UploadTask uploadTask = storageRef.putFile(selectedImageUri);
+                    Bitmap bitmap = resize(getContext(), selectedImageUri, 150);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] bitdata = baos.toByteArray();
 
+                    //https://blog.naver.com/100race/221901045309
+                    final StorageReference storageRef = firebaseStorage.getReference().child("images/" + selectedImageUri.getLastPathSegment());
+                    //UploadTask uploadTask = storageRef.putFile(selectedImageUri);
+
+                    UploadTask uploadTask = storageRef.putBytes(bitdata);
                     Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                         @Override
                         public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
@@ -378,7 +359,7 @@ public class MemberInfoUpdateFragment extends Fragment {
                                             }
                                         });
                                 Toast.makeText(getActivity(),"프로필 사진이 변경되었습니다.",Toast.LENGTH_SHORT).show();
-                                refreshFragment();
+                                ((MainActivity)MainActivity.mContext).onResume();
                             } else {
                                 Toast.makeText(getActivity(),"프로필 사진을 변경하지 못했습니다.",Toast.LENGTH_SHORT).show();
                                 Log.d("메시지","프로필 이미지 변경 실패");
@@ -450,5 +431,35 @@ public class MemberInfoUpdateFragment extends Fragment {
                 }
             });
         }
+    }
+
+    //https://superwony.tistory.com/59
+    private Bitmap resize(Context context, Uri uri, int resize){
+        Bitmap resizeBitmap=null;
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        try {
+            BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options); // 1번
+
+            int width = options.outWidth;
+            int height = options.outHeight;
+            int samplesize = 1;
+
+            while (true) {//2번
+                if (width / 2 < resize || height / 2 < resize)
+                    break;
+                width /= 2;
+                height /= 2;
+                samplesize *= 2;
+            }
+
+            options.inSampleSize = samplesize;
+            Bitmap bitmap = BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, options); //3번
+            resizeBitmap=bitmap;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return resizeBitmap;
     }
 }

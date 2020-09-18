@@ -1,8 +1,8 @@
 package com.example.barrierfree;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +24,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bumptech.glide.Glide;
 import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.example.barrierfree.ui.bottomNV.BottomNVTest1;
 import com.example.barrierfree.ui.find.FindFragment;
@@ -37,16 +38,12 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+
     Bitmap bitmap;
+    public static Context mContext;
 
     private String fragmentTag;
     private Fragment fragmentClass;
@@ -64,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mContext = this;
         mAuth = FirebaseAuth.getInstance();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -142,38 +140,11 @@ public class MainActivity extends AppCompatActivity {
         user = mAuth.getCurrentUser();
         userName.setText(user.getDisplayName());
         userEmail.setText(user.getEmail());
-        Thread mThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    //현재로그인한 사용자 정보를 통해 PhotoUrl 가져오기
-                    if (user.getPhotoUrl() == null)
-                        return;
-                    URL url = new URL(user.getPhotoUrl().toString());
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setDoInput(true);
-                    conn.connect();
-                    InputStream is = conn.getInputStream();
-                    bitmap = BitmapFactory.decodeStream(is);
-                } catch (MalformedURLException ee) {
-                    ee.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        if (user.getPhotoUrl() != null) {
-            mThread.start();
-            try {
-                mThread.join();
-                userProfileImg.setImageBitmap(bitmap);
-                userProfileImg.setRectRadius(100f);
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if(user.getPhotoUrl() != null){
+            Glide.with(mContext).load(user.getPhotoUrl().toString()).into(userProfileImg);
+            userProfileImg.setRectRadius(100f);
         }
-
 
         bottomNavigationView = findViewById(R.id.bottomNV);
         //Set up the view you're seeing for the first time.
@@ -244,5 +215,10 @@ public class MainActivity extends AppCompatActivity {
             Fragment fragment = new MemberInfoUpdateFragment();
             fragment.onActivityResult(request, resultCode, data);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 }

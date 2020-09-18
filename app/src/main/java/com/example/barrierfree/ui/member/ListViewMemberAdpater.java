@@ -56,7 +56,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
     private boolean bool1 = false;
     private String uid;
 
-    private ArrayList<ListViewMember> memData;
+    private ArrayList<ListViewMember> memData = null;
     MemberConnectFragment fragment;
 
     public ListViewMemberAdpater() {
@@ -200,8 +200,7 @@ public class ListViewMemberAdpater extends BaseAdapter implements View.OnClickLi
     }
 
     public void clear() {
-        //memData.clear();
-        memData = null;
+        memData.clear();
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.example.barrierfree.preference;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
@@ -11,16 +11,11 @@ import android.widget.TextView;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
 
+import com.bumptech.glide.Glide;
 import com.example.barrierfree.R;
 import com.example.barrierfree.RoundImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class PreferenceImageView extends Preference {
     private FirebaseAuth mAuth;
@@ -32,6 +27,8 @@ public class PreferenceImageView extends Preference {
 
     View.OnClickListener btnLogoutClickListener;
     RoundImageView imageView;
+
+    Handler handler = new Handler();  // 외부쓰레드 에서 메인 UI화면을 그릴때 사
 
     public PreferenceImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -54,35 +51,9 @@ public class PreferenceImageView extends Preference {
         userName.setText(user.getDisplayName());
         userEmail.setText(user.getEmail());
 
-        Thread uThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    if (user.getPhotoUrl() == null)
-                        return;
-                    URL url = new URL(user.getPhotoUrl().toString());
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setDoInput(true);
-                    conn.connect();
-                    InputStream is = conn.getInputStream();
-                    bitmap = BitmapFactory.decodeStream(is);
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        if (user.getPhotoUrl() != null) {
-            uThread.start();
-            try {
-                uThread.join();
-                imageView.setImageBitmap(bitmap);
-                imageView.setRectRadius(100f);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        if(user.getPhotoUrl() != null){
+            Glide.with(getContext()).load(user.getPhotoUrl().toString()).into(imageView);
+            imageView.setRectRadius(100f);
         }
     }
 

@@ -40,7 +40,7 @@ public class MemberConnectFragment extends Fragment {
     private ListViewMemberAdpater adprequest, adpapply, adpsearch;
 
     private RoundImageView imgweak, imgprotect;
-    private TextView editsearch, txtconnect, txtweak, txtprotect, txtweakname, txtprotectname;
+    private TextView editsearch, txtconnect, txtweak, txtprotect, txtweakname, txtprotectname, titleconnect;
     private Button btnsearch, btndelete;
 
     Boolean boolimg = false;
@@ -68,6 +68,7 @@ public class MemberConnectFragment extends Fragment {
         txtprotect = (TextView) root.findViewById(R.id.text2);
         txtweakname = (TextView) root.findViewById(R.id.weak_name);
         txtprotectname = (TextView) root.findViewById(R.id.protector_name);
+        titleconnect = (TextView) root.findViewById(R.id.title_connect);
         editsearch = (TextView) root.findViewById(R.id.edit_search);
         btnsearch = (Button) root.findViewById(R.id.btn_search_mem);
         btndelete = (Button) root.findViewById(R.id.btn_delete);
@@ -78,6 +79,8 @@ public class MemberConnectFragment extends Fragment {
         txtweak.setVisibility(root.INVISIBLE);
         txtprotect.setVisibility(root.INVISIBLE);
         btndelete.setVisibility(root.INVISIBLE);
+
+        titleconnect.setText(user.getDisplayName()+"님의 연결 정보");
 
         // Adapter 생성
         adprequest = new ListViewMemberAdpater(getActivity(), MemberConnectFragment.this);

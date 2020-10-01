@@ -237,7 +237,7 @@ public class MemberInfoUpdateFragment extends Fragment {
                 addr1 = editaddr.getText().toString().trim();
                 addr2 = editaddrdetail.getText().toString().trim();
 
-                if (!providerId.equals("google.com") && (editpw.getText().toString().equals("") || editpw.getText().toString() == null)) {
+                if (!providerId.equals("google.com") && !user.getEmail().equals(email) && (editpw.getText().toString().equals("") || editpw.getText().toString() == null)) {
                     Toast.makeText(getActivity(), "비밀번호 확인이 필요합니다. 비밀번호를 입력하세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }

@@ -15,7 +15,7 @@
         android:paddingLeft="15dp"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
-        android:text="보호자님의 연결 정보"
+        android:text="OOO님의 연결 정보"
         android:textColor="#000000"
         android:textSize="14sp"
         android:textStyle="bold"

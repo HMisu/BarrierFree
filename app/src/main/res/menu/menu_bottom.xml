@@ -18,7 +18,7 @@
         app:showAsAction="always"
         android:icon="@drawable/ic_star"
         android:enabled="true"
-        android:title="즐겨찾기"
+        android:title="안심장소"
         android:textSize="20dp" />
     <item android:id="@+id/bottomNV_tab4"
         app:showAsAction="always"

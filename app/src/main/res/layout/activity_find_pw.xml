@@ -90,7 +90,7 @@
         android:width="250dp"
         android:background="@drawable/btn_big_green"
         android:stateListAnimator="@null"
-        android:text="임시비밀번호 발급"
+        android:text="비밀번호 재설정 이메일 발송"
         android:textColor="#ffffff"
         android:textStyle="bold"
         android:textSize="16sp"

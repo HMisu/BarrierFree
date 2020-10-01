@@ -42,10 +42,4 @@
             android:summary="소리를 설정하세요."
             android:title="소리 종류설정" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="고객지원">
-        <Preference
-            android:iconSpaceReserved="false"
-            android:key="setting_question"
-            android:title="1:1 문의하기" />
-    </PreferenceCategory>
 </PreferenceScreen>

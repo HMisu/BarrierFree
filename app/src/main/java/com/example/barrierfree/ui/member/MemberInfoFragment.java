@@ -100,6 +100,7 @@ public class MemberInfoFragment extends PreferenceFragmentCompat {
         withdrawal.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
+                ((MainActivity) getActivity()).stopLocationService();
                 FirebaseFirestore.getInstance().collection("members").document(user.getUid()).delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
@@ -132,6 +133,7 @@ public class MemberInfoFragment extends PreferenceFragmentCompat {
             preferenceImageView.setBtnLogoutClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    ((MainActivity) getActivity()).stopLocationService();
                     FirebaseAuth.getInstance().signOut();
                     Intent intent = new Intent(getActivity(), LoginActivity.class);
                     startActivity(intent);

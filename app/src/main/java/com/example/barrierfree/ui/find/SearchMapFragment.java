@@ -97,6 +97,9 @@ public class SearchMapFragment extends Fragment {
         if (bundle != null) {
             latitude = bundle.getDouble("rfglatitude");
             longitude = bundle.getDouble("rfglongitude");
+        } else{
+            latitude = 0;
+            longitude = 0;
         }
     }
 
@@ -141,20 +144,20 @@ public class SearchMapFragment extends Fragment {
                                         if (task.isSuccessful()) {
                                             DocumentSnapshot document = task.getResult();
                                             if (document.exists()) {
-                                                double longitude = document.getDouble("longitude");
-                                                double latitude = document.getDouble("latitude");
+                                                double weaklongitude = document.getDouble("longitude");
+                                                double weaklatitude = document.getDouble("latitude");
                                                 // 취약자 위치 지도에 마커 표시하는(찍는) 곳
                                                 TMapMarkerItem markerItem1 = new TMapMarkerItem();
-                                                TMapPoint tMapPoint1 = new TMapPoint(latitude, longitude);
-                                                Log.d("메시지", longitude + " " + latitude);
+                                                TMapPoint tMapPoint1 = new TMapPoint(weaklatitude, weaklongitude);
+                                                Log.d("메시지", weaklongitude + " " + weaklatitude);
                                                 // 마커 아이콘
                                                 markerItem1.setPosition(0.5f, 1.0f); // 마커의 중심점을 중앙, 하단으로 설정
                                                 markerItem1.setTMapPoint(tMapPoint1); // 마커의 좌표 지정
                                                 markerItem1.setName("취약자"); // 마커의 타이틀 지정
                                                 tMapView.addMarkerItem("markerItem1", markerItem1); // 지도에 마커 추가
 
-                                                if(latitude == 0 || longitude == 0){
-                                                    tMapView.setCenterPoint(longitude, latitude);
+                                                if(latitude == 0 && longitude == 0){
+                                                    tMapView.setCenterPoint(weaklongitude, weaklatitude);
                                                 }
                                             }
                                         } else {
@@ -512,6 +515,50 @@ public class SearchMapFragment extends Fragment {
                 Toast.makeText(getActivity(), "위치 정보 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
                 return;
             }
+            db.collection("connection").whereEqualTo("connect", true).whereEqualTo("mem_protect", user.getUid()).get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(Task<QuerySnapshot> task) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            if (task.isSuccessful()) {
+                                if (querySnapshot.isEmpty()) {
+                                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                        // TODO: Consider calling
+                                        //    ActivityCompat#requestPermissions
+                                        // here to request the missing permissions, and then overriding
+                                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                        //                                          int[] grantResults)
+                                        // to handle the case where the user grants the permission. See the documentation
+                                        // for ActivityCompat#requestPermissions for more details.
+                                        return;
+                                    }
+                                    fusedLocationClient.getLastLocation()
+                                            .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+                                                @Override
+                                                public void onSuccess(Location location) {
+                                                    // Got last known location. In some rare situations this can be null.
+                                                    if (location != null) {
+                                                        // Logic to handle location object
+                                                        Log.d(TAG, "마지막 위치값 " + location.getLatitude() + " " + location.getLongitude());
+
+                                                        final double lat = location.getLatitude();
+                                                        final double lng = location.getLongitude();
+
+                                                        if (tMapView != null) {
+                                                            tMapView.setLocationPoint(lng, lat);
+                                                            tMapView.setCenterPoint(lng, lat);
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                }
+                            } else {
+                                Log.d("메시지", "Error getting documents: ", task.getException());
+                                return;
+                            }
+                        }
+                    });
+
             // 디바이스에 기록된 마지막 위치값을 가져온다
             /*
             fusedLocationClient.getLastLocation()

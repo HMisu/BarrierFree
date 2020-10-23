@@ -31,9 +31,8 @@ import com.bumptech.glide.Glide;
 import com.example.barrierfree.service.LocationService;
 import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.example.barrierfree.ui.find.FindFragment;
-import com.example.barrierfree.ui.find.MapFragment;
 import com.example.barrierfree.ui.find.SearchMapFragment;
-import com.example.barrierfree.ui.member.ListViewMemberAdpater;
+import com.example.barrierfree.ui.member.ListViewMemAdpater;
 import com.example.barrierfree.ui.member.MemberInfoFragment;
 import com.example.barrierfree.ui.member.MemberInfoUpdateFragment;
 import com.example.barrierfree.ui.member.SafetyFragment;
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     NavigationView navigationView;
     private AppBarConfiguration mAppBarConfiguration;
 
-    private ListViewMemberAdpater adprequest, adpapply;
+    private ListViewMemAdpater adprequest, adpapply;
     private final int GET_GALLERY_IMAGE = 200;
 
     @Override
@@ -110,11 +109,6 @@ public class MainActivity extends AppCompatActivity {
                     fragmentClass = new FindFragment();
                     replaceFragment(fragmentTag, fragmentClass);
                     Toast.makeText(getApplicationContext(), "위험정보", Toast.LENGTH_LONG).show();
-                } else if (id == R.id.nav_board) {
-                    fragmentTag = new MapFragment().getClass().getSimpleName();
-                    fragmentClass = new MapFragment();
-                    replaceFragment(fragmentTag, fragmentClass);
-                    Toast.makeText(getApplicationContext(), "연결 계정 위치", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_safety) {
                     fragmentTag = new SearchMapFragment().getClass().getSimpleName();
                     fragmentClass = new SearchMapFragment();
@@ -138,23 +132,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-        db.collection("connection").whereEqualTo("connect", true).whereEqualTo("mem_protect", user.getUid()).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
-                            if (querySnapshot.isEmpty()) {
-                                Menu menu = navigationView.getMenu();
-                                menu.findItem(R.id.nav_board).setVisible(false);
-                            }
-                        } else {
-                            Log.d("메시지", "Error getting documents: ", task.getException());
-                            return;
-                        }
-                    }
-                });
 
         //Nav_header_main
         //navigationView.setNavigationItemSelectedListener(this);
@@ -291,8 +268,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().addToBackStack(fragmentTag)
                 .replace(R.id.nav_host_fragment, fragmentClass).commitAllowingStateLoss();
     }
-
-
 
     @Override //갤러리에서 이미지 불러온 후 행동
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -1,6 +1,7 @@
 package com.example.barrierfree.ui.member;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -13,9 +14,11 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.example.barrierfree.R;
 import com.example.barrierfree.models.Safety;
+import com.example.barrierfree.ui.find.SearchMapFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -81,7 +84,6 @@ public class ListViewSafetyAdpater extends BaseAdapter implements View.OnClickLi
         user = mAuth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
 
-
         // 리스트 아이템이 새로 추가될 경우에는 v가 null값이다.
         // view는 어느 정도 생성된 뒤에는 재사용이 일어나기 때문에 효율을 위해서 해준다.
         if (convertView == null) {
@@ -99,9 +101,16 @@ public class ListViewSafetyAdpater extends BaseAdapter implements View.OnClickLi
 
         // Tag를 이용하여 데이터와 뷰를 묶습니다.
         btnreg.setTag(safety);
+        imageView.setTag(safety);
 
         if(safety.getMem_register().equals(safety.getMem_weak())){
             register.setVisibility(convertView.GONE);
+        }
+
+        Log.d("메시지", "룰 : "+safety.getMem_register());
+        Log.d("메시지", "룰 ID : "+user.getUid());
+        if(!safety.getMem_register().equals(user.getUid())){
+            btnreg.setVisibility(convertView.GONE);
         }
 
         name.setText(safety.getName());
@@ -132,7 +141,7 @@ public class ListViewSafetyAdpater extends BaseAdapter implements View.OnClickLi
         }
 
         btnreg.setOnClickListener(this);
-
+        imageView.setOnClickListener(this);
         return convertView;
     }
 
@@ -149,9 +158,19 @@ public class ListViewSafetyAdpater extends BaseAdapter implements View.OnClickLi
         // TODO Auto-generated method stub
         clickItem = (Safety) v.getTag();
         switch (v.getId()) {
+            case R.id.img_kind:
+                Bundle bundle = new Bundle();
+                bundle.putDouble("rfglatitude", clickItem.getLatitude());
+                bundle.putDouble("rfglongitude", clickItem.getLongitude());
+
+                String fragmentTag = new SearchMapFragment().getClass().getSimpleName();
+                Fragment fragmentClass = new SearchMapFragment();
+                fragment.replaceFragment(fragmentTag, fragmentClass, bundle);
+                break;
             case R.id.btn_reg:
                 Log.d("메시지", "22 : " +sf_id);
-                Log.d("메시지", "22 : " +safety.getName());
+                Log.d("메시지", "22 : " +clickItem.getName());
+
                 PopupMenu p = new PopupMenu(context, v);
                 p.getMenuInflater().inflate(R.menu.popup_safety, p.getMenu());
                 p.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {

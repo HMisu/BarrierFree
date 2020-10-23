@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -67,7 +68,7 @@ public class SearchMapFragment extends Fragment {
     private FirebaseUser user;
     private FirebaseFirestore db;
 
-    double rfglongitude, rfglatitude;
+    double rfglongitude, rfglatitude, longitude=0, latitude=0;
     String weekuid, rfgaddr;
     int count;
 
@@ -87,6 +88,17 @@ public class SearchMapFragment extends Fragment {
     private FusedLocationProviderClient fusedLocationClient; // 마지막에 저장된 현재 위치값을 가져오기 위해 생성
 
     String AppKey = "7dEldMVxKoZfmjg1iqfBabOSQQ%2B2ysH%2FY9TgK4dPPb3nqa4YRvgpd%2FdAzN8xyFnEeOJpNCYlDcjzRREjwDMuGw%3D%3D"; // 공공데이터 키
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            latitude = bundle.getDouble("rfglatitude");
+            longitude = bundle.getDouble("rfglongitude");
+        }
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -122,7 +134,7 @@ public class SearchMapFragment extends Fragment {
                             if (querySnapshot.isEmpty()) {
                                 Log.d("메시지", "empty");
                                 weekuid = user.getUid();
-                            } else{
+                            } else {
                                 db.collection("location").document(weekuid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                     @Override
                                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -140,7 +152,10 @@ public class SearchMapFragment extends Fragment {
                                                 markerItem1.setTMapPoint(tMapPoint1); // 마커의 좌표 지정
                                                 markerItem1.setName("취약자"); // 마커의 타이틀 지정
                                                 tMapView.addMarkerItem("markerItem1", markerItem1); // 지도에 마커 추가
-                                                tMapView.setCenterPoint(longitude, latitude);
+
+                                                if(latitude == 0 || longitude == 0){
+                                                    tMapView.setCenterPoint(longitude, latitude);
+                                                }
                                             }
                                         } else {
                                             Log.d("메시지", "get failed with ", task.getException());
@@ -183,6 +198,10 @@ public class SearchMapFragment extends Fragment {
                     }
                 });
 
+        if(latitude != 0 || longitude != 0){
+            tMapView.setCenterPoint(longitude, latitude);
+        }
+
         tvAddress = (TextView) root.findViewById(R.id.tvAddress);
         tvDetail = (TextView) root.findViewById(R.id.tvDetail);
         bt_close = (Button) root.findViewById(R.id.bt_close);
@@ -211,11 +230,11 @@ public class SearchMapFragment extends Fragment {
                                 if (task.isSuccessful()) {
                                     QuerySnapshot querySnapshot = task.getResult();
                                     for (QueryDocumentSnapshot document : task.getResult()) {
-                                        count = count+1;
+                                        count = count + 1;
                                     }
-                                    if(count >= 3){
+                                    if (count >= 3) {
                                         Toast.makeText(getActivity(), "최대 등록 갯수 3개를 초과했습니다", Toast.LENGTH_SHORT).show();
-                                    } else{
+                                    } else {
                                         Bundle bundle = new Bundle();
                                         bundle.putString("rfgAddr", rfgaddr);
                                         bundle.putDouble("rfglatitude", rfglatitude);
@@ -604,8 +623,8 @@ public class SearchMapFragment extends Fragment {
         tvAddress.setText(addrDetail.getSpot_nm());
         tvDetail.setText(addrDetail.getSido_sgg_nm());
 
-        Log.d("메시지", "addrDetail.getSpot_nm() : "+addrDetail.getSpot_nm());
-        Log.d("메시지", "addrDetail.getSido_sgg_nm() : "+ addrDetail.getSido_sgg_nm());
+        Log.d("메시지", "addrDetail.getSpot_nm() : " + addrDetail.getSpot_nm());
+        Log.d("메시지", "addrDetail.getSido_sgg_nm() : " + addrDetail.getSido_sgg_nm());
     }
 
     private class RequestResponseTask extends AsyncTask<Double, Void, String> {

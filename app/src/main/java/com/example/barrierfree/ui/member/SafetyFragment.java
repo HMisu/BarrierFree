@@ -118,6 +118,10 @@ public class SafetyFragment extends Fragment {
         t.detach(this).attach(this).commitAllowingStateLoss();
     }
 
+    public void replaceFragment(String fragmentTag, Fragment fragmentClass, Bundle bundle){
+        ((MainActivity) getActivity()).replaceFragment(fragmentTag, fragmentClass, bundle);
+    }
+
     public void updateSafety(String sf_id) {
         Bundle bundle = new Bundle();
         bundle.putBoolean("rfgAdd", false);

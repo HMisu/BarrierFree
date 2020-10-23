@@ -115,13 +115,13 @@
         android:id="@+id/btn_delete"
         android:layout_width="wrap_content"
         android:layout_height="25dp"
-        android:background="@drawable/btn_red"
         android:layout_marginTop="15dp"
         android:layout_marginRight="8dp"
+        android:background="@drawable/btn_red"
         android:text="연결 해지"
+        android:textColor="#fff"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="#fff"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/weak_name" />
 
@@ -147,10 +147,10 @@
         android:id="@+id/edit_search"
         android:layout_width="220dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:background="@drawable/user_info"
         android:hint="이메일 혹은 전화번호 입력"
         android:inputType="textEmailAddress"
-        android:layout_marginTop="10dp"
         android:padding="10dp"
         android:textColorHint="@color/colorHint"
         android:textSize="15sp"
@@ -163,14 +163,15 @@
         android:id="@+id/btn_search_mem"
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:background="@drawable/btn_white"
         android:layout_marginTop="10dp"
+        android:background="@drawable/btn_white"
         android:text="검색"
         android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/edit_search"
         app:layout_constraintTop_toBottomOf="@+id/title_connectapply" />
+
 
     <ListView
         android:id="@+id/listview_search_user"
@@ -181,10 +182,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_search_mem" />
 
+
     <ListView
         android:id="@+id/listview_apply_user"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="150dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/listview_search_user" />
@@ -206,12 +209,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/listview_apply_user" />
 
-    <ListView
-        android:id="@+id/listview_request_user"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_request" />
+        <ListView
+            android:id="@+id/listview_request_user"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_request" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

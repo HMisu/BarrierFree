@@ -1,26 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/bottomNV_tab1"
+    <item android:id="@+id/bottomNV_dangerous"
         app:showAsAction="always"
         android:icon="@drawable/ic_alert"
-        android:checkable="true"
         android:enabled="true"
         android:title="위험지역"
         android:textSize="20dp" />
-    <item android:id="@+id/bottomNV_tab2"
+
+    <item android:id="@+id/bottomNV_alter"
         app:showAsAction="always"
         android:icon="@drawable/ic_bell"
         android:enabled="true"
         android:title="알림"
         android:textSize="20dp" />
-    <item android:id="@+id/bottomNV_tab3"
+
+    <item android:id="@+id/bottomNV_home"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_home"
+        android:checkable="true"
+        android:enabled="true"
+        android:title="홈"
+        android:textSize="20dp" />
+
+    <item android:id="@+id/bottomNV_safety"
         app:showAsAction="always"
         android:icon="@drawable/ic_star"
         android:enabled="true"
         android:title="안심장소"
         android:textSize="20dp" />
-    <item android:id="@+id/bottomNV_tab4"
+
+    <item android:id="@+id/bottomNV_help"
         app:showAsAction="always"
         android:icon="@drawable/ic_question"
         android:enabled="true"

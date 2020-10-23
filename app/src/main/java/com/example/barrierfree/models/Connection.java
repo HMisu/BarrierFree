@@ -53,6 +53,7 @@ public class Connection {
     public String getMem_respondent(){
         return mem_respondent;
     }
+
     public boolean getConnect() {
         return connect;
     }

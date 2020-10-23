@@ -5,9 +5,6 @@
 
     <group>
         <item
-            android:id="@+id/nav_find"
-            android:title="길찾기" />
-        <item
             android:id="@+id/nav_dangerous"
             android:title="위험정보 지도" />
         <item

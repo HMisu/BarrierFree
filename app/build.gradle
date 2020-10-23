@@ -61,6 +61,12 @@ dependencies {
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation files('libs\\com.skt.Tmap_1.66.jar')
+
+    // 공공데이터 api호출시 사용할 http client
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.0'
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.4.1'
+
     //testImplementation
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

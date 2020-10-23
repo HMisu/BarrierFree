@@ -30,12 +30,13 @@ import androidx.navigation.ui.NavigationUI;
 import com.bumptech.glide.Glide;
 import com.example.barrierfree.service.LocationService;
 import com.example.barrierfree.ui.bottomNV.BottomAlert;
-import com.example.barrierfree.ui.bottomNV.BottomNVTest1;
 import com.example.barrierfree.ui.find.FindFragment;
 import com.example.barrierfree.ui.find.MapFragment;
+import com.example.barrierfree.ui.find.SearchMapFragment;
 import com.example.barrierfree.ui.member.ListViewMemberAdpater;
 import com.example.barrierfree.ui.member.MemberInfoFragment;
 import com.example.barrierfree.ui.member.MemberInfoUpdateFragment;
+import com.example.barrierfree.ui.member.SafetyFragment;
 import com.example.barrierfree.ui.settings.SettingFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -104,12 +105,10 @@ public class MainActivity extends AppCompatActivity {
                 Fragment fragment = null;
                 String title = getString(R.string.app_name);
 
-                if (id == R.id.nav_find) {
+                if (id == R.id.nav_dangerous) {
                     fragmentTag = new FindFragment().getClass().getSimpleName();
                     fragmentClass = new FindFragment();
                     replaceFragment(fragmentTag, fragmentClass);
-                    Toast.makeText(getApplicationContext(), "길찾기", Toast.LENGTH_LONG).show();
-                } else if (id == R.id.nav_dangerous) {
                     Toast.makeText(getApplicationContext(), "위험정보", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_board) {
                     fragmentTag = new MapFragment().getClass().getSimpleName();
@@ -117,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(fragmentTag, fragmentClass);
                     Toast.makeText(getApplicationContext(), "연결 계정 위치", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_safety) {
+                    fragmentTag = new SearchMapFragment().getClass().getSimpleName();
+                    fragmentClass = new SearchMapFragment();
+                    replaceFragment(fragmentTag, fragmentClass);
                     Toast.makeText(getApplicationContext(), "안심장소", Toast.LENGTH_LONG).show();
                 } else if (id == R.id.nav_setting) {
                     fragmentTag = new SettingFragment().getClass().getSimpleName();
@@ -173,23 +175,37 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNV);
         //Set up the view you're seeing for the first time.
         getSupportFragmentManager().beginTransaction()
-                .replace(R.id.nav_host_fragment, new BottomNVTest1()).commit();
+                .replace(R.id.nav_host_fragment, new SearchMapFragment()).commit();
+        bottomNavigationView.setSelectedItemId(R.id.bottomNV_home);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
-                    case R.id.bottomNV_tab1: {
-                        fragmentTag = new BottomNVTest1().getClass().getSimpleName();
-                        fragmentClass = new BottomNVTest1();
+                    case R.id.bottomNV_dangerous: {
+                        fragmentTag = new FindFragment().getClass().getSimpleName();
+                        fragmentClass = new FindFragment();
                         replaceFragment(fragmentTag, fragmentClass);
-
                         return true;
                     }
-                    case R.id.bottomNV_tab2: {
+                    case R.id.bottomNV_alter: {
                         fragmentTag = new BottomAlert().getClass().getSimpleName();
                         fragmentClass = new BottomAlert();
                         replaceFragment(fragmentTag, fragmentClass);
-
+                        return true;
+                    }
+                    case R.id.bottomNV_home: {
+                        fragmentTag = new SearchMapFragment().getClass().getSimpleName();
+                        fragmentClass = new SearchMapFragment();
+                        replaceFragment(fragmentTag, fragmentClass);
+                        return true;
+                    }
+                    case R.id.bottomNV_safety: {
+                        fragmentTag = new SafetyFragment().getClass().getSimpleName();
+                        fragmentClass = new SafetyFragment();
+                        replaceFragment(fragmentTag, fragmentClass);
+                        return true;
+                    }
+                    case R.id.bottomNV_help: {
                         return true;
                     }
                     default:
@@ -268,6 +284,15 @@ public class MainActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction().addToBackStack(fragmentTag)
                 .replace(R.id.nav_host_fragment, fragmentClass).commitAllowingStateLoss();
     }
+
+    public void replaceFragment(String fragmentTag, Fragment fragmentClass, Bundle bundle) {
+        fragmentClass.setArguments(bundle);
+        getSupportFragmentManager().popBackStack(fragmentTag, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        getSupportFragmentManager().beginTransaction().addToBackStack(fragmentTag)
+                .replace(R.id.nav_host_fragment, fragmentClass).commitAllowingStateLoss();
+    }
+
+
 
     @Override //갤러리에서 이미지 불러온 후 행동
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

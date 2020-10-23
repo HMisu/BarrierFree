@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/llBottom"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    android:padding="15dp"
+    tools:layout_editor_absoluteY="185dp">
+
+    <TextView
+        android:id="@+id/tvAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Name"
+        android:layout_marginLeft="5dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tvDetail"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Details Content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@+id/tvAddress"
+        app:layout_constraintTop_toBottomOf="@+id/tvAddress" />
+
+    <ImageButton
+        android:id="@+id/btn_safety"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/btn_white_oval"
+        android:visibility="gone"
+        android:padding="10dp"
+        android:text="안심장소"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_star"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txt1"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="안심지역"
+        android:visibility="gone"
+        android:layout_marginTop="2dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btn_safety"
+        app:layout_constraintStart_toStartOf="@+id/btn_safety"
+        app:layout_constraintTop_toBottomOf="@+id/btn_safety" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvDetail">
+
+        <Button
+            android:id="@+id/bt_close"
+            style="@style/Base.Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="확인" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

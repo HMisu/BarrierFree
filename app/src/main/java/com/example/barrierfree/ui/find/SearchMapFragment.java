@@ -59,7 +59,7 @@ import java.util.ArrayList;
 /**
  * POI 정보를 통합검색하는 화면
  */
-public class SearchMapFragment extends Fragment {
+public class  SearchMapFragment extends Fragment {
     private String TAG = "SearchMapFragment";
 
     private BottomSheetDialog mBottomSheetDialog;

@@ -166,6 +166,7 @@ public class ListViewSafetyAdpater extends BaseAdapter implements View.OnClickLi
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 Log.d("메시지", "DocumentSnapshot successfully deleted!");
+                                                fragment.refreshFragment();
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {

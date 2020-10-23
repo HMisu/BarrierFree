@@ -87,6 +87,8 @@ public class SafetyEditFragment extends Fragment {
         imgschool = (ImageButton) root.findViewById(R.id.img_shcool);
         imgetc = (ImageButton) root.findViewById(R.id.img_etc);
 
+        kind="";
+
         if (rfgadd == false) {
             btnedit.setText("수정");
 

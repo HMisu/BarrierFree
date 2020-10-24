@@ -545,8 +545,10 @@ public class  SearchMapFragment extends Fragment {
                                                         final double lng = location.getLongitude();
 
                                                         if (tMapView != null) {
-                                                            tMapView.setLocationPoint(lng, lat);
-                                                            tMapView.setCenterPoint(lng, lat);
+                                                            if(latitude == 0 && longitude == 0){
+                                                                tMapView.setLocationPoint(lng, lat);
+                                                                tMapView.setCenterPoint(lng, lat);
+                                                            }
                                                         }
                                                     }
                                                 }

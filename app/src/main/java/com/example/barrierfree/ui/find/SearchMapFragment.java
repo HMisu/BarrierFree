@@ -1,13 +1,18 @@
 package com.example.barrierfree.ui.find;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.barrierfree.MainActivity;
 import com.example.barrierfree.R;
@@ -59,7 +65,7 @@ import java.util.ArrayList;
 /**
  * POI 정보를 통합검색하는 화면
  */
-public class  SearchMapFragment extends Fragment {
+public class SearchMapFragment extends Fragment implements LocationListener {
     private String TAG = "SearchMapFragment";
 
     private BottomSheetDialog mBottomSheetDialog;
@@ -68,10 +74,12 @@ public class  SearchMapFragment extends Fragment {
     private FirebaseUser user;
     private FirebaseFirestore db;
 
-    double rfglongitude, rfglatitude, longitude=0, latitude=0;
+    double rfglongitude, rfglatitude, longitude = 0, latitude = 0;
     String weekuid, rfgaddr;
     int count;
 
+    LocationManager lm;
+    MyReceiver receiver;
     LinearLayout linearLayoutTmap;
     ConstraintLayout llBottom;
     EditText etSearch;
@@ -97,7 +105,7 @@ public class  SearchMapFragment extends Fragment {
         if (bundle != null) {
             latitude = bundle.getDouble("rfglatitude");
             longitude = bundle.getDouble("rfglongitude");
-        } else{
+        } else {
             latitude = 0;
             longitude = 0;
         }
@@ -120,6 +128,7 @@ public class  SearchMapFragment extends Fragment {
         btnSearch = (Button) root.findViewById(R.id.btnSearch);
         btnCurrentLoc = (ImageButton) root.findViewById(R.id.btnCurrentLoc);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
@@ -156,7 +165,7 @@ public class  SearchMapFragment extends Fragment {
                                                 markerItem1.setName("취약자"); // 마커의 타이틀 지정
                                                 tMapView.addMarkerItem("markerItem1", markerItem1); // 지도에 마커 추가
 
-                                                if(latitude == 0 && longitude == 0){
+                                                if (latitude == 0 && longitude == 0) {
                                                     tMapView.setCenterPoint(weaklongitude, weaklatitude);
                                                 }
                                             }
@@ -187,6 +196,27 @@ public class  SearchMapFragment extends Fragment {
                                                     tMapView.addTMapCircle(document.getId(), tMapCircle);
 
                                                     //미혜야 여기!
+                                                    receiver = new MyReceiver();
+                                                    IntentFilter filter = new IntentFilter("Location");
+                                                    LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, filter);
+
+                                                    Intent intent = new Intent("Location");
+                                                    PendingIntent pending = PendingIntent.getBroadcast(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+                                                    if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                                        // TODO: Consider calling
+                                                        //    ActivityCompat#requestPermissions
+                                                        // here to request the missing permissions, and then overriding
+                                                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                                        //                                          int[] grantResults)
+                                                        // to handle the case where the user grants the permission. See the documentation
+                                                        // for ActivityCompat#requestPermissions for more details.
+                                                        return;
+                                                    }
+                                                    Log.d("위도와 경도", "latitude : " + document.getDouble("latitude") + " longitude : " + document.getDouble("longitude"));
+                                                    Log.d("널 값 확인", String.valueOf(pending) + ", getContenxt : " + String.valueOf(getActivity().getApplicationContext()));
+                                                    lm.addProximityAlert(document.getDouble("latitude"), document.getDouble("longitude"),200, -1, pending);
+
+
                                                 }
                                             } else {
                                                 Log.d("메시지", "Error getting documents: ", task.getException());
@@ -674,6 +704,26 @@ public class  SearchMapFragment extends Fragment {
 
         Log.d("메시지", "addrDetail.getSpot_nm() : " + addrDetail.getSpot_nm());
         Log.d("메시지", "addrDetail.getSido_sgg_nm() : " + addrDetail.getSido_sgg_nm());
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 
     private class RequestResponseTask extends AsyncTask<Double, Void, String> {

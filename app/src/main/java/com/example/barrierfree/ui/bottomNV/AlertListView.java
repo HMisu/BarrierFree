@@ -1,9 +1,19 @@
-package com.example.barrierfree;
+package com.example.barrierfree.ui.bottomNV;
 
-public class CustomListView {
+public class AlertListView {
     public String title;
     public String content;
     public String date;
+
+    public AlertListView(String title, String content, String date) {
+        this.title = title;
+        this.content = content;
+        this.date = date;
+    }
+
+    public AlertListView() {
+
+    }
 
     public String getTitle() {
         return title;

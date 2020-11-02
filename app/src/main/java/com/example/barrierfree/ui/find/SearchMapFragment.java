@@ -289,74 +289,6 @@ public class SearchMapFragment extends Fragment implements LocationListener {
             }
         });
 
-//        flTop.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                llBottom.setVisibility(View.GONE);
-//            }
-//        });
-
-//        flTop.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//
-//                switch(event.getAction()) {
-//                    case MotionEvent.ACTION_DOWN: {
-//                        Log.d(TAG, "터치 액션다운");
-//                        llBottom.setVisibility(View.GONE);
-//                        return true;
-//                    }
-//                    case MotionEvent.ACTION_MOVE:
-//
-//                    case MotionEvent.ACTION_UP:
-//
-//                    default:
-//                        return false;
-//                }
-//
-//
-//            }
-//        });
-
-//        detector = new GestureDetector(getActivity(), new GestureDetector.OnGestureListener() {
-//            @Override
-//            public boolean onDown(MotionEvent e) {
-//                Log.d(TAG, "onDown() 호출"); return true;
-//            }
-//            @Override
-//            public void onShowPress(MotionEvent e) {
-//                Log.d(TAG,"onShowPress() 호출");
-//            }
-//            @Override
-//            public boolean onSingleTapUp(MotionEvent e) {
-//                Log.d(TAG, "onSingleTapUp() 호출");
-//                return true;
-//            }
-//            @Override
-//            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-//                Log.d(TAG, "onScroll() 호출 : "+distanceX + ", "+distanceY);
-//                return true;
-//            }
-//            @Override
-//            public void onLongPress(MotionEvent e) {
-//                Log.d(TAG, "onLongPress() 호출");
-//            }
-//            @Override
-//            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-//                Log.d(TAG, "onFling() 호출 : "+velocityX + ", " + velocityY);
-//                return true;
-//            }
-//        });
-
-//        tMapView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                detector.onTouchEvent(event);
-//                return true;
-//            }
-//        });
-
-
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -478,39 +410,6 @@ public class SearchMapFragment extends Fragment implements LocationListener {
             }
         });
 
-//        tMapView.setOnClickListenerCallBack(new TMapView.OnClickListenerCallback() {
-//            @Override
-//            public boolean onPressEvent(ArrayList<TMapMarkerItem> arrayList, ArrayList<TMapPOIItem> arrayList1, TMapPoint tMapPoint, PointF pointF) {
-//
-//                try {
-//
-//                    if(items != null) {
-//                        items.clear();
-//                    }
-//
-//                    if(tMapView != null) {
-//                        tMapView.removeAllTMapCircle();
-//                        tMapView.removeAllMarkerItem();
-//                    }
-//
-//                    Log.d(TAG,"지도 롱클릭 좌표 "+tMapPoint.toString());
-//
-//                    RequestResponseTask task = new RequestResponseTask();
-//                    task.execute(tMapPoint.getLatitude(), tMapPoint.getLongitude());
-//
-//                }catch (Exception e) {
-//                    Log.e(TAG, "지도 롱클릭 에러 "+e.toString());
-//                }
-//
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onPressUpEvent(ArrayList<TMapMarkerItem> arrayList, ArrayList<TMapPOIItem> arrayList1, TMapPoint tMapPoint, PointF pointF) {
-//                return false;
-//            }
-//        });
-
         tMapView.setOnLongClickListenerCallback(new TMapView.OnLongClickListenerCallback() {
             @Override
             public void onLongPressEvent(ArrayList<TMapMarkerItem> arrayList, ArrayList<TMapPOIItem> arrayList1, TMapPoint tMapPoint) {
@@ -593,40 +492,6 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                         }
                     });
 
-            // 디바이스에 기록된 마지막 위치값을 가져온다
-            /*
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
-                            if (location != null) {
-                                // Logic to handle location object
-
-                                Log.d(TAG, "마지막 위치값 " + location.getLatitude() + " " + location.getLongitude());
-
-                                final double lat = location.getLatitude();
-                                final double lng = location.getLongitude();
-
-                                if (tMapView != null) {
-                                    tMapView.setLocationPoint(lng, lat);
-                                    tMapView.setCenterPoint(lng, lat);
-
-                                    tMapView.removeTMapCircle("circle1");
-
-                                    TMapPoint tMapPoint = new TMapPoint(lat, lng);
-                                    TMapCircle tMapCircle = new TMapCircle();
-                                    tMapCircle.setCenterPoint(tMapPoint);
-                                    tMapCircle.setRadius(30);
-                                    tMapCircle.setCircleWidth(2);
-                                    tMapCircle.setLineColor(Color.BLUE);
-                                    tMapCircle.setAreaColor(Color.BLUE);
-//                                            tMapCircle.setAreaAlpha(100);
-                                    tMapView.addTMapCircle("circle1", tMapCircle);
-                                }
-                            }
-                        }
-                    });*/
         } catch (Exception e) {
             Log.e(TAG, "위치 가져오기 처리중 에러발생 " + e.toString());
         }
@@ -672,30 +537,6 @@ public class SearchMapFragment extends Fragment implements LocationListener {
     // bottom sheet 다이얼로그 표시
     private void showBottomSheetDialog(final ResponseAddr addrDetail) {
         String detailText = "";
-
-//        final View view = getLayoutInflater().inflate(R.layout.bottom_sheet_loc, null);
-//        ((TextView) view.findViewById(R.id.tvAddress)).setText(addrDetail.getSpot_nm());
-//        ((TextView) view.findViewById(R.id.tvDetail)).setText(addrDetail.getSido_sgg_nm());
-//        (view.findViewById(R.id.bt_close)).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                mBottomSheetDialog.dismiss();
-//            }
-//        });
-//
-//        mBottomSheetDialog = new BottomSheetDialog(getActivity());
-//        mBottomSheetDialog.setContentView(view);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            mBottomSheetDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//        }
-//
-//        mBottomSheetDialog.show();
-//        mBottomSheetDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-//            @Override
-//            public void onDismiss(DialogInterface dialog) {
-//                mBottomSheetDialog = null;
-//            }
-//        });
 
         llBottom.setVisibility(View.VISIBLE);
 

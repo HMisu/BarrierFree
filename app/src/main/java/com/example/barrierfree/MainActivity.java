@@ -182,9 +182,9 @@ public class MainActivity extends AppCompatActivity {
                         replaceFragment(fragmentTag, fragmentClass);
                         return true;
                     }
-                    case R.id.bottomNV_help: {
-                        return true;
-                    }
+//                    case R.id.bottomNV_help: {
+//                        return true;
+//                    }
                     default:
                         return false;
                 }

@@ -75,7 +75,8 @@ public class FindFragment extends Fragment {
     private FusedLocationProviderClient fusedLocationClient; // 마지막에 저장된 현재 위치값을 가져오기 위해 생성
 
     String AppKey = "7dEldMVxKoZfmjg1iqfBabOSQQ%2B2ysH%2FY9TgK4dPPb3nqa4YRvgpd%2FdAzN8xyFnEeOJpNCYlDcjzRREjwDMuGw%3D%3D"; // 공공데이터 키
-
+    String dangerkey ="2d9f296dd549471bb692c99940f12515";
+    //String dangerkey = AjnFfRzH5x4Rns4OpBMR5T2DPn0QfICgCjcAkBP9GDz0SjRsYB95f6HtbqtEgpxwJTyq2MvyJD9CIJ0Eq25PMg%3D%3D;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         System.out.println("FindFragment");
@@ -345,7 +346,7 @@ public class FindFragment extends Fragment {
 
                 // 여기서 공공데이터 api를 호출해야한다
                 getGongGongData(sidoMatchCode, gugunMatchCode);
-
+                Data(sidoMatchCode, gugunMatchCode);
 
 
             }
@@ -357,6 +358,148 @@ public class FindFragment extends Fragment {
 
     }
 
+    public void Data(int sidoCode, int gugunCode) {
+        final OkHttpClient client = new OkHttpClient();
+        Log.d("메시지", "ㅎㅎ");
+        client.setProtocols(Arrays.asList(Protocol.HTTP_1_1));
+
+        try {
+
+            String year = "2018"; // 최근데이터가 잘안나와서 2018년으로 임의로 지정함
+            int numOfRows = 10; // 한 번에 검색되는 최대수
+
+
+            com.squareup.okhttp.Request request = new com.squareup.okhttp.Request.Builder()
+                    .url("https://openapi.gg.go.kr/Tbpdstrnodsntfcacdarm?KEY="+ dangerkey +"&pSize=50&pIndex=1&Type=json&SIGUN_CD=41310")
+                    .addHeader("Accept", "application/json;")
+                    .get()
+                    .build();
+
+            client.newCall(request).enqueue(new com.squareup.okhttp.Callback() {
+
+                @Override
+                public void onFailure(com.squareup.okhttp.Request request, IOException e) {
+                    // 호출 실패
+                    Log.d("메시지", request.toString());
+                }
+
+                @Override
+                public void onResponse(com.squareup.okhttp.Response response) throws IOException {
+                    Log.d("메시지", "으아아아");
+                    String jsonData = response.body().string();
+
+                    try {
+
+                        JSONObject result = new JSONObject(jsonData);
+                        Log.d("메시지", "검색결과 json " + result.toString());
+
+
+                        String resultCode = result.optString("resultCode", "");
+                        Log.d("메시지","결과 코드 "+resultCode);
+
+                        JSONObject resultItemsObj = result.optJSONObject("items");
+                        JSONArray jarr = resultItemsObj.optJSONArray("item");
+
+                        Log.i("메시지", "json item results : " + jarr.toString());
+
+                        String total_count = result.optString("total_count", "0"); // 전체 검색된 수
+                        int totalCnt = Integer.parseInt(total_count);
+
+
+                        if (jarr.length() > 0) {
+
+//                            final ArrayList<ResponseAddr> items = new ArrayList<>();
+
+                            items.clear();
+
+                            for (int i = 0; i < jarr.length(); i++) {
+                                ResponseAddr model = new ResponseAddr();
+
+                                try {
+                                    JSONObject jjj = jarr.getJSONObject(i);
+
+                                    Log.d("메시지", "각 아이템정보 " + jjj.toString());
+
+//                                    JSONObject road_address_obj = jjj.optJSONObject("la_crd"); // 경도
+                                    String temp_lat = jjj.optString("LAT", "0"); // 위도
+                                    String temp_lng = jjj.optString("LOGT", "0"); // 경도
+
+                                    double lat = Double.parseDouble(temp_lat); // api 에서 위도값이 문자열로 넘어오기때문에 다시 변환한다
+                                    double lng = Double.parseDouble(temp_lng);
+
+                                    model.setLa_crd(lat);
+                                    model.setLo_crd(lng);
+
+ /*
+                                    String geom_json = jjj.optString("geom_json", ""); // 주요 상세 지점들 정보
+                                    model.setGeom_json(geom_json);
+
+                                    String sido_sgg_nm = jjj.optString("sido_sgg_nm", "");
+                                    String spot_nm = jjj.optString("spot_nm", "");
+
+                                    model.setSido_sgg_nm(sido_sgg_nm);
+                                    model.setSpot_nm(spot_nm);
+
+
+                                    int occrrnc_cnt = jjj.optInt("occrrnc_cnt", 0); // 사고 발생 건수
+                                    model.setOccrrnc_cnt(occrrnc_cnt);
+
+                                    int caslt_cnt = jjj.optInt("caslt_cnt", 0); // 사상자수
+                                    model.setCaslt_cnt(caslt_cnt);
+
+                                    int dth_dnv_cnt = jjj.optInt("dth_dnv_cnt", 0); // 사망자수
+                                    model.setDth_dnv_cnt(dth_dnv_cnt);
+
+                                    int se_dnv_cnt = jjj.optInt("se_dnv_cnt", 0); // 중상자수
+                                    model.setSe_dnv_cnt(se_dnv_cnt);
+
+                                    int sl_dnv_cnt = jjj.optInt("sl_dnv_cnt", 0); // 경상자수
+                                    model.setSl_dnv_cnt(sl_dnv_cnt);
+
+                                    int wnd_dnv_cnt = jjj.optInt("wnd_dnv_cnt", 0); // 부상신고자수
+                                    model.setWnd_dnv_cnt(wnd_dnv_cnt);
+*/
+
+                                    items.add(model);
+
+                                } catch (Exception e) {
+                                    Log.e("메시지", "주소 결과 파싱 에러 " + e.toString());
+                                }
+                            }
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+
+                                    // 결과를 지도 표시
+                                    processMapView(items);
+
+
+                                }
+                            });
+
+                        }
+
+                    } catch (Throwable t) {
+
+                        Log.e(TAG, "Could not parse malformed JSON: \"" + t.getMessage() + "\"");
+
+                    } finally {
+
+                        Log.e(TAG, jsonData);
+
+                    }
+                }
+            });
+
+
+        } catch (Exception ex) {
+            // Handle the error
+
+        }
+
+    }
     // 공공데이터 api 호출
     public void getGongGongData(int sidoCode, int gugunCode) {
 

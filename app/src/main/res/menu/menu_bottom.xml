@@ -30,10 +30,10 @@
         android:title="안심장소"
         android:textSize="20dp" />
 
-    <item android:id="@+id/bottomNV_help"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_question"
-        android:enabled="true"
-        android:title="도움말"
-        android:textSize="20dp" />
+<!--    <item android:id="@+id/bottomNV_help"-->
+<!--        app:showAsAction="always"-->
+<!--        android:icon="@drawable/ic_question"-->
+<!--        android:enabled="true"-->
+<!--        android:title="도움말"-->
+<!--        android:textSize="20dp" />-->
 </menu>

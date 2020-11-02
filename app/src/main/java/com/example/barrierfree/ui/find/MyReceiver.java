@@ -10,6 +10,7 @@ import android.widget.Toast;
 public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+
         boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
         Log.d("intent값", String.valueOf(intent));
         if(isEntering)
@@ -19,3 +20,5 @@ public class MyReceiver extends BroadcastReceiver {
     }
 
 }
+//주석
+//주석

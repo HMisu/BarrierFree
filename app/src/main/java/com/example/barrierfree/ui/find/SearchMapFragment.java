@@ -196,25 +196,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                     tMapView.addTMapCircle(document.getId(), tMapCircle);
 
                                                     //미혜야 여기!
-                                                    receiver = new MyReceiver();
-                                                    IntentFilter filter = new IntentFilter("Location");
-                                                    LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, filter);
 
-                                                    Intent intent = new Intent("Location");
-                                                    PendingIntent pending = PendingIntent.getBroadcast(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-                                                    if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                                        // TODO: Consider calling
-                                                        //    ActivityCompat#requestPermissions
-                                                        // here to request the missing permissions, and then overriding
-                                                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                                        //                                          int[] grantResults)
-                                                        // to handle the case where the user grants the permission. See the documentation
-                                                        // for ActivityCompat#requestPermissions for more details.
-                                                        return;
-                                                    }
-                                                    Log.d("위도와 경도", "latitude : " + document.getDouble("latitude") + " longitude : " + document.getDouble("longitude"));
-                                                    Log.d("널 값 확인", String.valueOf(pending) + ", getContenxt : " + String.valueOf(getActivity().getApplicationContext()));
-                                                    lm.addProximityAlert(document.getDouble("latitude"), document.getDouble("longitude"),200, -1, pending);
 
 
                                                 }
@@ -231,9 +213,29 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                     }
                 });
 
-        if(latitude != 0 || longitude != 0){
-            tMapView.setCenterPoint(longitude, latitude);
-        }
+//        receiver = new MyReceiver();
+//        IntentFilter filter = new IntentFilter("Location");
+//        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, filter);
+//
+//        Intent intent = new Intent("Location");
+//        PendingIntent pending = PendingIntent.getBroadcast(getActivity().getApplicationContext(), 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+//        if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
+//        Log.d("위도와 경도", "latitude : " + document.getDouble("latitude") + " longitude : " + document.getDouble("longitude"));
+//        Log.d("널 값 확인", String.valueOf(pending) + ", getContenxt : " + String.valueOf(getActivity().getApplicationContext()));
+//        lm.addProximityAlert(document.getDouble("latitude"), document.getDouble("longitude"),200, -1, pending);
+//
+//        if(latitude != 0 || longitude != 0){
+//            tMapView.setCenterPoint(longitude, latitude);
+//        }
 
         tvAddress = (TextView) root.findViewById(R.id.tvAddress);
         tvDetail = (TextView) root.findViewById(R.id.tvDetail);

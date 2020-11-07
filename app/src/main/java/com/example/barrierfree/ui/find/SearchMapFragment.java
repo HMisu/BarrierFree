@@ -36,6 +36,7 @@ import androidx.fragment.app.Fragment;
 import com.example.barrierfree.MainActivity;
 import com.example.barrierfree.R;
 import com.example.barrierfree.models.ResponseAddr;
+import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.example.barrierfree.ui.member.SafetyEditFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -65,6 +66,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
     private String TAG = "SearchMapFragment";
 
     private BottomSheetDialog mBottomSheetDialog;
+    Fragment fragment = new BottomAlert();
 
     private FirebaseAuth mAuth;
     private FirebaseUser user;
@@ -192,7 +194,22 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                     tMapView.addTMapCircle(document.getId(), tMapCircle);
 
                                                     //미혜야 여기!
+                                                    String str_lati = Double.toString(document.getDouble("latitude"));
+                                                    String str_longi = Double.toString(document.getDouble("longitude"));
 
+
+                                                    Log.d("Search에서의 안심지역", "위도" + str_longi + "경도" + str_lati);
+
+
+                                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.bottomNV_dangerous, fragment).commit();
+
+
+                                                    Bundle bundle = new Bundle(2); // 파라미터는 전달할 데이터 개수
+                                                    bundle.putString("str_lati", str_lati);
+                                                    bundle.putString("str_longi", str_longi);// key , value
+                                                    fragment.setArguments(bundle);
+
+                                                    Log.d("Bundle", String.valueOf(bundle));
 
 
                                                 }

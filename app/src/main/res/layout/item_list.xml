@@ -3,11 +3,11 @@
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="70dp">
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/alertImage"
             android:layout_width="49dp"
             android:layout_height="match_parent"
             android:layout_marginRight="10dp"
@@ -16,8 +16,8 @@
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="75"
+            android:layout_height="70dp"
+            android:layout_weight="70"
             android:orientation="vertical">
 
             <TextView
@@ -51,11 +51,15 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ImageButton
-                android:layout_width="35dp"
-                android:layout_height="23dp"
+            <Button
+                android:layout_width="28dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginLeft="60dp"
+                android:layout_marginRight="10dp"
                 android:text="X"
+                android:textColor="#ffffff"
+                android:background="@drawable/btn_red"
                 android:layout_weight="20" />
 
             <TextView
@@ -63,7 +67,7 @@
                 android:layout_width="70dp"
                 android:layout_height="0dp"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="18dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginBottom="7dp"
                 android:layout_weight="40"
                 android:gravity="center_vertical"

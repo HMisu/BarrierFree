@@ -4,6 +4,7 @@ public class AlertListView {
     public String title;
     public String content;
     public String date;
+    public int image;
 
     public AlertListView(String title, String content, String date) {
         this.title = title;
@@ -12,8 +13,12 @@ public class AlertListView {
     }
 
     public AlertListView() {
-
     }
+
+
+    public int getImage() { return image; }
+
+    public void setImage(int image) { this.image = this.image; }
 
     public String getTitle() {
         return title;

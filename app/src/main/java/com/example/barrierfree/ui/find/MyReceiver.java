@@ -11,6 +11,7 @@ public class MyReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        Log.d("On Receive", "호출환료!");
         boolean isEntering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false);
         Log.d("intent값", String.valueOf(intent));
         if(isEntering)
@@ -20,5 +21,3 @@ public class MyReceiver extends BroadcastReceiver {
     }
 
 }
-//주석
-//주석

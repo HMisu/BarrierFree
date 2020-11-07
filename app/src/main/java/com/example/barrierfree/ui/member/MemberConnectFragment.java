@@ -1,5 +1,6 @@
 package com.example.barrierfree.ui.member;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,8 @@ import com.bumptech.glide.Glide;
 import com.example.barrierfree.R;
 import com.example.barrierfree.RoundImageView;
 import com.example.barrierfree.models.ListViewMember;
+import com.example.barrierfree.ui.bottomNV.AlertListView;
+import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,6 +35,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MemberConnectFragment extends Fragment {
     private FirebaseAuth mAuth;
@@ -53,6 +57,7 @@ public class MemberConnectFragment extends Fragment {
     String uid2 = null, uid = null, cn_id = null, cn_id2, mem_weak, mem_protect;
     ArrayList<String> cnList = new ArrayList<>();
     ArrayList<String> uList = new ArrayList<>();
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -229,7 +234,7 @@ public class MemberConnectFragment extends Fragment {
                                     //cn_id = document.getId();
                                     y = "protect";
                                 }
-                                Log.d("메시지", "cn_id : "+cn_id+ " / uid : "+uid);
+                                Log.d("메시지", "cn_id : " + cn_id + " / uid : " + uid);
                                 final String a = document.getId();
                                 final String b = y;
                                 db.collection("members").document(uid).get()
@@ -239,7 +244,7 @@ public class MemberConnectFragment extends Fragment {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
                                                     if (document.exists()) {
-                                                        Log.d("메시지", "프래그먼트 : "+document.getString("uid")+" "+document.getString("mem_name") + a);
+                                                        Log.d("메시지", "프래그먼트 : " + document.getString("uid") + " " + document.getString("mem_name") + a);
                                                         ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), b, "adpapply", a);
                                                         adpapply.add(mem);
                                                         adpapply.notifyDataSetChanged();
@@ -274,7 +279,7 @@ public class MemberConnectFragment extends Fragment {
                                     //cn_id = document.getId();
                                     y = "weak";
                                 }
-                                Log.d("메시지", "cn_id : "+cn_id+ " / uid : "+uid);
+                                Log.d("메시지", "cn_id : " + cn_id + " / uid : " + uid);
                                 final String a = document.getId();
                                 final String b = y;
                                 db.collection("members").document(uid).get()
@@ -284,7 +289,7 @@ public class MemberConnectFragment extends Fragment {
                                                 if (task.isSuccessful()) {
                                                     DocumentSnapshot document = task.getResult();
                                                     if (document.exists()) {
-                                                        Log.d("메시지", "프래그먼트 : "+document.getString("uid")+" "+document.getString("mem_name") + a);
+                                                        Log.d("메시지", "프래그먼트 : " + document.getString("uid") + " " + document.getString("mem_name") + a);
                                                         ListViewMember mem = new ListViewMember(document.getString("uid"), document.getString("mem_name"), document.getString("mem_email"), document.getString("mem_photo"), y, "adprequest", a);
                                                         adprequest.add(mem);
                                                         adprequest.notifyDataSetChanged();
@@ -410,6 +415,7 @@ public class MemberConnectFragment extends Fragment {
                                     Log.d("메시지", "Error getting documents: ", task.getException());
                                     return;
                                 }
+
                             }
                         });
                 FirebaseFirestore.getInstance().collection("connection").document(cn_id2).delete()
@@ -426,6 +432,11 @@ public class MemberConnectFragment extends Fragment {
                                 Log.w("메시지", "Error deleting document", e);
                             }
                         });
+
+                Intent intent = new Intent(getActivity(), BottomAlert.class);
+                intent.putExtra("delete", 0);
+
+                startActivity(intent);
             }
         });
 

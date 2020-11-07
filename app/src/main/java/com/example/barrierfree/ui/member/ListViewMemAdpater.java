@@ -1,6 +1,7 @@
 package com.example.barrierfree.ui.member;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
@@ -20,6 +21,7 @@ import androidx.annotation.NonNull;
 import com.example.barrierfree.R;
 import com.example.barrierfree.models.Connection;
 import com.example.barrierfree.models.ListViewMember;
+import com.example.barrierfree.ui.bottomNV.BottomAlert;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -425,6 +427,7 @@ public class ListViewMemAdpater extends BaseAdapter implements View.OnClickListe
                                     }
                                 }
                             });
+
                 }
                 break;
             default:

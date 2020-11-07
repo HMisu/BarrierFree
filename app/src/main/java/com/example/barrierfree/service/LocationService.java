@@ -117,28 +117,30 @@ public class LocationService extends Service {
             //https://bottlecok.tistory.com/54
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Location location = lm.getLastKnownLocation(GPS_PROVIDER);
-                String provider = location.getProvider();
-                longitude2 = location.getLongitude();
-                latitude2 = location.getLatitude();
+                if (location != null) {
+                    String provider = location.getProvider();
+                    longitude2 = location.getLongitude();
+                    latitude2 = location.getLatitude();
 
-                df = new SimpleDateFormat("yy:MM:dd:HH:mm", Locale.KOREA);
-                Calendar cal = Calendar.getInstance();
-                time2 = df.format(cal.getTime());
-                try {
-                    d2 = df.parse(time2);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                    df = new SimpleDateFormat("yy:MM:dd:HH:mm", Locale.KOREA);
+                    Calendar cal = Calendar.getInstance();
+                    time2 = df.format(cal.getTime());
+                    try {
+                        d2 = df.parse(time2);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.d("메시지", "위치정보 : " + provider + "\n" +
+                            "위도 : " + longitude2 + "\n" +
+                            "경도 : " + latitude2 + "\n" +
+                            "시간 : " + time2);
+
+                    lm.requestLocationUpdates(GPS_PROVIDER, 1000, 1, gpsLocationListener);
+                    lm.requestLocationUpdates(NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
+
+                    saveLocation();
                 }
-
-                Log.d("메시지", "위치정보 : " + provider + "\n" +
-                        "위도 : " + longitude2 + "\n" +
-                        "경도 : " + latitude2 + "\n" +
-                        "시간 : " + time2);
-
-                lm.requestLocationUpdates(GPS_PROVIDER, 1000, 1, gpsLocationListener);
-                lm.requestLocationUpdates(NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
-
-                saveLocation();
             }
         }
     }
@@ -149,33 +151,35 @@ public class LocationService extends Service {
             //https://bottlecok.tistory.com/54
             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 Location location = lm.getLastKnownLocation(GPS_PROVIDER);
-                String provider = location.getProvider();
-                longitude2 = location.getLongitude();
-                latitude2 = location.getLatitude();
+                if (location != null) {
+                    String provider = location.getProvider();
+                    longitude2 = location.getLongitude();
+                    latitude2 = location.getLatitude();
 
-                df = new SimpleDateFormat("yy:MM:dd:HH:mm", Locale.KOREA);
-                Calendar cal = Calendar.getInstance();
-                time2 = df.format(cal.getTime());
-                try {
-                    d2 = df.parse(time2);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                    df = new SimpleDateFormat("yy:MM:dd:HH:mm", Locale.KOREA);
+                    Calendar cal = Calendar.getInstance();
+                    time2 = df.format(cal.getTime());
+                    try {
+                        d2 = df.parse(time2);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.d("메시지", "위치정보 : " + provider + "\n" +
+                            "위도 : " + longitude2 + "\n" +
+                            "경도 : " + latitude2 + "\n" +
+                            "시간 : " + time2);
+
+                    lm.requestLocationUpdates(GPS_PROVIDER, 1000, 1, gpsLocationListener);
+                    lm.requestLocationUpdates(NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
+
+                    saveLocation();
                 }
-
-                Log.d("메시지", "위치정보 : " + provider + "\n" +
-                        "위도 : " + longitude2 + "\n" +
-                        "경도 : " + latitude2 + "\n" +
-                        "시간 : " + time2);
-
-                lm.requestLocationUpdates(GPS_PROVIDER, 1000, 1, gpsLocationListener);
-                lm.requestLocationUpdates(NETWORK_PROVIDER, 1000, 1, gpsLocationListener);
-
-                saveLocation();
             }
         }
     }
 
-    public void saveLocation(){
+    public void saveLocation() {
         db.collection("location").document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -190,7 +194,7 @@ public class LocationService extends Service {
                         double distanceMeter = distance(latitude1, longitude1, latitude2, longitude2, "meter");
 
                         long minute = 0, diff = 0;
-                        if(time1 != null){
+                        if (time1 != null) {
                             try {
                                 d1 = df.parse(time1);
                             } catch (ParseException e) {
@@ -243,6 +247,7 @@ public class LocationService extends Service {
             }
         });
     }
+
     final LocationListener gpsLocationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             String provider = location.getProvider();

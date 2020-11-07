@@ -388,6 +388,7 @@ public class MemberConnectFragment extends Fragment {
         btndelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*
                 db.collection("safety").whereEqualTo("mem_weak", mem_weak).whereEqualTo("mem_register", mem_protect).get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
@@ -417,7 +418,7 @@ public class MemberConnectFragment extends Fragment {
                                 }
 
                             }
-                        });
+                        });*/
                 FirebaseFirestore.getInstance().collection("connection").document(cn_id2).delete()
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override

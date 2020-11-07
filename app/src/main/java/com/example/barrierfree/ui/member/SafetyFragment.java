@@ -137,7 +137,7 @@ public class SafetyFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.actionbar_actions, menu);
     }
-
+//
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

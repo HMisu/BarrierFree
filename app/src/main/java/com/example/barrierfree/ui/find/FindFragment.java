@@ -152,7 +152,7 @@ public class FindFragment extends Fragment {
                                     }
                                 }
                             });
-
+//
                 }catch (Exception e) {
                     Log.e(TAG, "위치 가죠오기 처리중 에러발생 "+e.toString());
                 }

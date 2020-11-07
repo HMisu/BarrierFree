@@ -32,6 +32,8 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity android:name=".ui.member.FindEmailActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".UserVibratorActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <service android:name=".service.LocationService"
             android:exported="false"/>
     </application>

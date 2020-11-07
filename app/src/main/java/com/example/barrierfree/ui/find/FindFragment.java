@@ -6,8 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,8 +47,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 public class FindFragment extends Fragment {
 
@@ -65,7 +61,7 @@ public class FindFragment extends Fragment {
     ImageButton btnCurrentLoc;
 
     ConstraintLayout llBottom;
-    TextView tvAddress, tvDetail;
+    TextView tvAddress, tvType, tvDetail;
     Button bt_close;
 
     private BottomSheetDialog mBottomSheetDialog;
@@ -74,7 +70,9 @@ public class FindFragment extends Fragment {
 
     private FusedLocationProviderClient fusedLocationClient; // 마지막에 저장된 현재 위치값을 가져오기 위해 생성
 
-    String AppKey = "7dEldMVxKoZfmjg1iqfBabOSQQ%2B2ysH%2FY9TgK4dPPb3nqa4YRvgpd%2FdAzN8xyFnEeOJpNCYlDcjzRREjwDMuGw%3D%3D"; // 공공데이터 키
+    String AppKey = "7dEldMVxKoZfmjg1iqfBabOSQQ%2B2ysH%2FY9TgK4dPPb3nqa4YRvgpd%2FdAzN8xyFnEeOJpNCYlDcjzRREjwDMuGw%3D%3D"; // 지자체별 사고다발지역 공공데이터 키
+
+    String OldmanApiKey = "7dEldMVxKoZfmjg1iqfBabOSQQ%2B2ysH%2FY9TgK4dPPb3nqa4YRvgpd%2FdAzN8xyFnEeOJpNCYlDcjzRREjwDMuGw%3D%3D"; // 보행 노인사고 다발지역정보 공공데이터 키
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -92,6 +90,7 @@ public class FindFragment extends Fragment {
         llBottom = (ConstraintLayout)root.findViewById(R.id.llBottom);
 
         tvAddress = (TextView)root.findViewById(R.id.tvAddress);
+        tvType = (TextView)root.findViewById(R.id.tvType);
         tvDetail = (TextView) root.findViewById(R.id.tvDetail);
         bt_close = (Button)root.findViewById(R.id.bt_close);
         bt_close.setOnClickListener(new View.OnClickListener() {
@@ -259,14 +258,29 @@ public class FindFragment extends Fragment {
                                     tMapView.setCenterPoint(lng, lat);
 
                                     TMapPoint tMapPoint = new TMapPoint(lat, lng);
-                                    TMapCircle tMapCircle = new TMapCircle();
-                                    tMapCircle.setCenterPoint(tMapPoint);
-                                    tMapCircle.setRadius(30);
-                                    tMapCircle.setCircleWidth(2);
-                                    tMapCircle.setLineColor(Color.BLUE);
-                                    tMapCircle.setAreaColor(Color.BLUE);
-//                                    tMapCircle.setAreaAlpha(100);
-                                    tMapView.addTMapCircle("circle1", tMapCircle);
+//                                    TMapCircle tMapCircle = new TMapCircle();
+//                                    tMapCircle.setCenterPoint(tMapPoint);
+//                                    tMapCircle.setRadius(30);
+//                                    tMapCircle.setCircleWidth(2);
+//                                    tMapCircle.setLineColor(Color.BLUE);
+//                                    tMapCircle.setAreaColor(Color.BLUE);
+////                                    tMapCircle.setAreaAlpha(100);
+//                                    tMapView.addTMapCircle("circle1", tMapCircle);
+
+                                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.loc_pin_me);
+
+                                    TMapMarkerItem marker = new TMapMarkerItem();
+                                    marker.setID(String.valueOf(99999));
+                                    marker.setTMapPoint(tMapPoint);
+                                    marker.setIcon(bitmap);
+//                                    marker.setName(addr.getSpot_nm());
+//                                    marker.setCalloutTitle(addr.getSpot_nm()); // 풍선뷰 표시 메시지 설정
+                                    marker.setCanShowCallout(false); // 풍선뷰 사용 설정
+                                    marker.setAutoCalloutVisible(false); // 풍선뷰가 자동으로 활성화되도록 설정
+//                                    marker.setCalloutRightButtonImage(bitmap_right);
+
+                                    tMapView.addMarkerItem(String.valueOf(99999), marker);
+
 
                                 }
 
@@ -288,86 +302,19 @@ public class FindFragment extends Fragment {
         }
     }
 
-    // 현재 위치의 주소를 가져온다 - 사용안함 - 티맵 api 로 대체
-    public void getAddress(Double lat, Double lng) {
-        Geocoder geocoder;
-        List<Address> addresses;
-        geocoder = new Geocoder(getActivity(), Locale.KOREA);
+
+    // 지자체별 사고 데이터
+    private void getAreaAccidentData(final int sidoCode, final int gugunCode, final int year) {
+
+        Log.d(TAG, "getAreaAccidentData 실행");
 
         try {
 
-            addresses = geocoder.getFromLocation(lat, lng, 1);
+            final OkHttpClient client = new OkHttpClient();
 
-            if (addresses != null && addresses.size() > 0) {
+            client.setProtocols(Arrays.asList(Protocol.HTTP_1_1));
 
-                String gugunName = addresses.get(0).getLocality();
-                String sidoName = addresses.get(0).getAdminArea();
-
-                // getLocality의 값이 null인 경우 특별시나 광역시
-                if(gugunName == null) {
-                    gugunName = addresses.get(0).getSubLocality();
-                }
-                Log.d(TAG, "지오코딩 결과 주소 getLocality : "+addresses.get(0).getLocality()); // 안양시 , 제천시, null
-                Log.d(TAG, "지오코딩 결과 주소 getAdminArea : "+addresses.get(0).getAdminArea()); // 경기도, 충청북도, 서울특별시
-                Log.d(TAG, "지오코딩 결과 주소 getCountryName : "+addresses.get(0).getCountryName()); // 대한민국
-                Log.d(TAG, "지오코딩 결과 주소 getSubLocality : "+addresses.get(0).getSubLocality()); // 만안구 - null - 종로구
-                Log.d(TAG, "지오코딩 결과 주소 getFeatureName : "+addresses.get(0).getFeatureName()); // 603-15 - 936 - 123
-                Log.d(TAG, "지오코딩 결과 주소 getSubAdminArea : "+addresses.get(0).getSubAdminArea());
-
-                ArrayList<RequestAddr> sidoList = Constant.sidoReqList; // 요청할 시도 구분의 코드값 리스트를 가져온다
-                ArrayList<RequestAddr> gugunList = Constant.gugunReqList; // 요청할 구군 구분의 코드값 리스트를 가져온다
-
-                String sidoMatchName = "";
-                String gugunMatchName = "";
-                int sidoMatchCode = 0;
-                int gugunMatchCode = 0;
-
-                for(RequestAddr addr : sidoList) {
-                    if(addr.getSidoName().equals(sidoName)) {
-                        sidoMatchName = sidoName;
-                        sidoMatchCode = addr.getCode();
-                    }
-                }
-
-                for(RequestAddr addr : gugunList) {
-                    if(addr.getGugunName().equals(gugunName)) {
-                        gugunMatchName = gugunName;
-                        gugunMatchCode = addr.getCode();
-                    }
-                }
-
-
-                Log.d(TAG,"지오코딩 후 매칭된 시도 이름 "+sidoMatchName);
-                Log.d(TAG,"지오코딩 후 매칭된 시도 코드 "+sidoMatchCode);
-                Log.d(TAG,"지오코딩 후 매칭된 구군 이름 "+gugunMatchName);
-                Log.d(TAG,"지오코딩 후 매칭된 구군 코드 "+gugunMatchCode);
-
-
-                // 여기서 공공데이터 api를 호출해야한다
-                getGongGongData(sidoMatchCode, gugunMatchCode);
-
-
-
-            }
-
-        } catch (IOException e) {
-
-            Log.e(TAG, "주소 지도코딩 에러 "+e.toString());
-        }
-
-    }
-
-    // 공공데이터 api 호출
-    public void getGongGongData(int sidoCode, int gugunCode) {
-
-        final OkHttpClient client = new OkHttpClient();
-
-        client.setProtocols(Arrays.asList(Protocol.HTTP_1_1));
-
-        try {
-
-            String year = "2018"; // 최근데이터가 잘안나와서 2018년으로 임의로 지정함
-            int numOfRows = 10; // 한 번에 검색되는 최대수
+            int numOfRows = 20; // 한 번에 검색되는 최대수
 
             com.squareup.okhttp.Request request = new com.squareup.okhttp.Request.Builder()
                     .url("http://apis.data.go.kr/B552061/frequentzoneLg/getRestFrequentzoneLg?ServiceKey="+AppKey + "&searchYearCd=" + year + "&siDo="+sidoCode+"&guGun="+gugunCode+"&numOfRows="+numOfRows+"&pageNo=1&type=json")
@@ -388,10 +335,13 @@ public class FindFragment extends Fragment {
 
                     String jsonData = response.body().string();
 
+                    ArrayList<ResponseAddr> tempList = new ArrayList<>();
+
+
                     try {
 
                         JSONObject result = new JSONObject(jsonData);
-                        Log.d(TAG, "검색결과 json " + result.toString());
+                        Log.d(TAG, "지자체별 사고 검색결과 json " + result.toString());
 
 
                         String resultCode = result.optString("resultCode", "");
@@ -410,7 +360,7 @@ public class FindFragment extends Fragment {
 
 //                            final ArrayList<ResponseAddr> items = new ArrayList<>();
 
-                            items.clear();
+//                            items.clear();
 
                             for (int i = 0; i < jarr.length(); i++) {
                                 ResponseAddr model = new ResponseAddr();
@@ -433,11 +383,22 @@ public class FindFragment extends Fragment {
                                     String geom_json = jjj.optString("geom_json", ""); // 주요 상세 지점들 정보
                                     model.setGeom_json(geom_json);
 
-                                    String sido_sgg_nm = jjj.optString("sido_sgg_nm", "");
-                                    String spot_nm = jjj.optString("spot_nm", "");
+                                    String sido_sgg_nm = jjj.optString("sido_sgg_nm", ""); // 시도시군구명
+                                    String spot_nm = jjj.optString("spot_nm", ""); // 지점명
 
                                     model.setSido_sgg_nm(sido_sgg_nm);
                                     model.setSpot_nm(spot_nm);
+
+                                    int afos_fid = jjj.optInt("afos_fid", 0); // 다발지역 FID
+                                    model.setAfos_fid(afos_fid);
+
+                                    String afos_id = jjj.optString("afos_id", ""); // 다발지역 ID
+                                    String bjd_cd = jjj.optString("bjd_cd", ""); // 시도시군구명
+                                    String spot_cd = jjj.optString("spot_cd", ""); // 지점명
+
+                                    model.setAfos_id(afos_id);
+                                    model.setBjd_cd(bjd_cd);
+                                    model.setSpot_cd(spot_cd);
 
                                     int occrrnc_cnt = jjj.optInt("occrrnc_cnt", 0); // 사고 발생 건수
                                     model.setOccrrnc_cnt(occrrnc_cnt);
@@ -457,93 +418,17 @@ public class FindFragment extends Fragment {
                                     int wnd_dnv_cnt = jjj.optInt("wnd_dnv_cnt", 0); // 부상신고자수
                                     model.setWnd_dnv_cnt(wnd_dnv_cnt);
 
+                                    model.setType(0); // 데이터 타입 설정
 
-                                    items.add(model);
+//                                    items.add(model);
+
+                                    tempList.add(model);
 
                                 } catch (Exception e) {
                                     Log.e(TAG, "주소 결과 파싱 에러 " + e.toString());
                                 }
                             }
 
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-
-                                    // 주요 사고지점의 데이터의 써클 표시 좌표 데이터 추출
-//                                    try {
-//                                        ArrayList<ResponseAddr> tempArr = new ArrayList<>();
-//                                        for (int i = 0; i < items.size(); i++) {
-//                                            ResponseAddr tempData = items.get(i);
-//                                            String geomJsonString = tempData.getGeom_json();
-//
-//                                            JSONObject geomJson = new JSONObject(geomJsonString);
-//
-//                                            Log.d(TAG,"점데이터 "+geomJson);
-//
-////                                            String coordi = geomJson.optString("coordinates", "");
-//                                            JSONArray jarr = geomJson.optJSONArray("coordinates");
-//
-//                                            Log.d(TAG, "점데이터 json array 1단계 "+jarr.toString());
-//
-//                                            String coordiString = jarr.toString();
-//
-//                                            String coordiReplace = coordiString.replaceAll("\\[\\[", "");
-//                                            coordiReplace = coordiReplace.replaceAll("\\]\\]", "");
-//
-//                                            Log.d(TAG, "점데이터 json array 데이터 가공중 "+coordiReplace);
-//
-//                                            String[] coordiSplit = coordiReplace.split("\\],\\[");
-//
-//                                            if(coordiSplit != null && coordiSplit.length > 0) {
-//                                                for(String detailLoc : coordiSplit) {
-//
-//                                                    detailLoc = detailLoc.replaceAll("\\[", "");
-//                                                    detailLoc = detailLoc.replaceAll("\\]", "");
-//
-//                                                    String[] detailLocArr = detailLoc.split(",");
-//
-//
-//                                                    Log.d(TAG, "점데이터 json array 데이터 가공후 콤마 스플릿 "+detailLoc);
-//                                                    Log.d(TAG, "점데이터 json array 데이터 가공후 콤마 스플릿 lng "+detailLocArr[0]);
-//                                                    Log.d(TAG, "점데이터 json array 데이터 가공후 콤마 스플릿 lat "+detailLocArr[1]);
-//
-//                                                    double detail_lat = Double.parseDouble(detailLocArr[1]);
-//                                                    double detail_lng = Double.parseDouble(detailLocArr[0]);
-//
-//
-//                                                    ResponseAddr addr = new ResponseAddr();
-//                                                    addr.setSpot_nm(tempData.getSpot_nm());
-//                                                    addr.setSido_sgg_nm(tempData.getSido_sgg_nm());
-//                                                    addr.setLo_crd(detail_lng);
-//                                                    addr.setLa_crd(detail_lat);
-//                                                    tempArr.add(addr);
-//
-//                                                }
-//                                            }
-//
-////                                            JSONArray jarr2 = jarr.getJSONArray(0);
-//
-////                                            Log.d(TAG, "점데이터 json array 2단계 "+jarr2.toString());
-//
-//                                        }
-//
-//                                        // 나온 결과로 지도 표시
-//                                        processMapView(tempArr);
-//
-//                                    }catch (Exception e) {
-//                                        Log.e(TAG, "json 파싱 에러 "+e.toString());
-//
-//                                        //  결과로 지도 표시
-//                                        processMapView(items);
-//
-//                                    }
-
-                                    // 결과를 지도 표시
-                                    processMapView(items);
-
-
-                                }
-                            });
 
                         }
 
@@ -553,31 +438,228 @@ public class FindFragment extends Fragment {
 
                     } finally {
 
+                        Log.d(TAG, "getAreaAccidentData 결과 데이터 수 "+tempList.size());
                         Log.e(TAG, jsonData);
+                        items.addAll(tempList);
 
+                        if(year == 2017) {
+                            getAreaAccidentData(sidoCode, gugunCode, 2018);
+
+                        }else if(year == 2018) {
+                            getOldmanAccidentData(sidoCode, gugunCode, 2018);
+                        }
                     }
                 }
             });
 
 
-        } catch (Exception ex) {
-            // Handle the error
 
+        }catch (Exception e) {
+            Log.e(TAG, "지자체별 사고 데이터 조회 에러 "+e.toString());
+
+        }
+
+
+    }
+
+    // 노인 사고 데이터
+    private void getOldmanAccidentData(int sidoCode, int gugunCode, int year) {
+
+        Log.d(TAG, "getOldmanAccidentData 실행");
+
+        final ArrayList<ResponseAddr> dataList = new ArrayList<>();
+
+        try {
+
+            final OkHttpClient client = new OkHttpClient();
+
+            client.setProtocols(Arrays.asList(Protocol.HTTP_1_1));
+
+            int numOfRows = 20; // 한 번에 검색되는 최대수
+
+            com.squareup.okhttp.Request request = new com.squareup.okhttp.Request.Builder()
+                    .url("http://apis.data.go.kr/B552061/frequentzoneOldman/getRestFrequentzoneOldman?ServiceKey="+OldmanApiKey + "&searchYearCd=" + year + "&siDo="+sidoCode+"&guGun="+gugunCode+"&numOfRows="+numOfRows+"&pageNo=1&type=json")
+                    .addHeader("Accept", "application/json;")
+                    .get()
+                    .build();
+
+            client.newCall(request).enqueue(new com.squareup.okhttp.Callback() {
+
+                @Override
+                public void onFailure(com.squareup.okhttp.Request request, IOException e) {
+                    // 호출 실패
+                    Log.e(TAG, request.toString());
+                }
+
+                @Override
+                public void onResponse(com.squareup.okhttp.Response response) throws IOException {
+
+                    String jsonData = response.body().string();
+
+                    ArrayList<ResponseAddr> tempList = new ArrayList<>();
+
+                    try {
+
+                        JSONObject result = new JSONObject(jsonData);
+                        Log.d(TAG, "노인 사고 검색결과 json " + result.toString());
+
+
+                        String resultCode = result.optString("resultCode", "");
+                        Log.d(TAG,"결과 코드 "+resultCode);
+
+                        JSONObject resultItemsObj = result.optJSONObject("items");
+                        JSONArray jarr = resultItemsObj.optJSONArray("item");
+
+                        Log.i(TAG, "json item results : " + jarr.toString());
+
+                        String total_count = result.optString("total_count", "0"); // 전체 검색된 수
+                        int totalCnt = Integer.parseInt(total_count);
+
+
+                        if (jarr.length() > 0) {
+
+//                            final ArrayList<ResponseAddr> items = new ArrayList<>();
+
+//                            items.clear();
+
+                            for (int i = 0; i < jarr.length(); i++) {
+                                ResponseAddr model = new ResponseAddr();
+
+                                try {
+                                    JSONObject jjj = jarr.getJSONObject(i);
+
+                                    Log.d(TAG, "각 아이템정보 " + jjj.toString());
+
+//                                    JSONObject road_address_obj = jjj.optJSONObject("la_crd"); // 경도
+                                    String temp_lat = jjj.optString("la_crd", "0"); // 위도
+                                    String temp_lng = jjj.optString("lo_crd", "0"); // 경도
+
+                                    double lat = Double.parseDouble(temp_lat); // api 에서 위도값이 문자열로 넘어오기때문에 다시 변환한다
+                                    double lng = Double.parseDouble(temp_lng);
+
+                                    model.setLa_crd(lat);
+                                    model.setLo_crd(lng);
+
+                                    String geom_json = jjj.optString("geom_json", ""); // 주요 상세 지점들 정보
+                                    model.setGeom_json(geom_json);
+
+                                    String sido_sgg_nm = jjj.optString("sido_sgg_nm", ""); // 시도시군구명
+                                    String spot_nm = jjj.optString("spot_nm", ""); // 지점명
+
+                                    model.setSido_sgg_nm(sido_sgg_nm);
+                                    model.setSpot_nm(spot_nm);
+
+                                    int afos_fid = jjj.optInt("afos_fid", 0); // 다발지역 FID
+                                    model.setAfos_fid(afos_fid);
+
+                                    String afos_id = jjj.optString("afos_id", ""); // 다발지역 ID
+                                    String bjd_cd = jjj.optString("bjd_cd", ""); // 시도시군구명
+                                    String spot_cd = jjj.optString("spot_cd", ""); // 지점명
+
+                                    model.setAfos_id(afos_id);
+                                    model.setBjd_cd(bjd_cd);
+                                    model.setSpot_cd(spot_cd);
+
+                                    int occrrnc_cnt = jjj.optInt("occrrnc_cnt", 0); // 사고 발생 건수
+                                    model.setOccrrnc_cnt(occrrnc_cnt);
+
+                                    int caslt_cnt = jjj.optInt("caslt_cnt", 0); // 사상자수
+                                    model.setCaslt_cnt(caslt_cnt);
+
+                                    int dth_dnv_cnt = jjj.optInt("dth_dnv_cnt", 0); // 사망자수
+                                    model.setDth_dnv_cnt(dth_dnv_cnt);
+
+                                    int se_dnv_cnt = jjj.optInt("se_dnv_cnt", 0); // 중상자수
+                                    model.setSe_dnv_cnt(se_dnv_cnt);
+
+                                    int sl_dnv_cnt = jjj.optInt("sl_dnv_cnt", 0); // 경상자수
+                                    model.setSl_dnv_cnt(sl_dnv_cnt);
+
+                                    int wnd_dnv_cnt = jjj.optInt("wnd_dnv_cnt", 0); // 부상신고자수
+                                    model.setWnd_dnv_cnt(wnd_dnv_cnt);
+
+                                    model.setType(1); // 데이터 타입 설정
+
+//                                    items.add(model);
+                                    tempList.add(model);
+
+                                } catch (Exception e) {
+                                    Log.e(TAG, "주소 결과 파싱 에러 " + e.toString());
+                                }
+                            }
+
+                        }
+
+                    } catch (Throwable t) {
+
+                        Log.e(TAG, "Could not parse malformed JSON: \"" + t.getMessage() + "\"");
+
+                    } finally {
+                        Log.d(TAG, "getOldmanAccidentData 결과 데이터 수 "+tempList.size());
+                        Log.e(TAG, jsonData);
+
+                        items.addAll(tempList);
+
+
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                // 결과를 지도 표시
+                                processMapView(items);
+
+                            }
+                        });
+
+                    }
+                }
+            });
+
+        }catch (Exception e) {
+            Log.e(TAG, "노인 사고 데이터 조회 에러 "+e.toString());
+        }
+
+    }
+
+
+    // 공공데이터 api 호출
+    public void getGongGongData(int sidoCode, int gugunCode) {
+
+
+        try {
+            items.clear();
+
+            getAreaAccidentData(sidoCode, gugunCode, 2017);
+
+
+        } catch (Exception ex) {
+            Log.e(TAG, "데이터 호출 처리 에러 "+ex.toString());
         }
     }
 
 
-    // 지도를 표시하는 부분 - 여기에 마커를 표시할 데이터를 파라미터로 받아야 한다
-    private void processMapView(final ArrayList<ResponseAddr> items ) {
 
+    // 지도를 표시하는 부분 - 여기에 마커를 표시할 데이터를 파라미터로 받아야 한다
+    private void processMapView(final ArrayList<ResponseAddr> datas ) {
+
+        Log.d(TAG, "processMapView 실행");
         if(items != null) {
 
-            final Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.poi_dot);
+            Log.d(TAG,"데이터가 있다 "+items.size());
+
             final Bitmap bitmap_right = BitmapFactory.decodeResource(getResources(), R.drawable.i_go);
 
             for(int i = 0; i < items.size(); i++) {
 
                 ResponseAddr addr = items.get(i);
+
+                Bitmap bitmap = null;
+                if(addr.getType() == 1) {
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.loc_pin_blue);
+                }else {
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.loc_pin_red);
+                }
 
                 TMapPoint tMapPoint = new TMapPoint(addr.getLa_crd(), addr.getLo_crd());
 
@@ -621,6 +703,7 @@ public class FindFragment extends Fragment {
 
         }else {
             // 데이터가 null
+            Log.d(TAG, "데이터가 없다");
         }
 
 
@@ -629,6 +712,15 @@ public class FindFragment extends Fragment {
 
     // bottom sheet 다이얼로그 표시
     private void showBottomSheetDialog(final ResponseAddr addrDetail) {
+
+        String type = "";
+        if(addrDetail.getType() == 0) {
+            type = "지자체별 사고다발 지역";
+
+        }else if(addrDetail.getType() == 1) {
+            type = "보행 노인 사고 다발 지역";
+        }
+
 
         String detailText = "사고 발생 건수 : "+ addrDetail.getOccrrnc_cnt()+"건\n사상자수 : "+addrDetail.getCaslt_cnt()+"명\n";
         detailText += "사망자수 : "+addrDetail.getDth_dnv_cnt()+"명\n중상자수 : "+addrDetail.getSe_dnv_cnt()+"명\n";
@@ -661,6 +753,7 @@ public class FindFragment extends Fragment {
 
         llBottom.setVisibility(View.VISIBLE);
 
+        tvType.setText(type);
         tvAddress.setText(addrDetail.getSpot_nm());
         tvDetail.setText(detailText);
 
@@ -726,7 +819,6 @@ public class FindFragment extends Fragment {
 
             // 여기서 공공데이터 api를 호출해야한다
             getGongGongData(sidoMatchCode, gugunMatchCode);
-
 
         }
     }

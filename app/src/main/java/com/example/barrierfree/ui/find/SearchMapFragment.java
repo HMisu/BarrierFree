@@ -85,7 +85,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
     EditText etSearch;
     Button btnSearch, bt_close;
     ImageButton btn_safety, btnCurrentLoc;
-    TextView tvAddress, tvDetail, txt1;
+    TextView tvAddress, tvDetail, tvType, txt1;
 
     TMapView tMapView;
 
@@ -237,6 +237,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
 
         tvAddress = (TextView) root.findViewById(R.id.tvAddress);
         tvDetail = (TextView) root.findViewById(R.id.tvDetail);
+        tvType = (TextView) root.findViewById(R.id.tvType);
         bt_close = (Button) root.findViewById(R.id.bt_close);
         btn_safety = (ImageButton) root.findViewById(R.id.btn_safety);
         txt1 = (TextView) root.findViewById(R.id.txt1);
@@ -449,20 +450,34 @@ public class SearchMapFragment extends Fragment implements LocationListener {
 
                                         if (tMapView != null) {
 
-                                            tMapView.removeTMapCircle("circle1");
+//                                            tMapView.removeTMapCircle("circle1");
 
                                             tMapView.setLocationPoint(lng, lat);
                                             tMapView.setCenterPoint(lng, lat);
 
                                             TMapPoint tMapPoint = new TMapPoint(lat, lng);
-                                            TMapCircle tMapCircle = new TMapCircle();
-                                            tMapCircle.setCenterPoint(tMapPoint);
-                                            tMapCircle.setRadius(30);
-                                            tMapCircle.setCircleWidth(2);
-                                            tMapCircle.setLineColor(Color.BLUE);
-                                            tMapCircle.setAreaColor(Color.BLUE);
-                                            // tMapCircle.setAreaAlpha(100);
-                                            tMapView.addTMapCircle("circle1", tMapCircle);
+//                                            TMapCircle tMapCircle = new TMapCircle();
+//                                            tMapCircle.setCenterPoint(tMapPoint);
+//                                            tMapCircle.setRadius(30);
+//                                            tMapCircle.setCircleWidth(2);
+//                                            tMapCircle.setLineColor(Color.BLUE);
+//                                            tMapCircle.setAreaColor(Color.BLUE);
+//                                            // tMapCircle.setAreaAlpha(100);
+//                                            tMapView.addTMapCircle("circle1", tMapCircle);
+
+                                            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.loc_pin_me);
+
+                                            TMapMarkerItem marker = new TMapMarkerItem();
+                                            marker.setID(String.valueOf(99999));
+                                            marker.setTMapPoint(tMapPoint);
+                                            marker.setIcon(bitmap);
+//                                    marker.setName(addr.getSpot_nm());
+//                                    marker.setCalloutTitle(addr.getSpot_nm()); // 풍선뷰 표시 메시지 설정
+                                            marker.setCanShowCallout(false); // 풍선뷰 사용 설정
+                                            marker.setAutoCalloutVisible(false); // 풍선뷰가 자동으로 활성화되도록 설정
+//                                    marker.setCalloutRightButtonImage(bitmap_right);
+
+                                            tMapView.addMarkerItem(String.valueOf(99999), marker);
 
                                         }
 
@@ -698,7 +713,8 @@ public class SearchMapFragment extends Fragment implements LocationListener {
         llBottom.setVisibility(View.VISIBLE);
 
         rfgaddr = addrDetail.getSido_sgg_nm();
-
+        tvType.setText("");
+        tvType.setVisibility(View.GONE);
         tvAddress.setText(addrDetail.getSpot_nm());
         tvDetail.setText(addrDetail.getSido_sgg_nm());
 
@@ -765,8 +781,11 @@ public class SearchMapFragment extends Fragment implements LocationListener {
     private void searchLocation(String name) {
         try {
             if (tMapView != null) {
-                tMapView.removeAllTMapCircle();
+//                tMapView.removeAllTMapCircle(); // 써클만 안지워지도록 주석처리
                 tMapView.removeAllMarkerItem();
+
+                // 전체를 지우면 안된다
+
             }
 
             items.clear();

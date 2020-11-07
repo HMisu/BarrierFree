@@ -25,6 +25,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/tvType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="type"
+        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+        android:textColor="#29b6f6"
+        android:textSize="16sp"
+        android:layout_margin="5dp"
+        app:layout_constraintStart_toStartOf="@+id/tvAddress"
+        app:layout_constraintTop_toBottomOf="@+id/tvAddress" />
+
+    <TextView
         android:id="@+id/tvDetail"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -32,8 +44,8 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
         android:textColor="#000000"
         android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@+id/tvAddress"
-        app:layout_constraintTop_toBottomOf="@+id/tvAddress" />
+        app:layout_constraintStart_toStartOf="@+id/tvType"
+        app:layout_constraintTop_toBottomOf="@+id/tvType" />
 
     <ImageButton
         android:id="@+id/btn_safety"

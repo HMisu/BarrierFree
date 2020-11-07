@@ -5,9 +5,15 @@ package com.example.barrierfree.models;
  * */
 public class ResponseAddr {
 
+    private int type = 0; // 데이터 타입  0 : 지자체별, 1 : 노인 사고
+
     private double la_crd = 0; // 다발지역지점 중심점의 위도
     private double lo_crd = 0; // 다발지역지점 중심점의 경도
 
+    private int afos_fid = 0; // 다발지역FID
+    private String afos_id = ""; // 다발지역 ID
+    private String bjd_cd = ""; // 법정동코드
+    private String spot_cd = ""; // 지점코드
     private String geom_json = ""; // 다발지역폴리곤 - 폴리곤 좌표 json 데이터
     private String sido_sgg_nm = ""; // 시도시군구명
     private String spot_nm = ""; // 다발지역의 위치
@@ -18,6 +24,13 @@ public class ResponseAddr {
     private int sl_dnv_cnt = 0; // 경상자수
     private int wnd_dnv_cnt = 0; // 부상신고자수
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 
     public double getLo_crd() {
         return lo_crd;
@@ -105,6 +118,38 @@ public class ResponseAddr {
 
     public void setWnd_dnv_cnt(int wnd_dnv_cnt) {
         this.wnd_dnv_cnt = wnd_dnv_cnt;
+    }
+
+    public int getAfos_fid() {
+        return afos_fid;
+    }
+
+    public void setAfos_fid(int afos_fid) {
+        this.afos_fid = afos_fid;
+    }
+
+    public String getAfos_id() {
+        return afos_id;
+    }
+
+    public void setAfos_id(String afos_id) {
+        this.afos_id = afos_id;
+    }
+
+    public String getBjd_cd() {
+        return bjd_cd;
+    }
+
+    public void setBjd_cd(String bjd_cd) {
+        this.bjd_cd = bjd_cd;
+    }
+
+    public String getSpot_cd() {
+        return spot_cd;
+    }
+
+    public void setSpot_cd(String spot_cd) {
+        this.spot_cd = spot_cd;
     }
 
     // api 호출 결과 데이터 구조

@@ -1,10 +1,7 @@
 package com.example.barrierfree.ui.find;
 
 import android.Manifest;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,7 +32,6 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.barrierfree.MainActivity;
 import com.example.barrierfree.R;
@@ -212,6 +208,10 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                         }
                     }
                 });
+
+        if (latitude != 0 && longitude != 0) {
+            tMapView.setCenterPoint(longitude, latitude);
+        }
 
 //        receiver = new MyReceiver();
 //        IntentFilter filter = new IntentFilter("Location");

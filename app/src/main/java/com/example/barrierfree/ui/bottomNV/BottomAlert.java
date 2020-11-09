@@ -8,6 +8,9 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.media.MediaRecorder;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
@@ -66,7 +69,6 @@ public class BottomAlert extends Fragment {
     Thread runner;
     private static double mEMA = 0.0;
     static final private double EMA_FILTER = 0.6;
-
     final Runnable updater = new Runnable(){
 
         public void run(){
@@ -164,6 +166,9 @@ public class BottomAlert extends Fragment {
                                                         SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
                                                         String time = mFormat.format(date);
                                                         adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님이 계정연결을 신청하셨습니다.", time);
+                                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                                        Ringtone ringtone = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notification);
+                                                        ringtone.play();
                                                         Log.d("메시지", "리스트뷰 추가 완료");
                                                         adpalert.notifyDataSetChanged();
                                                     } else {

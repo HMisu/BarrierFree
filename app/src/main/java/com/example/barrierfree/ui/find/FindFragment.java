@@ -1,14 +1,19 @@
 package com.example.barrierfree.ui.find;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.location.Location;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,8 +35,16 @@ import com.example.barrierfree.models.RequestAddr;
 import com.example.barrierfree.models.ResponseAddr;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.skt.Tmap.TMapCircle;
 import com.skt.Tmap.TMapData;
 import com.skt.Tmap.TMapMarkerItem;
@@ -47,6 +60,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class FindFragment extends Fragment {
 
@@ -54,9 +68,15 @@ public class FindFragment extends Fragment {
 
 
     private FindViewModel findViewModel;
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
+    private FirebaseFirestore db;
 
     LinearLayout linearLayoutTmap;
     TMapView tMapView;
+    String uid;
+
+
 
     ImageButton btnCurrentLoc;
 
@@ -238,6 +258,7 @@ public class FindFragment extends Fragment {
                                 final double lat = location.getLatitude();
                                 final double lng = location.getLongitude();
 
+
 //                                final double lat = 37.570841; // 서울 종로구
 //                                final double lng = 126.985302;
 
@@ -371,8 +392,55 @@ public class FindFragment extends Fragment {
                                     Log.d(TAG, "각 아이템정보 " + jjj.toString());
 
 //                                    JSONObject road_address_obj = jjj.optJSONObject("la_crd"); // 경도
-                                    String temp_lat = jjj.optString("la_crd", "0"); // 위도
-                                    String temp_lng = jjj.optString("lo_crd", "0"); // 경도
+                                    final String temp_lat = jjj.optString("la_crd", "0"); // 위도
+                                    final String temp_lng = jjj.optString("lo_crd", "0"); // 경도
+
+                                    db.collection("location").document(uid).get()
+                                            .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        final DocumentSnapshot document = task.getResult();
+                                                        if (document.exists()) {
+                                                            Log.d("취약자 연결 완료", uid);
+                                                            Log.d("취약자의 위치값", "위도" + document.getDouble("latitude") + "경도" + document.getDouble("longitude"));
+                                                            final double now_latim = 110.940 * document.getDouble("latitude");
+                                                            final double now_longim = 90.180 * document.getDouble("longitude");
+                                                            db.collection("safety").whereEqualTo("mem_weak", uid).get()
+                                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                            Log.d("메세지", "안심지역 연결완료");
+                                                                            for (final QueryDocumentSnapshot document : task.getResult()) {
+
+                                                                                double meter_lati, meter_longi;
+                                                                                meter_lati = 110.940 * document.getDouble("latitude");
+                                                                                meter_longi = 90.180 * document.getDouble("longitude");
+
+                                                                                Log.d("메세지", "현재 위치의 위도 " + now_latim + " 경도 " + now_longim + "안심지역의 위도 " + meter_lati + " 경도 " + meter_longi);
+
+                                                                                if (now_latim >= (Double.parseDouble(temp_lat) - 500) && now_latim <= (Double.parseDouble(temp_lat) + 500)) {
+                                                                                    Log.d("메시지", "if문 하나통과");
+                                                                                    if (now_longim >= (Double.parseDouble(temp_lng) - 500) && now_longim <= (Double.parseDouble(temp_lng) + 500)) {
+                                                                                        Uri notificaiton = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+                                                                                        Ringtone ringtone = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notificaiton);
+                                                                                    } else {
+                                                                                        Log.d("메세지", "위험지역 아님.");
+
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    });
+
+                                                        }
+
+                                                    } else {
+                                                        Log.d("메시지", "No Such Document");
+                                                    }
+                                                }
+                                            });
+
 
                                     double lat = Double.parseDouble(temp_lat); // api 에서 위도값이 문자열로 넘어오기때문에 다시 변환한다
                                     double lng = Double.parseDouble(temp_lng);

@@ -155,8 +155,13 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                         if (task.isSuccessful()) {
                                             DocumentSnapshot document = task.getResult();
                                             if (document.exists()) {
-                                                double weaklongitude = document.getDouble("longitude");
-                                                double weaklatitude = document.getDouble("latitude");
+                                                final double weaklongitude = document.getDouble("longitude");
+                                                final double weaklatitude = document.getDouble("latitude");
+
+
+
+
+
                                                 // 취약자 위치 지도에 마커 표시하는(찍는) 곳
                                                 TMapMarkerItem markerItem1 = new TMapMarkerItem();
                                                 TMapPoint tMapPoint1 = new TMapPoint(weaklatitude, weaklongitude);

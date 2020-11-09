@@ -163,7 +163,7 @@ public class BottomAlert extends Fragment {
                                                         Date date = new Date(now);
                                                         SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
                                                         String time = mFormat.format(date);
-                                                        adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님이 계정연열을 신청하셨습니다.", time);
+                                                        adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님이 계정연결을 신청하셨습니다.", time);
                                                         Log.d("메시지", "리스트뷰 추가 완료");
                                                         adpalert.notifyDataSetChanged();
                                                     } else {
@@ -399,7 +399,7 @@ public class BottomAlert extends Fragment {
         Date date = new Date(now);
         SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
         String time = mFormat.format(date);
-        if ((getAmplitudeEMA() / 80) > 110){
+        if ((getAmplitudeEMA() / 80) > 13){
             adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_alert), "소리 감지", "큰소리가 감지되엇습니다.", time);
             adpalert.notifyDataSetChanged();
         }

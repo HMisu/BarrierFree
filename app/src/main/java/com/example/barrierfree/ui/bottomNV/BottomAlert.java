@@ -7,17 +7,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.ListFragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -57,6 +61,20 @@ public class BottomAlert extends Fragment {
     MyReceiver receiver;
     Boolean safe = Boolean.TRUE;
 
+    TextView mStatusView;
+    MediaRecorder mRecorder;
+    Thread runner;
+    private static double mEMA = 0.0;
+    static final private double EMA_FILTER = 0.6;
+
+    final Runnable updater = new Runnable(){
+
+        public void run(){
+            updateTv();
+        };
+    };
+    final Handler mHandler = new Handler();
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,17 +101,15 @@ public class BottomAlert extends Fragment {
 //        setListAdapter(adpalert);
 
 
-
-        db.collection("connection").whereEqualTo("mem_respondent", user.getUid()).whereEqualTo("connect", true).get()
+        db.collection("connection").whereEqualTo("mem_applicant", user.getUid()).whereEqualTo("connect", true).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             Log.d("작업 완료", "Success");
                             for (final QueryDocumentSnapshot document : task.getResult()) {
-
-                                uid = document.getString("mem_protect");
-                                Log.d("DB연결완료", "mem_protect : "+ uid);
+                                uid = document.getString("mem_respondent");
+                                Log.d("DB연결완료", "mem_respondent : " + uid);
                                 db.collection("members").document(uid).get()
                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
@@ -106,7 +122,48 @@ public class BottomAlert extends Fragment {
                                                         Date date = new Date(now);
                                                         SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
                                                         String time = mFormat.format(date);
-                                                        adpalert.add(R.drawable.ic_alert,"연결 알림", document.getString("mem_name") + "님이 계정연열을 신청하셨숩니다.", time);
+                                                        adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님께 계정연결을 신청하셨습니다.", time);
+                                                        Log.d("메시지", "리스트뷰 추가 완료");
+                                                        adpalert.notifyDataSetChanged();
+                                                    } else {
+                                                        Log.d("메시지", "No such document");
+                                                    }
+                                                } else {
+                                                    Log.d("메시지", "get failed with ", task.getException());
+                                                }
+                                            }
+                                        });
+                            }
+                        } else {
+                            Log.d("메시지", "Error to nofication : ", task.getException());
+                            return;
+                        }
+                    }
+                });
+
+        db.collection("connection").whereEqualTo("mem_respondent", user.getUid()).whereEqualTo("connect", true).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("작업 완료", "Success");
+                            for (final QueryDocumentSnapshot document : task.getResult()) {
+
+                                uid = document.getString("mem_protect");
+                                Log.d("DB연결완료", "mem_protect : " + uid);
+                                db.collection("members").document(uid).get()
+                                        .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    DocumentSnapshot document = task.getResult();
+                                                    if (document.exists()) {
+                                                        Log.d("메시지", "Member DB 연결완료 : " + document.getString("mem_name"));
+                                                        long now = System.currentTimeMillis();
+                                                        Date date = new Date(now);
+                                                        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
+                                                        String time = mFormat.format(date);
+                                                        adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님이 계정연열을 신청하셨습니다.", time);
                                                         Log.d("메시지", "리스트뷰 추가 완료");
                                                         adpalert.notifyDataSetChanged();
                                                     } else {
@@ -126,91 +183,66 @@ public class BottomAlert extends Fragment {
                 });
 
 
-        db.collection("connection").whereEqualTo("mem_protect",user.getUid()).whereEqualTo("connect", true).get()
+        db.collection("connection").whereEqualTo("mem_protect", user.getUid()).whereEqualTo("connect", true).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        for(final QueryDocumentSnapshot document : task.getResult()) {
+                        for (final QueryDocumentSnapshot document : task.getResult()) {
                             uid = document.getString("mem_weak");
                             db.collection("location").document(uid).get()
                                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                            if(task.isSuccessful()) {
-                                                DocumentSnapshot document = task.getResult();
+                                            if (task.isSuccessful()) {
+                                                final DocumentSnapshot document = task.getResult();
                                                 if (document.exists()) {
                                                     Log.d("취약자 연결 완료", uid);
                                                     Log.d("취약자의 위치값", "위도" + document.getDouble("latitude") + "경도" + document.getDouble("longitude"));
+                                                    final double now_latim = 110.940 * document.getDouble("latitude");
+                                                    final double now_longim = 90.180 * document.getDouble("longitude");
+                                                    db.collection("safety").whereEqualTo("mem_weak", uid).get()
+                                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                    Log.d("메세지", "안심지역 연결완료");
+                                                                    for (final QueryDocumentSnapshot document : task.getResult()) {
+//                                                                        double diffLati = LatitudeInDifference(50);
+//                                                                        double diffLongi = LongitudeInDifference(document.getDouble("latitude"), 50);
 
-                                                    Bundle bundle = getArguments();
+                                                                        double meter_lati, meter_longi;
+                                                                        meter_lati = 110.940 * document.getDouble("latitude");
+                                                                        meter_longi = 90.180 * document.getDouble("longitude");
 
-                                                    if(bundle != null) {
-                                                        String safty_lati = bundle.getString("str_lati", "0");
-                                                        String safty_longi = bundle.getString("str_longi", "0");
+                                                                        Log.d("메세지", "현재 위치의 위도 " + now_latim + " 경도 " + now_longim + "안심지역의 위도 " + meter_lati + " 경도 " + meter_longi);
 
+                                                                        if (now_latim >= (meter_lati - 500) && now_latim <= (meter_lati + 500)) {
+                                                                            Log.d("메시지", "if문 하나통과");
+                                                                            if (now_longim >= (meter_longi - 500) && now_longim <= (meter_longi + 500)) {
+                                                                                Log.d("메세지", "안심지역임.");
+                                                                            } else {
+                                                                                Log.d("메세지", "안심지역을 벗어남.");
+                                                                                addIsSafty();
+                                                                                tts = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                                                                    @Override
+                                                                                    public void onInit(int status) {
+                                                                                        tts.setLanguage(Locale.KOREAN);
+                                                                                        speak();
+                                                                                    }
+                                                                                    private void speak() {
+                                                                                        //tts.speak("취약자가 안심지역을 벗어났습니다.", TextToSpeech.QUEUE_FLUSH, null);
+                                                                                    }
+                                                                                });
 
-                                                        Log.d("BottomAlert, 안심지역의", "위도 " + safty_lati + "경도 " + safty_longi);
-
-                                                        //if()
-
-                                                        receiver = new MyReceiver();
-                                                        IntentFilter filter = new IntentFilter("Location");
-                                                        LocalBroadcastManager.getInstance(getContext()).registerReceiver(receiver, filter);
-
-                                                        Intent intent = new Intent("Location");
-                                                        PendingIntent pending = PendingIntent.getBroadcast(getActivity().getApplicationContext(), 0, intent, 0);
-
-                                                        if (ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                                            // TODO: Consider calling
-                                                            //    ActivityCompat#requestPermissions
-                                                            // here to request the missing permissions, and then overriding
-                                                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                                            //                                          int[] grantResults)
-                                                            // to handle the case where the user grants the permission. See the documentation
-                                                            // for ActivityCompat#requestPermissions for more details.
-
-                                                        }
-                                                        lm.addProximityAlert(Double.parseDouble(safty_lati), Double.parseDouble(safty_longi), 200, -1, pending);
-
-                                                        double diffLati = LatitudeInDifference(50);
-                                                        double diffLongi = LongitudeInDifference(Double.parseDouble(safty_longi), 50);
-
-                                                        double meter_lati, meter_longi, now_latim, now_longim;
-                                                        meter_lati = 110.940 * Double.parseDouble(safty_lati);
-                                                        meter_longi = 90.180 * Double.parseDouble(safty_longi);
-                                                        now_latim = 110.940 * document.getDouble("latitude");
-                                                        now_longim = 90.180 * document.getDouble("longitude");
-
-                                                        Log.d("메세지", "현재 위치의 위도 " + now_latim + " 경도 " + now_longim + "안심지역의 위도 " + meter_lati + " 경도 " + meter_longi);
-
-
-                                                        if(now_latim >= (meter_lati - 500) && now_latim <= (meter_lati + 500)) {
-                                                            Log.d("메시지","if문 하나통과");
-                                                            if(now_longim >= (meter_longi - 500) && now_longim <= (meter_longi + 500)){
-                                                                Log.d("메세지","안심지역임.");
-                                                            } else {
-                                                                Log.d("메세지", "안심지역을 벗어남.");
-                                                                addIsSafty();
-                                                                tts = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                                                    @Override
-                                                                    public void onInit(int status) {
-                                                                        tts.setLanguage(Locale.KOREAN);
-                                                                        speak();
+                                                                            }
+                                                                        }
                                                                     }
-                                                                    private void speak(){
-                                                                        tts.speak("취약자가 안심지역을 벗어났습니다.", TextToSpeech.QUEUE_FLUSH, null);
-                                                                    }
-                                                                });
+                                                                }
+                                                            });
 
-                                                            }
-                                                        }
-                                                    }
-
-                                                } else {
-                                                    Log.d("메시지", "No Such Document");
                                                 }
+
                                             } else {
-                                                Log.d("메시지", "get failed with", task.getException());
+                                                Log.d("메시지", "No Such Document");
                                             }
                                         }
                                     });
@@ -221,6 +253,26 @@ public class BottomAlert extends Fragment {
 
         //String Receive = intent.getStringExtra("delete");
 
+
+        if (runner == null)
+        {
+            runner = new Thread(){
+                public void run()
+                {
+                    while (runner != null)
+                    {
+                        try
+                        {
+                            Thread.sleep(1000);
+                            //Log.i("Noise", "Tock");
+                        } catch (InterruptedException e) { };
+                        mHandler.post(updater);
+                    }
+                }
+            };
+            runner.start();
+            Log.d("Noise", "start runner()");
+        }
 
         return view;
 
@@ -239,7 +291,7 @@ public class BottomAlert extends Fragment {
     public double LatitudeInDifference(int diff) {
         final int earth = 6371000;
 
-        return (diff*360.0) / (2*Math.PI*earth);
+        return (diff * 360.0) / (2 * Math.PI * earth);
     }
 
     public double LongitudeInDifference(double _latitude, int diff) {
@@ -248,7 +300,7 @@ public class BottomAlert extends Fragment {
         double add = Math.cos(0);
         double ddf = Math.cos(Math.toRadians(_latitude));
 
-        return (diff*360.0) / (2*Math.PI*eatrh*Math.cos(Math.toRadians(_latitude)));
+        return (diff * 360.0) / (2 * Math.PI * eatrh * Math.cos(Math.toRadians(_latitude)));
     }
 
     public void addIsSafty() {
@@ -261,7 +313,7 @@ public class BottomAlert extends Fragment {
                             Log.d("작업 완료", "Success");
                             for (final QueryDocumentSnapshot document : task.getResult()) {
                                 uid = document.getString("mem_weak");
-                                Log.d("DB연결완료", "mem_weak : "+ uid);
+                                Log.d("DB연결완료", "mem_weak : " + uid);
                                 db.collection("members").document(uid).get()
                                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                             @Override
@@ -274,7 +326,7 @@ public class BottomAlert extends Fragment {
                                                         Date date = new Date(now);
                                                         SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
                                                         String time = mFormat.format(date);
-                                                        adpalert.add(R.drawable.ic_alert,"위험 알림", document.getString("mem_name") + "님이 안심지역을 벗어났습니다.", time);
+                                                        adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_alert), "위험 알림", document.getString("mem_name") + "님이 안심지역을 벗어났습니다.", time);
                                                         Log.d("메시지", "리스트뷰 추가 완료");
                                                         adpalert.notifyDataSetChanged();
                                                     } else {
@@ -292,6 +344,80 @@ public class BottomAlert extends Fragment {
                         }
                     }
                 });
+    }
+
+    public void onResume()
+    {
+        super.onResume();
+        startRecorder();
+    }
+
+    public void onPause()
+    {
+        super.onPause();
+        stopRecorder();
+    }
+
+    public void startRecorder(){
+        if (mRecorder == null)
+        {
+            mRecorder = new MediaRecorder();
+            mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            mRecorder.setOutputFile("/dev/null");
+            try
+            {
+                mRecorder.prepare();
+            }catch (java.io.IOException ioe) {
+                android.util.Log.e("[Monkey]", "IOException: " + android.util.Log.getStackTraceString(ioe));
+
+            }catch (java.lang.SecurityException e) {
+                android.util.Log.e("[Monkey]", "SecurityException: " + android.util.Log.getStackTraceString(e));
+            }
+            try
+            {
+                mRecorder.start();
+            }catch (java.lang.SecurityException e) {
+                android.util.Log.e("[Monkey]", "SecurityException: " + android.util.Log.getStackTraceString(e));
+            }
+
+            //mEMA = 0.0;
+        }
+
+    }
+    public void stopRecorder() {
+        if (mRecorder != null) {
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+        }
+    }
+
+    public void updateTv(){
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
+        String time = mFormat.format(date);
+        if ((getAmplitudeEMA() / 80) > 110){
+            adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_alert), "소리 감지", "큰소리가 감지되엇습니다.", time);
+            adpalert.notifyDataSetChanged();
+        }
+    }
+    public double soundDb(double ampl){
+        return  (20 * Math.log10(getAmplitudeEMA() / ampl));
+    }
+    public double getAmplitude() {
+        if (mRecorder != null)
+            return  (mRecorder.getMaxAmplitude());
+        else
+            return 0;
+
+    }
+    public double getAmplitudeEMA() {
+        double amp =  getAmplitude();
+        mEMA = EMA_FILTER * amp + (1.0 - EMA_FILTER) * mEMA;
+        return mEMA;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.barrierfree.ui.bottomNV;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -63,6 +64,7 @@ public class AlertAdapter extends BaseAdapter {
         list_title.setText(alert.getTitle());
         list_content.setText(alert.getContent());
         list_date.setText(alert.getDate());
+        list_image.setImageDrawable(alert.getImage());
 
         return convertView;
     }
@@ -77,8 +79,8 @@ public class AlertAdapter extends BaseAdapter {
         return position;
     }
 
-    public void add(int image, String title, String content, String date) {
-        AlertListView  item  = new AlertListView();
+    public void add(Drawable image, String title, String content, String date) {
+        AlertListView item  = new AlertListView();
 
         item.setImage(image);
         item.setTitle(title);

@@ -1,24 +1,19 @@
 package com.example.barrierfree.ui.bottomNV;
 
-public class AlertListView {
-    public String title;
-    public String content;
-    public String date;
-    public int image;
+import android.graphics.drawable.Drawable;
 
-    public AlertListView(String title, String content, String date) {
-        this.title = title;
-        this.content = content;
-        this.date = date;
-    }
+public class AlertListView {
+    private String title;
+    private String content;
+    private String date;
+    private Drawable image;
 
     public AlertListView() {
     }
 
+    public Drawable getImage() { return image; }
 
-    public int getImage() { return image; }
-
-    public void setImage(int image) { this.image = this.image; }
+    public void setImage(Drawable image) { this.image = image; }
 
     public String getTitle() {
         return title;

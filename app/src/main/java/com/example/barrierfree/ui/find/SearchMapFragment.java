@@ -12,6 +12,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -58,6 +59,7 @@ import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapView;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * POI 정보를 통합검색하는 화면
@@ -71,10 +73,12 @@ public class SearchMapFragment extends Fragment implements LocationListener {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     private FirebaseFirestore db;
+    private TextToSpeech tts;
 
     double rfglongitude, rfglatitude, longitude = 0, latitude = 0;
     String weekuid, rfgaddr;
     int count;
+    String uid;
 
     LocationManager lm;
     MyReceiver receiver;
@@ -194,22 +198,69 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                     tMapView.addTMapCircle(document.getId(), tMapCircle);
 
                                                     //미혜야 여기!
-                                                    String str_lati = Double.toString(document.getDouble("latitude"));
-                                                    String str_longi = Double.toString(document.getDouble("longitude"));
+                                                    db.collection("connection").whereEqualTo("mem_protect", user.getUid()).whereEqualTo("connect", true).get()
+                                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                    for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                                        uid = document.getString("mem_weak");
+                                                                        db.collection("location").document(uid).get()
+                                                                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                                                    @Override
+                                                                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                                                        if (task.isSuccessful()) {
+                                                                                            final DocumentSnapshot document = task.getResult();
+                                                                                            if (document.exists()) {
+                                                                                                Log.d("취약자 연결 완료", uid);
+                                                                                                Log.d("취약자의 위치값", "위도" + document.getDouble("latitude") + "경도" + document.getDouble("longitude"));
+                                                                                                final double now_latim = 110.940 * document.getDouble("latitude");
+                                                                                                final double now_longim = 90.180 * document.getDouble("longitude");
+                                                                                                db.collection("safety").whereEqualTo("mem_weak", uid).get()
+                                                                                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                            @Override
+                                                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                                Log.d("메세지", "안심지역 연결완료");
+                                                                                                                for (final QueryDocumentSnapshot document : task.getResult()) {
 
+                                                                                                                    double meter_lati, meter_longi;
+                                                                                                                    meter_lati = 110.940 * document.getDouble("latitude");
+                                                                                                                    meter_longi = 90.180 * document.getDouble("longitude");
 
-                                                    Log.d("Search에서의 안심지역", "위도" + str_longi + "경도" + str_lati);
+                                                                                                                    Log.d("메세지", "현재 위치의 위도 " + now_latim + " 경도 " + now_longim + "안심지역의 위도 " + meter_lati + " 경도 " + meter_longi);
 
+                                                                                                                    if (now_latim >= (meter_lati - 500) && now_latim <= (meter_lati + 500)) {
+                                                                                                                        Log.d("메시지", "if문 하나통과");
+                                                                                                                        if (now_longim >= (meter_longi - 500) && now_longim <= (meter_longi + 500)) {
+                                                                                                                            Log.d("메세지", "안심지역임.");
+                                                                                                                        } else {
+                                                                                                                            Log.d("메세지", "안심지역을 벗어남.");
+                                                                                                                            tts = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                                                                                                                @Override
+                                                                                                                                public void onInit(int status) {
+                                                                                                                                    tts.setLanguage(Locale.KOREAN);
+                                                                                                                                    speak();
+                                                                                                                                }
+                                                                                                                                private void speak() {
+                                                                                                                                    tts.speak("취약자가 안심지역을 벗어났습니다.", TextToSpeech.QUEUE_FLUSH, null);
+                                                                                                                                }
+                                                                                                                            });
 
-                                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.bottomNV_dangerous, fragment).commit();
+                                                                                                                        }
+                                                                                                                    }
+                                                                                                                }
+                                                                                                            }
+                                                                                                        });
 
+                                                                                            }
 
-                                                    Bundle bundle = new Bundle(2); // 파라미터는 전달할 데이터 개수
-                                                    bundle.putString("str_lati", str_lati);
-                                                    bundle.putString("str_longi", str_longi);// key , value
-                                                    fragment.setArguments(bundle);
-
-                                                    Log.d("Bundle", String.valueOf(bundle));
+                                                                                        } else {
+                                                                                            Log.d("메시지", "No Such Document");
+                                                                                        }
+                                                                                    }
+                                                                                });
+                                                                    }
+                                                                }
+                                                            });
 
 
                                                 }

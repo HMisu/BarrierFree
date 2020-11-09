@@ -228,6 +228,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
     public void stopLocationService() {
         stopService(new Intent(MainActivity.this, LocationService.class));
     }

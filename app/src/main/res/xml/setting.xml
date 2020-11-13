@@ -1,45 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="위험알림 설정하기">
 
-        <SwitchPreferenceCompat
-            android:icon="@mipmap/ic_launcher"
+        <SwitchPreference
+            android:icon="@mipmap/ic_launcher_round"
             android:key="vibrator"
+            android:summary="알림을 받을 때, 진동으로 받으려면 체크하세요."
+            android:defaultValue="false"
+            android:switchTextOn="ON"
+            android:switchTextOff="OFF"
+            android:dependency="no_sound"
             android:title="진동" />
-
-        <SwitchPreferenceCompat
-            android:icon="@mipmap/ic_launcher"
-            android:key="sound"
-            android:title="알림" />
-
-        <SwitchPreferenceCompat
-            android:icon="@mipmap/ic_launcher"
-            android:key="no_sound"
-            android:title="무음" />
 
         <ListPreference
             android:entries="@array/vibrator"
             android:entryValues="@array/vibrator"
-            android:icon="@mipmap/ic_launcher"
-            android:key="setting_vibrator"
+            android:key="safty_vibrator"
+            android:defaultValue="false"
+            android:dependency="vibrator"
             android:summary="진동패턴을 설정하세요."
-            android:title="진동 종류설정" />
+            android:title="안심지역 진동" />
+
+        <ListPreference
+            android:entries="@array/vibrator"
+            android:entryValues="@array/vibrator"
+            android:key="danger_vibrator"
+            android:defaultValue="false"
+            android:dependency="vibrator"
+            android:summary="진동패턴을 설정하세요."
+            android:title="위험지역 진동" />
+
+        <ListPreference
+            android:entries="@array/vibrator"
+            android:entryValues="@array/vibrator"
+            android:key="setting_vibrator"
+            android:defaultValue="false"
+            android:dependency="vibrator"
+            android:summary="진동패턴을 설정하세요."
+            android:title="일반알림 진동" />
 
         <PreferenceScreen
-            android:icon="@mipmap/ic_launcher"
+            android:icon="@mipmap/ic_launcher_round"
             android:key="user_vibrator"
+            android:dependency="vibrator"
             android:title="사용자 진동패턴 설정">
-            <intent android:targetPackage="com.example.barrierfree"
-                android:targetClass="com.example.barrierfree.UserVibratorActivity"/>
+            <intent
+                android:targetClass="com.example.barrierfree.UserVibratorActivity"
+                android:targetPackage="com.example.barrierfree" />
         </PreferenceScreen>
+
+        <SwitchPreference
+            android:icon="@mipmap/ic_launcher_round"
+            android:key="sound"
+            android:switchTextOn="ON"
+            android:switchTextOff="OFF"
+            android:defaultValue="false"
+            android:dependency="no_sound"
+            android:summary="알림을 받을 때, 소리로 받으려면 체크하세요."
+            android:title="소리" />
 
         <ListPreference
             android:entries="@array/sounds"
             android:entryValues="@array/sounds"
-            android:icon="@mipmap/ic_launcher"
-            android:key="setting_sound"
+            android:key="safty_sound"
+            android:defaultValue="false"
+            android:dependency="sound"
             android:summary="소리를 설정하세요."
-            android:title="소리 종류설정" />
+            android:title="안심지역 알림" />
+
+        <ListPreference
+            android:entries="@array/sounds"
+            android:entryValues="@array/sounds"
+            android:key="danger_sound"
+            android:defaultValue="false"
+            android:dependency="sound"
+            android:summary="소리를 설정하세요."
+            android:title="위험지역 알림" />
+
+        <ListPreference
+            android:entries="@array/sounds"
+            android:entryValues="@array/sounds"
+            android:key="setting_sound"
+            android:defaultValue="false"
+            android:dependency="sound"
+            android:summary="소리를 설정하세요."
+            android:title="일반알림" />
+
+        <SwitchPreference
+            android:icon="@mipmap/ic_launcher_round"
+            android:key="no_sound"
+            android:switchTextOn="ON"
+            android:switchTextOff="OFF"
+            android:defaultValue="false"
+            android:disableDependentsState="true"
+            android:title="무음" />
+
     </PreferenceCategory>
 </PreferenceScreen>

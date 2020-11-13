@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="sounds">
-        <item>징글벨</item>
-        <item>전화벨</item>
-        <item>사이렌</item>
-        <item>녹차</item>
-        <item>놀이시간</item>
-        <item>물결</item>
-        <item>반짝반짝</item>
-        <item>별자리</item>
+        <item>알람1</item>
+        <item>알람2</item>
+        <item>알람3</item>
+        <item>알람4</item>
+        <item>알람5</item>
+        <item>알람6</item>
+        <item>알람7</item>
     </string-array>
 
     <string-array name="vibrator">
@@ -21,4 +20,5 @@
         <item>강한진동</item>
         <item>퀵</item>
     </string-array>
+
 </resources>

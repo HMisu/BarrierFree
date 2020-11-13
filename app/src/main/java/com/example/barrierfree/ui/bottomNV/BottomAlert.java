@@ -404,7 +404,7 @@ public class BottomAlert extends Fragment {
         Date date = new Date(now);
         SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
         String time = mFormat.format(date);
-        if ((getAmplitudeEMA() / 80) > 13){
+        if ((getAmplitudeEMA() / 80) > 250){
             adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_alert), "소리 감지", "큰소리가 감지되엇습니다.", time);
             adpalert.notifyDataSetChanged();
         }

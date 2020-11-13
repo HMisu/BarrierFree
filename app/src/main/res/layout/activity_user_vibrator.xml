@@ -7,47 +7,59 @@
     tools:context=".UserVibratorActivity">
 
     <Button
-        android:id="@+id/user_btn_start"
+        android:id="@+id/button"
         android:layout_width="match_parent"
-        android:layout_height="66dp"
-        android:text="기록시작"
-        android:onClick="myOnClick"
+        android:layout_height="535dp"
+        android:layout_marginTop="40dp"
+        android:background="#B3000000"
+        android:text="진동패턴을 생성하려면\n 이곳을 누르십시오."
+        android:textColor="#FFFFFF"
+        android:textSize="30dp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/user_btn_record"
-        android:layout_width="match_parent"
-        android:layout_height="149dp"
-        android:onClick="myOnClick"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_btn_start"
-        app:layout_constraintVertical_bias="0.185" />
-
     <TextView
-        android:id="@+id/textView2"
-        android:layout_width="223dp"
-        android:layout_height="177dp"
-        android:layout_marginBottom="76dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/time_out"
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
-        android:text="00:00:00"
-        app:layout_constraintBottom_toTopOf="@+id/textView2"
+        android:layout_marginTop="28dp"
+        android:text="TextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_btn_record"
-        app:layout_constraintVertical_bias="0.914" />
+        app:layout_constraintTop_toBottomOf="@+id/button" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="169dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/colorBtn"
+        android:text="기록중지"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/save_btn"
+        android:layout_width="169dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/colorBtn"
+        android:text="저장"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/button2"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintVertical_bias="1.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

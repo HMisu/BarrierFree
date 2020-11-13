@@ -404,34 +404,39 @@ public class FindFragment extends Fragment {
                                                         if (document.exists()) {
                                                             Log.d("취약자 연결 완료", uid);
                                                             Log.d("취약자의 위치값", "위도" + document.getDouble("latitude") + "경도" + document.getDouble("longitude"));
+                                                            final int[] isDid = {1};
                                                             final double now_latim = 110.940 * document.getDouble("latitude");
                                                             final double now_longim = 90.180 * document.getDouble("longitude");
-                                                            db.collection("safety").whereEqualTo("mem_weak", uid).get()
-                                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                                        @Override
-                                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                            Log.d("메세지", "안심지역 연결완료");
-                                                                            for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                            if(isDid[0] == 1) {
+                                                                db.collection("safety").whereEqualTo("mem_weak", uid).get()
+                                                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                Log.d("메세지", "위험지역 연결완료");
+                                                                                for (final QueryDocumentSnapshot document : task.getResult()) {
 
-                                                                                double meter_lati, meter_longi;
-                                                                                meter_lati = 110.940 * document.getDouble("latitude");
-                                                                                meter_longi = 90.180 * document.getDouble("longitude");
+                                                                                    double meter_lati, meter_longi;
+                                                                                    meter_lati = 110.940 * document.getDouble("latitude");
+                                                                                    meter_longi = 90.180 * document.getDouble("longitude");
 
-                                                                                Log.d("메세지", "현재 위치의 위도 " + now_latim + " 경도 " + now_longim + "안심지역의 위도 " + meter_lati + " 경도 " + meter_longi);
+                                                                                    Log.d("메세지", "현재 위치의 위도 " + now_latim + " 경도 " + now_longim + "위험지역의 위도 " + meter_lati + " 경도 " + meter_longi);
 
-                                                                                if (now_latim >= (Double.parseDouble(temp_lat) - 500) && now_latim <= (Double.parseDouble(temp_lat) + 500)) {
-                                                                                    Log.d("메시지", "if문 하나통과");
-                                                                                    if (now_longim >= (Double.parseDouble(temp_lng) - 500) && now_longim <= (Double.parseDouble(temp_lng) + 500)) {
-                                                                                        Uri notificaiton = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-                                                                                        Ringtone ringtone = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notificaiton);
-                                                                                    } else {
-                                                                                        Log.d("메세지", "위험지역 아님.");
+                                                                                    if (now_latim >= (Double.parseDouble(temp_lat) - 500) && now_latim <= (Double.parseDouble(temp_lat) + 500)) {
+                                                                                        Log.d("메시지", "if문 하나통과");
+                                                                                        if (now_longim >= (Double.parseDouble(temp_lng) - 500) && now_longim <= (Double.parseDouble(temp_lng) + 500)) {
+                                                                                            Uri notificaiton = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+                                                                                            Ringtone ringtone = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notificaiton);
+                                                                                            ringtone.play();
+                                                                                        } else {
+                                                                                            Log.d("메세지", "위험지역 아님.");
 
+                                                                                        }
                                                                                     }
                                                                                 }
+                                                                                isDid[0] = 0;
                                                                             }
-                                                                        }
-                                                                    });
+                                                                        });
+                                                            }
 
                                                         }
 

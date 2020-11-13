@@ -2,6 +2,7 @@ package com.example.barrierfree.ui.find;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,8 +11,13 @@ import android.graphics.PointF;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -69,6 +75,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
 
     private BottomSheetDialog mBottomSheetDialog;
     Fragment fragment = new BottomAlert();
+    private SharedPreferences mPreferences;
 
     private FirebaseAuth mAuth;
     private FirebaseUser user;
@@ -130,7 +137,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
         btnSearch = (Button) root.findViewById(R.id.btnSearch);
         btnCurrentLoc = (ImageButton) root.findViewById(R.id.btnCurrentLoc);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        lm = (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
+        lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
@@ -157,9 +164,6 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                             if (document.exists()) {
                                                 final double weaklongitude = document.getDouble("longitude");
                                                 final double weaklatitude = document.getDouble("latitude");
-
-
-
 
 
                                                 // 취약자 위치 지도에 마커 표시하는(찍는) 곳
@@ -207,6 +211,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                                 @Override
                                                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                    final boolean[] did = {false};
                                                                     for (final QueryDocumentSnapshot document : task.getResult()) {
                                                                         uid = document.getString("mem_weak");
                                                                         db.collection("location").document(uid).get()
@@ -220,42 +225,89 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                                                                 Log.d("취약자의 위치값", "위도" + document.getDouble("latitude") + "경도" + document.getDouble("longitude"));
                                                                                                 final double now_latim = 110.940 * document.getDouble("latitude");
                                                                                                 final double now_longim = 90.180 * document.getDouble("longitude");
-                                                                                                db.collection("safety").whereEqualTo("mem_weak", uid).get()
-                                                                                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                                                                            @Override
-                                                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                                                                Log.d("메세지", "안심지역 연결완료");
-                                                                                                                for (final QueryDocumentSnapshot document : task.getResult()) {
 
-                                                                                                                    double meter_lati, meter_longi;
-                                                                                                                    meter_lati = 110.940 * document.getDouble("latitude");
-                                                                                                                    meter_longi = 90.180 * document.getDouble("longitude");
 
-                                                                                                                    Log.d("메세지", "현재 위치의 위도 " + now_latim + " 경도 " + now_longim + "안심지역의 위도 " + meter_lati + " 경도 " + meter_longi);
+                                                                                                if (did[0] == false) {
+                                                                                                    db.collection("safety").whereEqualTo("mem_weak", uid).get()
+                                                                                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                                @Override
+                                                                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                                    Log.d("메세지", "안심지역 연결완료");
+                                                                                                                    for (final QueryDocumentSnapshot document : task.getResult()) {
 
-                                                                                                                    if (now_latim >= (meter_lati - 500) && now_latim <= (meter_lati + 500)) {
-                                                                                                                        Log.d("메시지", "if문 하나통과");
-                                                                                                                        if (now_longim >= (meter_longi - 500) && now_longim <= (meter_longi + 500)) {
-                                                                                                                            Log.d("메세지", "안심지역임.");
-                                                                                                                        } else {
-                                                                                                                            Log.d("메세지", "안심지역을 벗어남.");
-                                                                                                                            tts = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                                                                                                                @Override
-                                                                                                                                public void onInit(int status) {
-                                                                                                                                    tts.setLanguage(Locale.KOREAN);
-                                                                                                                                    speak();
-                                                                                                                                }
-                                                                                                                                private void speak() {
-                                                                                                                                    tts.speak("취약자가 안심지역을 벗어났습니다.", TextToSpeech.QUEUE_FLUSH, null);
-                                                                                                                                }
-                                                                                                                            });
+                                                                                                                        double meter_lati, meter_longi;
+                                                                                                                        meter_lati = 110.940 * document.getDouble("latitude");
+                                                                                                                        meter_longi = 90.180 * document.getDouble("longitude");
+
+                                                                                                                        Log.d("메세지", "현재 위치의 위도 " + now_latim + " 경도 " + now_longim + "안심지역의 위도 " + meter_lati + " 경도 " + meter_longi);
+
+                                                                                                                        if (now_latim >= (meter_lati - 500) && now_latim <= (meter_lati + 500)) {
+                                                                                                                            Log.d("메시지", "if문 하나통과");
+                                                                                                                            if (now_longim >= (meter_longi - 500) && now_longim <= (meter_longi + 500)) {
+                                                                                                                                Log.d("메세지", "안심지역임.");
+                                                                                                                            } else {
+                                                                                                                                Log.d("메세지", "안심지역을 벗어남.");
+                                                                                                                                //final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                                                                                                                                final long[] pattern = new long[0];
+                                                                                                                                tts = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
+                                                                                                                                    @Override
+                                                                                                                                    public void onInit(int status) {
+                                                                                                                                        tts.setLanguage(Locale.KOREAN);
+                                                                                                                                        speak();
+                                                                                                                                    }
+
+                                                                                                                                    private void speak() {
+                                                                                                                                        db.collection("alert").whereEqualTo("user_id", user.getUid()).whereEqualTo("alarm", true).get()
+                                                                                                                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                                                                    @Override
+                                                                                                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                                                                        for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                                                                                                                            tts.speak("주의 취약자가 안심지역을 벗어났습니다.", TextToSpeech.QUEUE_FLUSH, null);
+                                                                                                                                                            String alert = document.getString("alarm_safty");
+                                                                                                                                                            Log.d("알람메세지", alert);
+                                                                                                                                                            if (alert.equals("알람1")) {
+                                                                                                                                                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm1);
+                                                                                                                                                                ringtone.start();
+                                                                                                                                                            } else if (alert.equals("알람2")) {
+                                                                                                                                                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm2);
+                                                                                                                                                                ringtone.start();
+                                                                                                                                                            } else if (alert.equals("알람3")) {
+                                                                                                                                                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm3);
+                                                                                                                                                                ringtone.start();
+                                                                                                                                                            } else if (alert.equals("알람4")) {
+                                                                                                                                                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm4);
+                                                                                                                                                                ringtone.start();
+                                                                                                                                                            } else if (alert.equals("알람5")) {
+                                                                                                                                                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm5);
+                                                                                                                                                                ringtone.start();
+                                                                                                                                                            } else if (alert.equals("알람6")) {
+                                                                                                                                                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm6);
+                                                                                                                                                                ringtone.start();
+                                                                                                                                                            } else if (alert.equals("알람7")) {
+                                                                                                                                                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm7);
+                                                                                                                                                                ringtone.start();
+                                                                                                                                                            } else {
+                                                                                                                                                                Toast.makeText(getActivity().getApplicationContext(), "알람이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
+                                                                                                                                                            }
+
+
+                                                                                                                                                        }
+                                                                                                                                                    }
+                                                                                                                                                });
+
+
+
+                                                                                                                                    }
+                                                                                                                                });
+
+                                                                                                                            }
 
                                                                                                                         }
                                                                                                                     }
                                                                                                                 }
-                                                                                                            }
-                                                                                                        });
-
+                                                                                                            });
+                                                                                                    did[0] = true;
+                                                                                                }
                                                                                             }
 
                                                                                         } else {
@@ -264,6 +316,9 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                                                     }
                                                                                 });
                                                                     }
+
+
+
                                                                 }
                                                             });
 
@@ -564,7 +619,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                         final double lng = location.getLongitude();
 
                                                         if (tMapView != null) {
-                                                            if(latitude == 0 && longitude == 0){
+                                                            if (latitude == 0 && longitude == 0) {
                                                                 tMapView.setLocationPoint(lng, lat);
                                                                 tMapView.setCenterPoint(lng, lat);
                                                             }

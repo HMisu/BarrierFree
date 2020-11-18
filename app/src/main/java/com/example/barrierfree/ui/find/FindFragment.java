@@ -745,6 +745,7 @@ public class FindFragment extends Fragment {
                 marker.setCanShowCallout(true); // 풍선뷰 사용 설정
                 marker.setAutoCalloutVisible(false); // 풍선뷰가 자동으로 활성화되도록 설정
                 marker.setCalloutRightButtonImage(bitmap_right);
+                
 
 
 //                TMapMarkerItem2 marker2 = new TMapMarkerItem2();

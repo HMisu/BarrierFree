@@ -102,11 +102,11 @@ public class UserVibratorActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ArrayList<Long> arrayList = new ArrayList<>();
-                for(long temp : pattern){
+                for(long temp : pattern) {
                     arrayList.add(temp);
                 }
                 Log.d("진동패턴", String.valueOf(arrayList));
-                db.collection("alert").document(user.getUid()).update("user_vibe", String.valueOf(arrayList));
+                db.collection("alert").document(user.getUid()).update("user_vibe", arrayList);
             }
         });
     }

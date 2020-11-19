@@ -64,7 +64,11 @@ import com.skt.Tmap.TMapPOIItem;
 import com.skt.Tmap.TMapPoint;
 import com.skt.Tmap.TMapView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -247,6 +251,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                                                                                                 Log.d("메세지", "안심지역임.");
                                                                                                                             } else {
                                                                                                                                 Log.d("메세지", "안심지역을 벗어남.");
+                                                                                                                                db.collection("alert").document(user.getUid()).update("safeAlert", true);
                                                                                                                                 //final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
                                                                                                                                 final long[] pattern = new long[0];
                                                                                                                                 tts = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -257,11 +262,12 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                                                                                                     }
 
                                                                                                                                     private void speak() {
-                                                                                                                                        db.collection("alert").whereEqualTo("user_id", user.getUid()).whereEqualTo("alarm", true).get()
+                                                                                                                                        db.collection("alert").whereEqualTo("user_id", user.getUid()).whereEqualTo("alarm", true).whereEqualTo("safeAlert", true).get()
                                                                                                                                                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                                                                                                                     @Override
                                                                                                                                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                                                                                                                         for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                                                                                                                            db.collection("alert").document(user.getUid()).update("safeAlert", false);
                                                                                                                                                             tts.speak("주의 취약자가 안심지역을 벗어났습니다.", TextToSpeech.QUEUE_FLUSH, null);
                                                                                                                                                             String alert = document.getString("alarm_safty");
                                                                                                                                                             Log.d("알람메세지", alert);
@@ -294,8 +300,43 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                                                                                                                         }
                                                                                                                                                     }
                                                                                                                                                 });
-
-
+                                                                                                                                        db.collection("alert").whereEqualTo("user_id", user.getUid()).whereEqualTo("vibrate", true).whereEqualTo("no_sound", false).get()
+                                                                                                                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                                                                                    @Override
+                                                                                                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                                                                                        for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                                                                                                                            db.collection("alert").document(user.getUid()).update("safeAlert", false);
+                                                                                                                                                            String vibe = document.getString("vibrate_safty");
+                                                                                                                                                            final Vibrator vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                                                                                                                                                            Log.d("알람메세지", vibe);
+                                                                                                                                                            if (vibe.equals("고속반복")) {
+                                                                                                                                                                long[] pattern = {400, 200, 400, 200, 400, 200, 400, 200, 400, 200};
+                                                                                                                                                                vibrator.vibrate(pattern, -1);
+                                                                                                                                                            } else if (vibe.equals("스타카토")) {
+                                                                                                                                                                long[] pattern = {100, 200, 100, 100, 100, 100, 100, 100, 100, 100};
+                                                                                                                                                                vibrator.vibrate(pattern, -1);
+                                                                                                                                                            } else if (vibe.equals("심장박동")) {
+                                                                                                                                                                long[] pattern = {170, 150, 100, 300, 170, 150, 100, 300, 170, 150, 100, 300};
+                                                                                                                                                                vibrator.vibrate(pattern, -1);
+                                                                                                                                                            } else if (vibe.equals("심포니")) {
+                                                                                                                                                                long[] pattern = {150, 90, 150, 90, 150, 90, 600, 100 ,150, 90, 150, 90, 150, 90, 600, 90};
+                                                                                                                                                                vibrator.vibrate(pattern, -1);
+                                                                                                                                                            } else if (vibe.equals("일반진동")) {
+                                                                                                                                                                long[] pattern = {600, 700, 600, 700, 600, 700, 600, 700, 600, 700};
+                                                                                                                                                                vibrator.vibrate(pattern, -1);
+                                                                                                                                                            } else if (vibe.equals("S.O.S")) {
+                                                                                                                                                                long[] pattern = {80, 150, 80, 150, 80, 200, 500, 250, 500, 250, 500, 250};
+                                                                                                                                                                vibrator.vibrate(pattern, -1);
+                                                                                                                                                            } else if (vibe.equals("사용자 진동패턴")) {
+//                                                                                                                                                                List<Long> pattern = Collections.singletonList(document.getLong("user_vibe"));
+//                                                                                                                                                                Log.d("메시지", String.valueOf(pattern));
+                                                                                                                                                                //vibrator.vibrate(pattern, -1);
+                                                                                                                                                            } else {
+                                                                                                                                                                Toast.makeText(getActivity().getApplicationContext(), "진동이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
+                                                                                                                                                            }
+                                                                                                                                                        }
+                                                                                                                                                    }
+                                                                                                                                                });
 
                                                                                                                                     }
                                                                                                                                 });
@@ -579,6 +620,18 @@ public class SearchMapFragment extends Fragment implements LocationListener {
         });
         return root;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // TTS 객체가 남아있다면 실행을 중지하고 메모리에서 제거한다.
+        if(tts != null){
+            tts.stop();
+            tts.shutdown();
+            tts = null;
+        }
+    }
+
 
     @Override
     public void onResume() {

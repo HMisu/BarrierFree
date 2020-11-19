@@ -15,10 +15,9 @@
         <item>스타카토</item>
         <item>심장박동</item>
         <item>심포니</item>
-        <item>약한진동</item>
         <item>일반진동</item>
-        <item>강한진동</item>
-        <item>퀵</item>
+        <item>S.O.S</item>
+        <item>사용자 진동패턴</item>
     </string-array>
 
 </resources>

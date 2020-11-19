@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -125,6 +127,14 @@ public class BottomAlert extends Fragment {
                                                         SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
                                                         String time = mFormat.format(date);
                                                         adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님께 계정연결을 신청하셨습니다.", time);
+                                                        db.collection("alert").whereEqualTo("no_sound", false).whereEqualTo("alarm",true).whereEqualTo("user_id", uid).get()
+                                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                        Log.d("메시지","알람준비완료");
+                                                                        db.collection("alert").document(user.getUid()).update("isAlert", true);
+                                                                    }
+                                                                });
                                                         Log.d("메시지", "리스트뷰 추가 완료");
                                                         adpalert.notifyDataSetChanged();
                                                     } else {
@@ -166,9 +176,14 @@ public class BottomAlert extends Fragment {
                                                         SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
                                                         String time = mFormat.format(date);
                                                         adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님이 계정연결을 신청하셨습니다.", time);
-                                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                                        Ringtone ringtone = RingtoneManager.getRingtone(getActivity().getApplicationContext(), notification);
-                                                        ringtone.play();
+                                                        db.collection("alert").whereEqualTo("no_sound", false).whereEqualTo("alarm",true).whereEqualTo("user_id", uid).get()
+                                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                        Log.d("메시지","알람준비완료");
+                                                                        db.collection("alert").document(user.getUid()).update("isAlert", true);
+                                                                    }
+                                                                });
                                                         Log.d("메시지", "리스트뷰 추가 완료");
                                                         adpalert.notifyDataSetChanged();
                                                     } else {
@@ -183,6 +198,48 @@ public class BottomAlert extends Fragment {
                         } else {
                             Log.d("메시지", "Error to nofication : ", task.getException());
                             return;
+                        }
+                    }
+                });
+
+        db.collection("alert").whereEqualTo("user_id", user.getUid()).whereEqualTo("alarm", true).whereEqualTo("no_sound",false).whereEqualTo("isAlert",true).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        for (final QueryDocumentSnapshot document : task.getResult()) {
+                            String alert = document.getString("alarm_type");
+                            Log.d("알람메세지", alert);
+                            if (alert.equals("알람1")) {
+                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm1);
+                                ringtone.start();
+                                db.collection("alert").document(user.getUid()).update("isAlert", false);
+                            } else if (alert.equals("알람2")) {
+                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm2);
+                                ringtone.start();
+                                db.collection("alert").document(user.getUid()).update("isAlert", false);
+                            } else if (alert.equals("알람3")) {
+                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm3);
+                                ringtone.start();
+                                db.collection("alert").document(user.getUid()).update("isAlert", false);
+                            } else if (alert.equals("알람4")) {
+                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm4);
+                                ringtone.start();
+                                db.collection("alert").document(user.getUid()).update("isAlert", false);
+                            } else if (alert.equals("알람5")) {
+                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm5);
+                                ringtone.start();
+                                db.collection("alert").document(user.getUid()).update("isAlert", false);
+                            } else if (alert.equals("알람6")) {
+                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm6);
+                                ringtone.start();
+                                db.collection("alert").document(user.getUid()).update("isAlert", false);
+                            } else if (alert.equals("알람7")) {
+                                MediaPlayer ringtone = MediaPlayer.create(getActivity().getApplicationContext(), R.raw.alarm7);
+                                ringtone.start();
+                                db.collection("alert").document(user.getUid()).update("isAlert", false);
+                            } else {
+                                Toast.makeText(getActivity().getApplicationContext(), "알람이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
+                            }
                         }
                     }
                 });
@@ -227,17 +284,6 @@ public class BottomAlert extends Fragment {
                                                                             } else {
                                                                                 Log.d("메세지", "안심지역을 벗어남.");
                                                                                 addIsSafty();
-                                                                                tts = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
-                                                                                    @Override
-                                                                                    public void onInit(int status) {
-                                                                                        tts.setLanguage(Locale.KOREAN);
-                                                                                        speak();
-                                                                                    }
-                                                                                    private void speak() {
-                                                                                        //tts.speak("취약자가 안심지역을 벗어났습니다.", TextToSpeech.QUEUE_FLUSH, null);
-                                                                                    }
-                                                                                });
-
                                                                             }
                                                                         }
                                                                     }

@@ -14,6 +14,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,6 +48,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -124,7 +126,7 @@ public class BottomAlert extends Fragment {
                                                         Log.d("메시지", "Member DB 연결완료 : " + document.getString("mem_name"));
                                                         long now = System.currentTimeMillis();
                                                         Date date = new Date(now);
-                                                        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
+                                                        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd a HH:mm");
                                                         String time = mFormat.format(date);
                                                         adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님께 계정연결을 신청하셨습니다.", time);
                                                         db.collection("alert").whereEqualTo("no_sound", false).whereEqualTo("alarm",true).whereEqualTo("user_id", uid).get()
@@ -137,6 +139,48 @@ public class BottomAlert extends Fragment {
                                                                 });
                                                         Log.d("메시지", "리스트뷰 추가 완료");
                                                         adpalert.notifyDataSetChanged();
+                                                        db.collection("alert").whereEqualTo("user_id", user.getUid()).whereEqualTo("vibrate", true).whereEqualTo("no_sound", false).get()
+                                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                        for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                                            db.collection("alert").document(user.getUid()).update("safeAlert", false);
+                                                                            String vibe = document.getString("vibrate_type");
+                                                                            final Vibrator vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                                                                            Log.d("알람메세지", vibe);
+                                                                            if (vibe.equals("고속반복")) {
+                                                                                long[] pattern = {400, 200, 400, 200, 400, 200, 400, 200, 400, 200};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("스타카토")) {
+                                                                                long[] pattern = {100, 200, 100, 100, 100, 100, 100, 100, 100, 100};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("심장박동")) {
+                                                                                long[] pattern = {170, 150, 100, 300, 170, 150, 100, 300, 170, 150, 100, 300};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("심포니")) {
+                                                                                long[] pattern = {300, 90, 300, 90, 300, 90, 700, 100, 300, 90, 300, 90, 300, 90, 700, 100};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("일반진동")) {
+                                                                                long[] pattern = {600, 700, 600, 700, 600, 700, 600, 700, 600, 700};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("S.O.S")) {
+                                                                                long[] pattern = {80, 150, 80, 150, 80, 200, 500, 250, 500, 250, 500, 250};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("사용자 진동패턴")) {
+                                                                                List<Long> patt = (List<Long>) document.get("user_vibe");
+                                                                                Log.d("메시지", String.valueOf(patt));
+                                                                                int i = 0;
+                                                                                long[] pattern = new long[patt.size()];
+                                                                                for(Long l : patt) {
+                                                                                    pattern[i++] = l;
+                                                                                }
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else {
+                                                                                Toast.makeText(getActivity().getApplicationContext(), "진동이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                });
                                                     } else {
                                                         Log.d("메시지", "No such document");
                                                     }
@@ -173,7 +217,7 @@ public class BottomAlert extends Fragment {
                                                         Log.d("메시지", "Member DB 연결완료 : " + document.getString("mem_name"));
                                                         long now = System.currentTimeMillis();
                                                         Date date = new Date(now);
-                                                        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
+                                                        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd a HH:mm");
                                                         String time = mFormat.format(date);
                                                         adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_bell), "연결 알림", document.getString("mem_name") + "님이 계정연결을 신청하셨습니다.", time);
                                                         db.collection("alert").whereEqualTo("no_sound", false).whereEqualTo("alarm",true).whereEqualTo("user_id", uid).get()
@@ -186,6 +230,48 @@ public class BottomAlert extends Fragment {
                                                                 });
                                                         Log.d("메시지", "리스트뷰 추가 완료");
                                                         adpalert.notifyDataSetChanged();
+                                                        db.collection("alert").whereEqualTo("user_id", user.getUid()).whereEqualTo("vibrate", true).whereEqualTo("no_sound", false).get()
+                                                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                        for (final QueryDocumentSnapshot document : task.getResult()) {
+                                                                            db.collection("alert").document(user.getUid()).update("safeAlert", false);
+                                                                            String vibe = document.getString("vibrate_type");
+                                                                            final Vibrator vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                                                                            Log.d("알람메세지", vibe);
+                                                                            if (vibe.equals("고속반복")) {
+                                                                                long[] pattern = {400, 200, 400, 200, 400, 200, 400, 200, 400, 200};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("스타카토")) {
+                                                                                long[] pattern = {100, 200, 100, 100, 100, 100, 100, 100, 100, 100};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("심장박동")) {
+                                                                                long[] pattern = {170, 150, 100, 300, 170, 150, 100, 300, 170, 150, 100, 300};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("심포니")) {
+                                                                                long[] pattern = {300, 90, 300, 90, 300, 90, 700, 100, 300, 90, 300, 90, 300, 90, 700, 100};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("일반진동")) {
+                                                                                long[] pattern = {600, 700, 600, 700, 600, 700, 600, 700, 600, 700};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("S.O.S")) {
+                                                                                long[] pattern = {80, 150, 80, 150, 80, 200, 500, 250, 500, 250, 500, 250};
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else if (vibe.equals("사용자 진동패턴")) {
+                                                                                List<Long> patt = (List<Long>) document.get("user_vibe");
+                                                                                Log.d("메시지", String.valueOf(patt));
+                                                                                int i = 0;
+                                                                                long[] pattern = new long[patt.size()];
+                                                                                for(Long l : patt) {
+                                                                                    pattern[i++] = l;
+                                                                                }
+                                                                                vibrator.vibrate(pattern, -1);
+                                                                            } else {
+                                                                                Toast.makeText(getActivity().getApplicationContext(), "진동이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                });
                                                     } else {
                                                         Log.d("메시지", "No such document");
                                                     }
@@ -375,7 +461,7 @@ public class BottomAlert extends Fragment {
                                                         Log.d("메시지", "Member DB 연결완료 : " + document.getString("mem_name"));
                                                         long now = System.currentTimeMillis();
                                                         Date date = new Date(now);
-                                                        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
+                                                        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd a HH:mm");
                                                         String time = mFormat.format(date);
                                                         adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_alert), "위험 알림", document.getString("mem_name") + "님이 안심지역을 벗어났습니다.", time);
                                                         Log.d("메시지", "리스트뷰 추가 완료");
@@ -410,8 +496,15 @@ public class BottomAlert extends Fragment {
     }
 
     public void startRecorder(){
+        int permiCheck = ContextCompat.checkSelfPermission(getContext().getApplicationContext(), Manifest.permission.RECORD_AUDIO);
+
         if (mRecorder == null)
         {
+            if(permiCheck == PackageManager.PERMISSION_DENIED){
+
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.RECORD_AUDIO}, 0);
+
+            }
             mRecorder = new MediaRecorder();
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -448,11 +541,13 @@ public class BottomAlert extends Fragment {
     public void updateTv(){
         long now = System.currentTimeMillis();
         Date date = new Date(now);
-        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd");
+        SimpleDateFormat mFormat = new SimpleDateFormat("yy-MM-dd a HH:mm");
         String time = mFormat.format(date);
-        if ((getAmplitudeEMA() / 80) > 250){
+        if ((getAmplitudeEMA() / 80) > 300){
             adpalert.add(ContextCompat.getDrawable(getActivity().getApplicationContext(), R.drawable.ic_alert), "소리 감지", "큰소리가 감지되엇습니다.", time);
             adpalert.notifyDataSetChanged();
+            final Vibrator vibrator = (Vibrator)getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+            vibrator.vibrate(500);
         }
     }
     public double soundDb(double ampl){

@@ -253,7 +253,6 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                                                                                                 Log.d("메세지", "안심지역을 벗어남.");
                                                                                                                                 db.collection("alert").document(user.getUid()).update("safeAlert", true);
                                                                                                                                 //final Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-                                                                                                                                final long[] pattern = new long[0];
                                                                                                                                 tts = new TextToSpeech(getActivity().getApplicationContext(), new TextToSpeech.OnInitListener() {
                                                                                                                                     @Override
                                                                                                                                     public void onInit(int status) {
@@ -319,7 +318,7 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                                                                                                                                 long[] pattern = {170, 150, 100, 300, 170, 150, 100, 300, 170, 150, 100, 300};
                                                                                                                                                                 vibrator.vibrate(pattern, -1);
                                                                                                                                                             } else if (vibe.equals("심포니")) {
-                                                                                                                                                                long[] pattern = {150, 90, 150, 90, 150, 90, 600, 100 ,150, 90, 150, 90, 150, 90, 600, 90};
+                                                                                                                                                                long[] pattern = {300, 90, 300, 90, 300, 90, 700, 100, 300, 90, 300, 90, 300, 90, 700, 100};
                                                                                                                                                                 vibrator.vibrate(pattern, -1);
                                                                                                                                                             } else if (vibe.equals("일반진동")) {
                                                                                                                                                                 long[] pattern = {600, 700, 600, 700, 600, 700, 600, 700, 600, 700};
@@ -328,9 +327,14 @@ public class SearchMapFragment extends Fragment implements LocationListener {
                                                                                                                                                                 long[] pattern = {80, 150, 80, 150, 80, 200, 500, 250, 500, 250, 500, 250};
                                                                                                                                                                 vibrator.vibrate(pattern, -1);
                                                                                                                                                             } else if (vibe.equals("사용자 진동패턴")) {
-//                                                                                                                                                                List<Long> pattern = Collections.singletonList(document.getLong("user_vibe"));
-//                                                                                                                                                                Log.d("메시지", String.valueOf(pattern));
-                                                                                                                                                                //vibrator.vibrate(pattern, -1);
+                                                                                                                                                                List<Long> patt = (List<Long>) document.get("user_vibe");
+                                                                                                                                                                Log.d("메시지", String.valueOf(patt));
+                                                                                                                                                                int i = 0;
+                                                                                                                                                                long[] pattern = new long[patt.size()];
+                                                                                                                                                                for(Long l : patt) {
+                                                                                                                                                                    pattern[i++] = l;
+                                                                                                                                                                }
+                                                                                                                                                                vibrator.vibrate(pattern, -1);
                                                                                                                                                             } else {
                                                                                                                                                                 Toast.makeText(getActivity().getApplicationContext(), "진동이 설정되지 않았습니다.", Toast.LENGTH_SHORT);
                                                                                                                                                             }
